@@ -1,0 +1,424 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Codex-SoL V0.1 internal runtime contracts",
+  "description": "Internal SoL contracts only. This schema does not describe a Codex host API.",
+  "$defs": {
+    "SchemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "NonEmptyString": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "OpaqueId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "Handle": {
+      "description": "Opaque store-generated path segment; never a caller-supplied filesystem path.",
+      "type": "string",
+      "minLength": 16,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9_-]+$"
+    },
+    "Sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "WorkspacePath": {
+      "description": "Normalized workspace-relative path using forward slashes; dot segments and escapes are rejected.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096,
+      "pattern": "^(?!/)(?![A-Za-z]:)(?!.*(?:^|/)\\.\\.?($|/))(?!.*//)(?!.*\\/$)[^\\\\]+$"
+    },
+    "WorkspaceGlob": {
+      "description": "Workspace-rooted glob using forward slashes; traversal and absolute patterns are rejected.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096,
+      "pattern": "^(?!/)(?![A-Za-z]:)(?!.*(?:^|/)\\.\\.?($|/))(?!.*//)(?!.*\\/$)[^\\\\]+$"
+    },
+    "Workdir": {
+      "description": "Workspace-relative command directory; dot denotes the workspace root.",
+      "oneOf": [
+        { "const": "." },
+        { "$ref": "#/$defs/WorkspacePath" }
+      ]
+    },
+    "UtcTimestamp": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+    },
+    "MediaType": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 256,
+      "pattern": "^[A-Za-z0-9!#$&^_.+-]+/[A-Za-z0-9!#$&^_.+-]+(?:\\s*;\\s*[^\\r\\n]+)?$"
+    },
+    "RawRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": { "$ref": "#/$defs/SchemaVersion" },
+        "handle": { "$ref": "#/$defs/Handle" },
+        "sha256": { "$ref": "#/$defs/Sha256" },
+        "bytes": { "type": "integer", "minimum": 0 },
+        "media_type": { "$ref": "#/$defs/MediaType" },
+        "complete": { "type": "boolean" }
+      },
+      "required": ["schema_version", "handle", "sha256", "bytes", "media_type", "complete"]
+    },
+    "ChangeEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": { "$ref": "#/$defs/SchemaVersion" },
+        "event_id": { "$ref": "#/$defs/OpaqueId" },
+        "workspace_id": { "$ref": "#/$defs/OpaqueId" },
+        "call_id": { "$ref": "#/$defs/OpaqueId" },
+        "origin": { "enum": ["agent", "validation"] },
+        "changed_paths": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/WorkspacePath" }
+        },
+        "change_digest": { "$ref": "#/$defs/Sha256" }
+      },
+      "required": ["schema_version", "event_id", "workspace_id", "call_id", "origin", "changed_paths", "change_digest"]
+    },
+    "RuleCommand": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": { "$ref": "#/$defs/NonEmptyString" },
+        "argv": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/NonEmptyString" }
+        },
+        "cwd": { "$ref": "#/$defs/Workdir" },
+        "timeout_ms": { "type": "integer", "minimum": 1, "maximum": 300000 }
+      },
+      "required": ["id", "argv", "cwd", "timeout_ms"]
+    },
+    "Rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": { "$ref": "#/$defs/SchemaVersion" },
+        "id": { "$ref": "#/$defs/NonEmptyString" },
+        "globs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/WorkspaceGlob" }
+        },
+        "watch_paths": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/WorkspaceGlob" }
+        },
+        "commands": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/RuleCommand" }
+        }
+      },
+      "required": ["schema_version", "id", "globs", "watch_paths", "commands"]
+    },
+    "RulesConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": { "$ref": "#/$defs/SchemaVersion" },
+        "rules": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Rule" }
+        }
+      },
+      "required": ["schema_version", "rules"]
+    },
+    "NativeConfig": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "schema_version": { "$ref": "#/$defs/SchemaVersion" },
+        "workspace": { "$ref": "#/$defs/NonEmptyString" },
+        "rules": { "$ref": "#/$defs/NonEmptyString" },
+        "node": { "$ref": "#/$defs/NonEmptyString" },
+        "shell": { "$ref": "#/$defs/NonEmptyString" },
+        "load_profile": { "type": "boolean" },
+        "timeout_ms": { "type": "integer", "minimum": 1, "maximum": 300000 },
+        "generated": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/WorkspaceGlob" } }
+      },
+      "required": ["schema_version", "workspace", "rules", "node", "shell", "load_profile", "timeout_ms", "generated"]
+    },
+    "NativeRequest": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "schema_version": { "$ref": "#/$defs/SchemaVersion" },
+        "config": { "$ref": "#/$defs/NonEmptyString" },
+        "call_id": { "$ref": "#/$defs/Sha256" },
+        "command": { "type": "string", "minLength": 1, "maxLength": 8000 }
+      },
+      "required": ["schema_version", "config", "call_id", "command"]
+    },
+    "CheckResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": { "$ref": "#/$defs/NonEmptyString" },
+        "status": { "enum": ["passed", "failed", "timeout", "error", "skipped"] },
+        "reason": { "$ref": "#/$defs/NonEmptyString" },
+        "exit_code": { "type": ["integer", "null"] },
+        "duration_ms": { "type": "integer", "minimum": 0 },
+        "output": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/RawRef" }
+        }
+      },
+      "required": ["id", "status", "reason", "exit_code", "duration_ms", "output"]
+    },
+    "ValidationReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": { "$ref": "#/$defs/SchemaVersion" },
+        "receipt_id": { "$ref": "#/$defs/OpaqueId" },
+        "event_id": { "$ref": "#/$defs/OpaqueId" },
+        "change_digest": { "$ref": "#/$defs/Sha256" },
+        "validation_key": { "$ref": "#/$defs/Sha256" },
+        "status": { "enum": ["passed", "failed", "timeout", "error", "skipped", "stale"] },
+        "reason": { "$ref": "#/$defs/NonEmptyString" },
+        "checks": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/CheckResult" }
+        },
+        "evidence_handle": {
+          "oneOf": [
+            { "$ref": "#/$defs/Handle" },
+            { "type": "null" }
+          ]
+        }
+      },
+      "required": ["schema_version", "receipt_id", "event_id", "change_digest", "validation_key", "status", "reason", "checks", "evidence_handle"]
+    },
+    "LockOwner": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": { "$ref": "#/$defs/SchemaVersion" },
+        "token": { "$ref": "#/$defs/OpaqueId" },
+        "pid": { "type": "integer", "minimum": 1 },
+        "acquired_at": { "type": "string", "format": "date-time" },
+        "runner": {
+          "oneOf": [
+            { "type": "object", "additionalProperties": false, "properties": { "state": { "enum": ["idle", "starting"] }, "pid": { "type": "null" } }, "required": ["state", "pid"] },
+            { "type": "object", "additionalProperties": false, "properties": { "state": { "const": "running" }, "pid": { "type": "integer", "minimum": 1 } }, "required": ["state", "pid"] }
+          ]
+        }
+      },
+      "required": ["schema_version", "token", "pid", "acquired_at", "runner"]
+    },
+    "PackMeta": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": { "$ref": "#/$defs/SchemaVersion" },
+        "call_id": { "$ref": "#/$defs/OpaqueId" },
+        "tool": { "$ref": "#/$defs/NonEmptyString" },
+        "tool_status": { "enum": ["ok", "error", "timeout", "unknown"] },
+        "upstream_complete": { "type": "boolean" }
+      },
+      "required": ["schema_version", "call_id", "tool", "tool_status", "upstream_complete"]
+    },
+    "Excerpt": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "handle": { "$ref": "#/$defs/Handle" },
+        "start_byte": { "type": "integer", "minimum": 0 },
+        "end_byte": { "type": "integer", "minimum": 0 },
+        "text": { "type": "string" }
+      },
+      "required": ["handle", "start_byte", "end_byte", "text"]
+    },
+    "ObservationPack": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": { "$ref": "#/$defs/SchemaVersion" },
+        "call_id": { "$ref": "#/$defs/OpaqueId" },
+        "tool": { "$ref": "#/$defs/NonEmptyString" },
+        "tool_status": { "enum": ["ok", "error", "timeout", "unknown"] },
+        "mode": { "enum": ["inline", "packed", "storage_error"] },
+        "raw": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/RawRef" }
+        },
+        "summary": { "type": "string", "maxLength": 4096 },
+        "excerpts": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Excerpt" }
+        },
+        "omitted_bytes": { "type": "integer", "minimum": 0 },
+        "reason": { "$ref": "#/$defs/NonEmptyString" }
+      },
+      "required": ["schema_version", "call_id", "tool", "tool_status", "mode", "raw", "summary", "excerpts", "omitted_bytes", "reason"]
+    },
+    "CaptureMeta": {
+      "description": "Caller-supplied capture context. RawRef carries finalized byte count, digest, and completeness.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": { "$ref": "#/$defs/SchemaVersion" },
+        "workspace_id": { "$ref": "#/$defs/OpaqueId" },
+        "call_id": { "$ref": "#/$defs/OpaqueId" },
+        "tool": { "$ref": "#/$defs/NonEmptyString" },
+        "captured_at": { "$ref": "#/$defs/UtcTimestamp" },
+        "media_type": { "$ref": "#/$defs/MediaType" },
+        "encoding": { "oneOf": [{ "$ref": "#/$defs/NonEmptyString" }, { "type": "null" }] },
+        "source_form": { "enum": ["stream_bytes", "response_json"] },
+        "channel": { "enum": ["stdout", "stderr", "response"] }
+      },
+      "required": ["schema_version", "workspace_id", "call_id", "tool", "captured_at", "media_type", "encoding", "source_form", "channel"]
+    },
+    "CaptureRecord": {
+      "description": "Persisted capture record; meta holds provenance and raw holds the finalized immutable reference.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": { "$ref": "#/$defs/SchemaVersion" },
+        "meta": { "$ref": "#/$defs/CaptureMeta" },
+        "raw": { "$ref": "#/$defs/RawRef" }
+      },
+      "required": ["schema_version", "meta", "raw"]
+    },
+    "LinesSelector": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "const": "lines" },
+        "start": { "type": "integer", "minimum": 1 },
+        "end": { "type": "integer", "minimum": 1 }
+      },
+      "required": ["kind", "start", "end"]
+    },
+    "KeywordSelector": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "const": "keyword" },
+        "literal": { "$ref": "#/$defs/NonEmptyString" },
+        "context_lines": { "type": "integer", "minimum": 0, "maximum": 10, "default": 2 }
+      },
+      "required": ["kind", "literal"]
+    },
+    "BytesSelector": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "const": "bytes" },
+        "start": { "type": "integer", "minimum": 0 },
+        "end": { "type": "integer", "minimum": 0 }
+      },
+      "required": ["kind", "start", "end"]
+    },
+    "RecallSelector": {
+      "oneOf": [
+        { "$ref": "#/$defs/LinesSelector" },
+        { "$ref": "#/$defs/KeywordSelector" },
+        { "$ref": "#/$defs/BytesSelector" }
+      ]
+    },
+    "RecallRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": { "$ref": "#/$defs/SchemaVersion" },
+        "handle": { "$ref": "#/$defs/Handle" },
+        "selector": { "$ref": "#/$defs/RecallSelector" },
+        "cursor": { "$ref": "#/$defs/NonEmptyString" }
+      },
+      "required": ["schema_version", "handle", "selector"]
+    },
+    "TextRecallChunk": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "start_byte": { "type": "integer", "minimum": 0 },
+        "end_byte": { "type": "integer", "minimum": 0 },
+        "start_line": { "type": "integer", "minimum": 1 },
+        "end_line": { "type": "integer", "minimum": 1 },
+        "text": { "type": "string" }
+      },
+      "required": ["start_byte", "end_byte", "text"]
+    },
+    "Base64RecallChunk": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "start_byte": { "type": "integer", "minimum": 0 },
+        "end_byte": { "type": "integer", "minimum": 0 },
+        "base64": { "type": "string", "contentEncoding": "base64" }
+      },
+      "required": ["start_byte", "end_byte", "base64"]
+    },
+    "RecallChunk": {
+      "oneOf": [
+        { "$ref": "#/$defs/TextRecallChunk" },
+        { "$ref": "#/$defs/Base64RecallChunk" }
+      ]
+    },
+    "RecallResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": { "$ref": "#/$defs/SchemaVersion" },
+        "handle": { "$ref": "#/$defs/Handle" },
+        "sha256": { "$ref": "#/$defs/Sha256" },
+        "chunks": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/RecallChunk" }
+        },
+        "truncated": { "type": "boolean" },
+        "next_cursor": { "oneOf": [{ "$ref": "#/$defs/NonEmptyString" }, { "type": "null" }] }
+      },
+      "required": ["schema_version", "handle", "sha256", "chunks", "truncated", "next_cursor"],
+      "allOf": [
+        {
+          "if": { "properties": { "truncated": { "const": false } }, "required": ["truncated"] },
+          "then": { "properties": { "next_cursor": { "type": "null" } } }
+        },
+        {
+          "if": { "properties": { "truncated": { "const": true } }, "required": ["truncated"] },
+          "then": { "properties": { "next_cursor": { "$ref": "#/$defs/NonEmptyString" } } }
+        }
+      ]
+    },
+    "RecallError": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": { "$ref": "#/$defs/SchemaVersion" },
+        "code": { "enum": ["NOT_FOUND", "INVALID_RANGE", "INVALID_CURSOR", "UNSUPPORTED_ENCODING", "CORRUPT", "IO_ERROR"] },
+        "message": { "$ref": "#/$defs/NonEmptyString" },
+        "retryable": { "type": "boolean" }
+      },
+      "required": ["schema_version", "code", "message", "retryable"],
+      "allOf": [
+        {
+          "if": { "properties": { "code": { "const": "IO_ERROR" } }, "required": ["code"] },
+          "then": { "properties": { "retryable": { "type": "boolean" } } },
+          "else": { "properties": { "retryable": { "const": false } } }
+        }
+      ]
+    }
+  }
+}

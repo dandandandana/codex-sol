@@ -1,0 +1,267 @@
+{
+  "fixture_id": "T3-CLI-02",
+  "recorded_date": "2026-09-30",
+  "host": {
+    "platform": "Windows",
+    "codex_cli_version": "0.158.0",
+    "model": "gpt-6-luna"
+  },
+  "sources": {
+    "event_log_directory": "D:/zzd/slop/codex-sol-host-runs",
+    "event_logs": [
+      "failure-shell-01.events.jsonl",
+      "native-02.events.jsonl",
+      "abnormal-03.events.jsonl",
+      "recall-04.events.jsonl"
+    ],
+    "transcripts": [
+      "failure-shell-01.last.txt",
+      "native-02.last.txt",
+      "abnormal-03.last.txt",
+      "recall-04.last.txt"
+    ],
+    "workspace": "D:/zzd/slop/codex-sol-windows-acceptance",
+    "archive_root": ".codex/sol",
+    "local_ignored_evidence": true,
+    "runtime_dependency": false
+  },
+  "hook_trust": {
+    "mode": "single_invocation_bypass_flag",
+    "flag": "--dangerously-bypass-hook-trust",
+    "observed_in_each_run": true,
+    "normal_project_hook_review_verified": false,
+    "scope": "These CLI runs show the hook behavior for these invocations only; they do not verify the normal project trust and review flow."
+  },
+  "runs": [
+    {
+      "id": "failure-shell-01",
+      "event_items": [
+        { "id": "item_2", "type": "command_execution", "status": "failed", "exit_code": 1 },
+        { "id": "item_3", "type": "agent_message" }
+      ],
+      "managed_result": {
+        "source": "item_2 aggregated_output",
+        "tool_status": "error",
+        "execution": { "status": "failed", "reason": "nonzero_exit", "exit_code": 7, "duration_ms": 767 },
+        "validation": null,
+        "changed_paths": []
+      },
+      "raw_observations": [
+        {
+          "stream": "stdout",
+          "handle": "PjzGzxCX_aIe2GvrP4w6yg1AaPGGbB6v",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca4a495991b7852b855",
+          "complete": true,
+          "excerpt": ""
+        },
+        {
+          "stream": "stderr",
+          "handle": "YIEdvOlK7sw3s9dTJCcuKK7rQiWtiXfo",
+          "bytes": 20,
+          "sha256": "a284c062dd8e656e1f9884ff0fbfffb5805463d4073c45392497bfaceebf3d7c",
+          "complete": true,
+          "excerpt": "SHELL_HOST_FAILURE\r\n"
+        }
+      ],
+      "post_tool_feedback": {
+        "transcript_reports_result_returned": true,
+        "serialized_as_separate_event_item": false,
+        "note": "The managed failure envelope is in command_execution aggregated_output; the transcript reports PostToolUse feedback."
+      }
+    },
+    {
+      "id": "native-02",
+      "event_items": [
+        { "id": "item_2", "type": "agent_message", "topic": "native apply_patch routing" },
+        { "id": "item_3", "type": "command_execution", "status": "completed", "exit_code": 0 },
+        { "id": "item_4", "type": "mcp_tool_call", "tool": "sol_recall", "status": "completed" },
+        { "id": "item_6", "type": "mcp_tool_call", "tool": "sol_apply_patch", "status": "completed" }
+      ],
+      "native_patch_route": {
+        "result": "PreToolUse denied ordinary apply_patch and directed the same patch to sol_apply_patch.",
+        "source": "item_2 agent_message and native-02.last.txt",
+        "standalone_tool_event": false
+      },
+      "shell_observation": {
+        "mode": "packed",
+        "raw_ref": {
+          "handle": "KT5PhkRo14Kwa9XYfNDg3DdCZGmtNBHB",
+          "bytes": 143118,
+          "sha256": "2c95c6b6840c60e200f45c77d114acd03abbfeccab3a2a149901ad7290aad86d",
+          "complete": true
+        },
+        "recall": {
+          "event_item": "item_4",
+          "selector": { "kind": "keyword", "value": "ANCHOR=codex-sol-windows-acceptance" },
+          "start_line": 255,
+          "end_line": 259,
+          "truncated": false,
+          "next_cursor": null,
+          "excerpt": "ANCHOR=codex-sol-windows-acceptance"
+        },
+        "workspace_file": {
+          "path": "trace.txt",
+          "bytes": 143116,
+          "sha256": "a22769444b51c62b666bc53c0e57a91f4bba91b3dbdf15e6e2c4e31f1d00e70b"
+        },
+        "comparison_note": "Captured stdout is 2 bytes longer than trace.txt and has a different SHA-256; PowerShell Get-Content -Raw added trailing CRLF to the captured stream. The stream hash is not the file hash."
+      },
+      "sol_apply_patch_result": {
+        "event_item": "item_6",
+        "tool_status": "ok",
+        "execution": { "status": "passed", "exit_code": 0, "duration_ms": 84 },
+        "changed_paths": ["cli_native_02.py"],
+        "validation": {
+          "event_id": "a0dad695-5a0d-4d50-9757-9b342307bd66",
+          "status": "passed",
+          "reason": "all_checks_passed",
+          "executed": 1,
+          "skipped": 0,
+          "receipt_handle": "ZeHhGFsti_OXmp2U7Q8sOqLo6-tHcCio"
+        },
+        "change_event_raw": {
+          "handle": "hJzVoBH9wCpdBqNxFYorc0-nKJIZLbVv",
+          "bytes": 338,
+          "sha256": "e4bc3eda35ee4c084e7ab09ca3da014290abd6ed64525f22a513a9270cfdc607",
+          "complete": true
+        },
+        "stdout": {
+          "handle": "_RL3Ld7a_IviZCwk_c1he5EawYNFCKh_",
+          "bytes": 57,
+          "sha256": "9763e68bb7548857c9b741365663486ff17a2c6b94e592fb99c64d745011b43e",
+          "complete": true,
+          "excerpt": "Success. Updated the following files:\nA cli_native_02.py\n"
+        }
+      }
+    },
+    {
+      "id": "abnormal-03",
+      "event_items": [
+        { "id": "item_4", "type": "mcp_tool_call", "tool": "sol_apply_patch", "status": "completed", "validation_status": "failed" },
+        { "id": "item_5", "type": "mcp_tool_call", "tool": "sol_recall", "status": "failed", "error": "INVALID_RANGE" },
+        { "id": "item_7", "type": "mcp_tool_call", "tool": "sol_apply_patch", "status": "completed", "validation_status": "timeout" },
+        { "id": "item_8", "type": "mcp_tool_call", "tool": "sol_recall", "status": "failed", "error": "INVALID_RANGE" },
+        { "id": "item_9", "type": "command_execution", "status": "completed", "exit_code": 0 }
+      ],
+      "validation_failure": {
+        "event_id": "01eba40c-4fe0-40a8-8934-ddf218318a62",
+        "status": "failed",
+        "reason": "nonzero_exit",
+        "check_exit_code": 7,
+        "changed_path": "cli_failure_03.py",
+        "change_event_raw": {
+          "handle": "R5tvy3P2BWnWDOEugDvJqD_XX7d67F_g",
+          "bytes": 339,
+          "sha256": "548ae843b8aa781cf3b342b21e907a2d680b3a45c14f9f8c77ccb4701cef0258",
+          "complete": true
+        },
+        "receipt": {
+          "handle": "Pm2FQyHy8h7s5CTYmYAQ_wfPydztyadJ",
+          "bytes": 935,
+          "sha256": "a42ed35651fafa483415857ea9d25f210c78724c42920ab42f7edd9a6504735c",
+          "complete": true
+        },
+        "stdout": {
+          "handle": "vjlaHMyeT1gERTwTHyib_soLKoz_peJf",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca4a495991b7852b855",
+          "complete": true,
+          "excerpt": ""
+        },
+        "stderr": {
+          "handle": "z3G3BAn1PydmXXkv_TJsZfW4qi9Fm-Zl",
+          "bytes": 32,
+          "sha256": "830999cc576cccf1dac4f8f04ef97344a0a22c087c9ffc9f0760a97c754068d0",
+          "complete": true,
+          "excerpt": "TEST_EXPECTED_FAILURE mode=fail\n"
+        }
+      },
+      "validation_timeout": {
+        "event_id": "5053e146-4d6b-4138-be3a-239d4d222acc",
+        "status": "timeout",
+        "reason": "timeout",
+        "check_exit_code": 1,
+        "duration_ms": 2791,
+        "changed_path": "cli_timeout_03.py",
+        "change_event_raw": {
+          "handle": "8TAqRT2JHOqqvok1t-rMlouv5j5rxn4u",
+          "bytes": 339,
+          "sha256": "423881bf303d8eb5cfb81f23b5cf51a28e6b25c11d3acad1b671eab2c0762369",
+          "complete": true
+        },
+        "receipt": {
+          "handle": "9yuylRFXm3ssu_ycLRCp0wpz6JQkb6-_",
+          "bytes": 931,
+          "sha256": "804e64d2d1b93df79e6b44c076e41961f164a0269bed02ad476e48227201be78",
+          "complete": true
+        },
+        "stdout": {
+          "handle": "Td55ms0P0fc7x0bqIx0vbUODHJ7c5oIO",
+          "bytes": 47,
+          "sha256": "76b8a2c107eb4e05120ee4af0533aa91c755793bdb5492f79f0be917d7282ca9",
+          "complete": false,
+          "excerpt": "TEST_MODE=timeout waiting_for_engine pid=52152\n"
+        },
+        "stderr": {
+          "handle": "hp5KppcTZOoExeuEFJQQimxXMvdQH-uY",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca4a495991b7852b855",
+          "complete": false,
+          "excerpt": ""
+        }
+      },
+      "recall_prompt_error": {
+        "code": "INVALID_RANGE",
+        "reason": "The initial lines 1..10 selector exceeded the single-line observation; this was a test selector error, so product range validation was not relaxed.",
+        "corrected_in_run": "recall-04"
+      },
+      "runner_stop_check": {
+        "event_item": "item_9",
+        "status": "completed",
+        "stdout": {
+          "handle": "ZUKOnhcInziwCsDZK4OYuk0LaERjAW03",
+          "bytes": 16,
+          "sha256": "9291107eda683167ffa26ff768f9835d3977bb433ed808eadc31ceb50bdac5e6",
+          "complete": true,
+          "excerpt": "RUNNER_STOPPED\r\n"
+        }
+      }
+    },
+    {
+      "id": "recall-04",
+      "event_items": [
+        { "id": "item_3", "type": "mcp_tool_call", "tool": "sol_recall", "status": "completed" },
+        { "id": "item_4", "type": "mcp_tool_call", "tool": "sol_recall", "status": "completed" }
+      ],
+      "corrected_keyword_recalls": [
+        {
+          "event_item": "item_3",
+          "source_handle": "z3G3BAn1PydmXXkv_TJsZfW4qi9Fm-Zl",
+          "selector": { "kind": "keyword", "value": "TEST_EXPECTED_FAILURE" },
+          "bytes": 32,
+          "sha256": "830999cc576cccf1dac4f8f04ef97344a0a22c087c9ffc9f0760a97c754068d0",
+          "truncated": false,
+          "excerpt": "TEST_EXPECTED_FAILURE mode=fail\n"
+        },
+        {
+          "event_item": "item_4",
+          "source_handle": "Td55ms0P0fc7x0bqIx0vbUODHJ7c5oIO",
+          "selector": { "kind": "keyword", "value": "TEST_MODE=timeout" },
+          "bytes": 47,
+          "sha256": "76b8a2c107eb4e05120ee4af0533aa91c755793bdb5492f79f0be917d7282ca9",
+          "truncated": false,
+          "source_complete": false,
+          "excerpt": "TEST_MODE=timeout waiting_for_engine pid=52152\n"
+        }
+      ]
+    }
+  ],
+  "cleanup": {
+    "workspace_retained": true,
+    "reason": "The parent task is reusing this workspace for separate TUI acceptance.",
+    "cleanup_performed": false,
+    "native_running_marker_count": 0,
+    "local_event_logs_and_archive_are_ignored_evidence": true
+  }
+}

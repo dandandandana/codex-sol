@@ -1,0 +1,419 @@
+{
+  "schema_version": 1,
+  "evidence_kind": "actual_windows_codex_tui_acceptance",
+  "recorded_date": "2026-09-30",
+  "host": {
+    "product": "Codex CLI TUI",
+    "version": "0.158.0",
+    "model": "gpt-6-luna",
+    "TERM": "xterm-256color",
+    "no_daemon": true,
+    "hooks_enabled": true,
+    "sandbox_mode": "danger-full-access",
+    "approval_policy": "never",
+    "hook_trust_bypass": false
+  },
+  "project": {
+    "path": "D:/zzd/slop/codex-sol-windows-acceptance",
+    "git_root": "D:/zzd/slop/codex-sol-windows-acceptance",
+    "hooks_file_sha256": "73f077951f6f8adf07182a8dd8f50e3893b8cc826ca8bb0d6d285e2e1cc465bc",
+    "rules_restored_sha256": "ada6916a5d8319f3f96271bb68cfc87f823cef94bd88f2b5556e9a0f53861633",
+    "final_mode": "pass"
+  },
+  "local_artifacts": {
+    "directory": "D:/zzd/slop/codex-sol-host-runs/tui-acceptance",
+    "retained": true,
+    "pty_capture_note": "Captured tool-return text includes ANSI and may include tool output truncation; committed receipts and wire metadata supply exact machine-readable evidence.",
+    "raw_store_retained": true
+  },
+  "trust": {
+    "source": "interactive /hooks screen and key input",
+    "observed_before": {
+      "PreToolUse": {
+        "installed": 1,
+        "active": 0,
+        "review": 1
+      },
+      "PostToolUse": {
+        "installed": 1,
+        "active": 0,
+        "review": 1
+      },
+      "SessionStart": {
+        "installed": 1,
+        "active": 0,
+        "review": 1
+      }
+    },
+    "reviewed": {
+      "event": "PreToolUse",
+      "matcher": "^(Bash|apply_patch|Edit|Write)$",
+      "source": "project .codex/hooks.json",
+      "command": "node \"D:/zzd/codex-sol/src/native-hook.mjs\" --config \"D:/zzd/slop/codex-sol-windows-acceptance/.codex/sol-native.json\"",
+      "timeout_seconds": 30
+    },
+    "actions": [
+      "Trust reviewed PreToolUse via t",
+      "Trust remaining two hooks with same reviewed command via /hooks overview t"
+    ],
+    "observed_after": {
+      "PreToolUse": {
+        "installed": 1,
+        "active": 1
+      },
+      "PostToolUse": {
+        "installed": 1,
+        "active": 1
+      },
+      "SessionStart": {
+        "installed": 1,
+        "active": 1
+      }
+    },
+    "scope_note": "Hooks have their own trust and permissionDecision=allow semantics. No restricted sandbox or ask approval flow was tested."
+  },
+  "cases": [
+    {
+      "id": "T3-TUI-01",
+      "name": "trusted ordinary Shell",
+      "status": "passed",
+      "thread_id": "01a0f199-4230-7360-a6fd-8bc00f1e2451",
+      "command": "Write-Output 'TUI_HOOK_CHECK_01'",
+      "result": {
+        "tool_status": "ok",
+        "execution": {
+          "status": "passed",
+          "reason": "success",
+          "exit_code": 0,
+          "duration_ms": 881
+        },
+        "changed_paths": [],
+        "validation": null,
+        "observation": {
+          "schema_version": 1,
+          "call_id": "61a68d827c9f59136914ef7f81b3015278f5ff3d30379a8a8bf704da3e1696d4",
+          "tool": "Bash",
+          "tool_status": "ok",
+          "mode": "inline",
+          "raw": [
+            {
+              "schema_version": 1,
+              "handle": "0_UD70GtzZI_0d3CVrZxiIq5qWQKCZDh",
+              "sha256": "f7360659f49d845165020fcaf2c228605bf4fea3f02a0d5453c3e0665464f884",
+              "bytes": 19,
+              "media_type": "text/plain; charset=utf-8",
+              "complete": true
+            },
+            {
+              "schema_version": 1,
+              "handle": "h27ijds2VCqnjPv1LfqEiT_8TAMbsoef",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "bytes": 0,
+              "media_type": "text/plain; charset=utf-8",
+              "complete": true
+            }
+          ],
+          "summary": "tool_status=ok; upstream_complete=true; mode=inline; raw_bytes=19; raw_complete=true; omitted_bytes=0",
+          "excerpts": [
+            {
+              "handle": "0_UD70GtzZI_0d3CVrZxiIq5qWQKCZDh",
+              "start_byte": 0,
+              "end_byte": 19,
+              "text": "TUI_HOOK_CHECK_01\r\n"
+            }
+          ],
+          "omitted_bytes": 0,
+          "reason": "inline_preview"
+        },
+        "changed_paths_known": true,
+        "changed_path_count": 0,
+        "changed_paths_omitted": 0
+      },
+      "validation_note": "No changed file, so no receipt."
+    },
+    {
+      "id": "T3-TUI-02A",
+      "name": "Esc stop without proxy",
+      "status": "failed_stop_acceptance",
+      "thread_id": "01a0f19c-2379-7822-bf47-698b6340e87d",
+      "file": "tui_cancel_01.py",
+      "runner_pid": 5968,
+      "started_at": "2026-09-30T09:19:34.063Z",
+      "esc_send_completed_at": "2026-09-30T09:19:45.745Z",
+      "ui_feedback": "Error: interrupted; Conversation interrupted",
+      "result": {
+        "schema_version": 1,
+        "receipt_id": "63be2c33-6a7e-4774-b60f-f5fe209d07b6",
+        "event_id": "bc592666-44fd-4659-814d-57ebf5456dc2",
+        "change_digest": "87320be84535d72f303ac388d5f9949a5067081a1159318631b53208a76c29d7",
+        "validation_key": "a649b456c1632d837025bf55f46fb9716a1919718c83dc99ce225f6984adeebc",
+        "status": "timeout",
+        "reason": "timeout",
+        "checks": [
+          {
+            "id": "windows_acceptance/mode_check",
+            "status": "timeout",
+            "reason": "timeout",
+            "exit_code": 1,
+            "duration_ms": 30307,
+            "output": [
+              {
+                "schema_version": 1,
+                "handle": "wCFHbwFZH0Tqjf5Id_U9S6d2EkoN0rV0",
+                "sha256": "bed0aad4fe6daaf45a23f885b2025ec9ef763517e94fe5fdbcb11c8267e80a40",
+                "bytes": 44,
+                "media_type": "text/plain; charset=utf-8",
+                "complete": false
+              },
+              {
+                "schema_version": 1,
+                "handle": "veItFt8K3_-W3cX2GYMskxgJUAM4_yuh",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "bytes": 0,
+                "media_type": "text/plain; charset=utf-8",
+                "complete": false
+              }
+            ]
+          }
+        ],
+        "evidence_handle": "zD4vvr1LvU7ptinTwx3a1mBFY4OfJuiU"
+      },
+      "observation": "Runner remained alive after Esc and only exited at the configured 30-second timeout."
+    },
+    {
+      "id": "T3-TUI-02B",
+      "name": "Esc stop with transparent stdio wire capture",
+      "status": "failed_stop_acceptance",
+      "thread_id": "01a0f1a4-8aaf-7c71-a308-2c08c2fca8e5",
+      "file": "tui_cancel_02.py",
+      "runner_pid": 50012,
+      "started_at": "2026-09-30T09:30:26.755Z",
+      "esc_send_started_at": "2026-09-30T09:30:26.892Z",
+      "ui_feedback": "Error: interrupted; Conversation interrupted",
+      "wire_request_id": 2,
+      "cancel_notification_count": 0,
+      "wire_metadata": [
+        {
+          "time": "2026-09-30T09:28:08.09Z",
+          "direction": "inbound",
+          "method": "initialize",
+          "id": 0
+        },
+        {
+          "time": "2026-09-30T09:28:08.485Z",
+          "direction": "outbound",
+          "id": 0
+        },
+        {
+          "time": "2026-09-30T09:28:08.485Z",
+          "direction": "inbound",
+          "method": "notifications/initialized"
+        },
+        {
+          "time": "2026-09-30T09:28:08.485Z",
+          "direction": "inbound",
+          "method": "tools/list",
+          "id": 1
+        },
+        {
+          "time": "2026-09-30T09:28:08.488Z",
+          "direction": "outbound",
+          "id": 1
+        },
+        {
+          "time": "2026-09-30T09:30:26.567Z",
+          "direction": "inbound",
+          "method": "tools/call",
+          "id": 2,
+          "tool": "sol_apply_patch"
+        },
+        {
+          "time": "2026-09-30T09:30:57.001Z",
+          "direction": "outbound",
+          "id": 2
+        }
+      ],
+      "runner_after_esc": {
+        "captured_at": "2026-09-30T09:30:46.9902067Z",
+        "runner_alive": true,
+        "cancellation_count": 0,
+        "file_present": true
+      },
+      "result": {
+        "schema_version": 1,
+        "receipt_id": "9ea39067-8369-436e-b40d-ac2f48e91e9a",
+        "event_id": "7911482e-1340-4b6d-8379-42cbdfa169b7",
+        "change_digest": "91b9f66566b0a2264a569b24a03232abe0b782f87cb54568188ca341b2d8d83b",
+        "validation_key": "5ff0edb1610a6eca7ecba16254ffe0974cc886c7fec7027c77492f3c8c6f8a7c",
+        "status": "timeout",
+        "reason": "timeout",
+        "checks": [
+          {
+            "id": "windows_acceptance/mode_check",
+            "status": "timeout",
+            "reason": "timeout",
+            "exit_code": 1,
+            "duration_ms": 30273,
+            "output": [
+              {
+                "schema_version": 1,
+                "handle": "WH3x3juHyX_-KlrWycUhMOv2lumEz3SZ",
+                "sha256": "f87081d44f2780b9dc1a21acd0394fd2aaaf62bbf964d3d65959900eed7db9b5",
+                "bytes": 45,
+                "media_type": "text/plain; charset=utf-8",
+                "complete": false
+              },
+              {
+                "schema_version": 1,
+                "handle": "ClvVp1BfqADwuTY6wp7CUCr2Dx1vVDj9",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "bytes": 0,
+                "media_type": "text/plain; charset=utf-8",
+                "complete": false
+              }
+            ]
+          }
+        ],
+        "evidence_handle": "sQHSsmuxEeJvQT-x4SFYQyHCwlaT2MGM"
+      },
+      "conclusion": "In this local CLI 0.158.0 session, Esc did not send an MCP cancellation notification. SDK request cancellation could not activate. The check timed out rather than producing error/interrupted; this is not a passing stop test."
+    },
+    {
+      "id": "T3-TUI-03",
+      "name": "fresh TUI after timed-out run",
+      "status": "passed",
+      "thread_id": "01a0f1a8-c672-76c0-960c-19b20b3076fe",
+      "native_patch": {
+        "operation": "Add tui_recovered_01.py",
+        "result": "Blocked by hook",
+        "reason": "Use codex_sol.sol_apply_patch with the same context patch to receive a Validation Receipt. Native apply_patch cannot be switched to another tool by a Hook."
+      },
+      "mcp_patch": {
+        "tool": "sol_apply_patch",
+        "file": "tui_recovered_01.py",
+        "result": {
+          "schema_version": 1,
+          "receipt_id": "0a56b6b6-b1e6-4992-9ce3-8c392712b5ab",
+          "event_id": "d3cf5a03-a763-4716-92dc-b4169b552a38",
+          "change_digest": "c32860ff474dbaf1db6274d9959d65f53a19d1b7a27898b7d580689a59f90a88",
+          "validation_key": "f5c8279be732b6e0db291ec2665585a37730df1fe80b2ed96b80215796677b1e",
+          "status": "passed",
+          "reason": "all_checks_passed",
+          "checks": [
+            {
+              "id": "windows_acceptance/mode_check",
+              "status": "passed",
+              "reason": "success",
+              "exit_code": 0,
+              "duration_ms": 89,
+              "output": [
+                {
+                  "schema_version": 1,
+                  "handle": "v0iLNaDwyqVySeoUFOmOQgFWOmUk-aAk",
+                  "sha256": "3fab4900357326a005468e799f90b6debc3279e5e3a5edcb5dbf25a27186a30c",
+                  "bytes": 25,
+                  "media_type": "text/plain; charset=utf-8",
+                  "complete": true
+                },
+                {
+                  "schema_version": 1,
+                  "handle": "IC08J_SOoliyquLapxe5CwpDWWpNu2n0",
+                  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                  "bytes": 0,
+                  "media_type": "text/plain; charset=utf-8",
+                  "complete": true
+                }
+              ]
+            }
+          ],
+          "evidence_handle": "IbcOFhoaM4CCicZ-2DwI8gq-RY9uF_H0"
+        }
+      },
+      "partial_output_recall": {
+        "tool": "sol_recall",
+        "handle": "WH3x3juHyX_-KlrWycUhMOv2lumEz3SZ",
+        "selector": {
+          "kind": "keyword",
+          "literal": "TEST_MODE=wait",
+          "context_lines": 0
+        },
+        "source_complete": false,
+        "text": "TEST_MODE=wait waiting_for_release pid=50012\n",
+        "source_sha256": "f87081d44f2780b9dc1a21acd0394fd2aaaf62bbf964d3d65959900eed7db9b5",
+        "reported_by_model": true
+      },
+      "shell_failure": {
+        "command": "[Console]::Error.WriteLine('TUI_RECOVERY_SHELL_FAILURE'); exit 7",
+        "model_received_post_hook_block": true,
+        "result": {
+          "tool_status": "error",
+          "execution": {
+            "status": "failed",
+            "reason": "nonzero_exit",
+            "exit_code": 7,
+            "duration_ms": 803
+          },
+          "changed_paths": [],
+          "validation": null,
+          "observation": {
+            "schema_version": 1,
+            "call_id": "59ec4e5ff6fa082a9ccdea0cbbbc261fffd762470afed4665c8d307239e06ae9",
+            "tool": "Bash",
+            "tool_status": "error",
+            "mode": "inline",
+            "raw": [
+              {
+                "schema_version": 1,
+                "handle": "VLILbr3COj0_XjC3BPd9_cwM60xNldRh",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "bytes": 0,
+                "media_type": "text/plain; charset=utf-8",
+                "complete": true
+              },
+              {
+                "schema_version": 1,
+                "handle": "0PAA2F2LU1GcQixoHzMot3rL54TOWNov",
+                "sha256": "76f212233eab7f1127771727aae9448532de9e4e19fad4e234f5ff8c13c3da15",
+                "bytes": 28,
+                "media_type": "text/plain; charset=utf-8",
+                "complete": true
+              }
+            ],
+            "summary": "tool_status=error; upstream_complete=true; mode=inline; raw_bytes=28; raw_complete=true; omitted_bytes=0",
+            "excerpts": [
+              {
+                "handle": "0PAA2F2LU1GcQixoHzMot3rL54TOWNov",
+                "start_byte": 0,
+                "end_byte": 28,
+                "text": "TUI_RECOVERY_SHELL_FAILURE\r\n"
+              }
+            ],
+            "omitted_bytes": 0,
+            "reason": "upstream_error"
+          },
+          "changed_paths_known": true,
+          "changed_path_count": 0,
+          "changed_paths_omitted": 0
+        }
+      },
+      "post_run": {
+        "receipts_before": 7,
+        "receipts_after": 8,
+        "old_cancel_01_unchanged": true,
+        "old_cancel_02_unchanged": true,
+        "old_timeout_receipt_unchanged": true,
+        "old_runner_5968_alive": false,
+        "old_runner_50012_alive": false,
+        "lock_owner_present": false
+      },
+      "scope_note": "Graceful test TUI quit/restart after timeout completed; not proof of a hard crash during active validation."
+    }
+  ],
+  "limits": [
+    "Desktop native Hook smoke still returns ordinary text; Desktop acceptance is incomplete.",
+    "Immediate TUI Esc cancellation failed on this host version.",
+    "Linux deferred.",
+    "Restricted sandbox and ask approval mode not tested.",
+    "Test TUI sessions were closed; the primary Desktop app was kept running."
+  ]
+}

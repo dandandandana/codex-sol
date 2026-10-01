@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "host": "Codex CLI",
+  "codex_cli_version": "0.158.0",
+  "date_utc": "2026-09-29",
+  "probe": "isolated project hook",
+  "success_case": {
+    "tool_name": "apply_patch",
+    "has_changed_paths": false,
+    "tool_response": "Exit code: 0\nWall time: 3.5 seconds\nOutput:\nSuccess. Updated the following files:\nA demo.txt\n",
+    "marker_visible_to_next_model": true
+  },
+  "partial_failure_case": {
+    "tool_name": "Bash",
+    "has_changed_paths": false,
+    "tool_response": "",
+    "exit_code": 7,
+    "file_exists": true,
+    "marker_visible_to_next_model": true
+  }
+}

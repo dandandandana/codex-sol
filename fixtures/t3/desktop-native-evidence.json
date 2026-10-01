@@ -1,0 +1,787 @@
+{
+  "schema_version": 1,
+  "evidence_kind": "desktop_native_acceptance",
+  "recorded_date": "2026-09-30",
+  "evidence_collection": "complete",
+  "acceptance_status": "partial",
+  "host": {
+    "platform": "Windows",
+    "product": "OpenAI.Codex Desktop",
+    "desktop_package_version": "26.928.1915.0",
+    "desktop_host_version": "0.159.0",
+    "native_patch_executable_version": "0.158.0",
+    "model": "gpt-6-luna",
+    "reasoning_effort": "high",
+    "access_profile": "Full Access",
+    "main_desktop_session_remained_open": true,
+    "desktop_restarted": false
+  },
+  "project": {
+    "path": "D:/zzd/slop/codex-sol-windows-acceptance",
+    "git_root": true,
+    "features_cli": {
+      "feature": "hooks",
+      "stage": "stable",
+      "enabled": true,
+      "reported_line": "hooks stable true"
+    },
+    "project_hooks_ui": {
+      "PreToolUse": "enabled",
+      "PostToolUse": "enabled",
+      "SessionStart": "enabled",
+      "expanded_and_inspected": true
+    },
+    "conversation_hooks_display": "No commands shown; this is not treated as a Desktop hook audit."
+  },
+  "trust": {
+    "project_trust_clicked": true,
+    "prior_tui_same_hook_hash_reviewed_without_bypass": true,
+    "desktop_per_hook_trust_approval_independently_established": false,
+    "scope_note": "Desktop GUI evidence shows project trust and enabled hook settings. Per-hook Desktop trust approval is not claimed."
+  },
+  "local_artifacts": {
+    "directory": "D:/zzd/slop/codex-sol-host-runs/desktop-acceptance",
+    "retained": [
+      "desktop_normal_ui",
+      "desktop_hooks_ui",
+      "desktop_normal_thread",
+      "desktop_normal_rollout",
+      "first_stop_started",
+      "first_stop_action",
+      "first_stop_protocol",
+      "first_stop_receipt",
+      "valid_stop_action",
+      "valid_stop_immediate",
+      "valid_stop_final",
+      "valid_stop_thread",
+      "valid_stop_ui",
+      "valid_stop_protocol",
+      "valid_stop_rollout",
+      "recovery_thread",
+      "recovery_rollout",
+      "recovery_ui",
+      "recovery_final",
+      "valid_stop_receipt_envelope",
+      "prior_tui_evidence",
+      "project_config_snapshot",
+      "pretest_rules_snapshot",
+      "pretest_mode_snapshot",
+      "normal_marker_result",
+      "normal_packed_result",
+      "normal_exit7_result"
+    ],
+    "raw_store_retained": true,
+    "raw_archive_root": "D:/zzd/slop/codex-sol-windows-acceptance/.codex/sol/observations",
+    "receipt_archive_root": "D:/zzd/slop/codex-sol-windows-acceptance/.codex/sol/receipts",
+    "raw_bytes_and_hashes_verified": true
+  },
+  "sources": [
+    {
+      "id": "desktop_normal_ui",
+      "path": "D:/zzd/slop/codex-sol-host-runs/desktop-acceptance/normal-ui.txt",
+      "bytes": 4176,
+      "sha256": "6fa9b94edae1b24a03694ea273609bd1fc17c74861610e8ebfd913af431e3f96",
+      "scope": "GUI profile and normal interactions; no chat prose copied."
+    },
+    {
+      "id": "desktop_hooks_ui",
+      "path": "D:/zzd/slop/codex-sol-host-runs/desktop-acceptance/hooks-ui.txt",
+      "bytes": 866,
+      "sha256": "c3d3a574d5280865ab4942a85db9995d19aa724eab26b017864f321c3bc97e16",
+      "scope": "Settings > Hooks UI state; no claim of /hooks audit."
+    },
+    {
+      "id": "desktop_normal_thread",
+      "path": "D:/zzd/slop/codex-sol-host-runs/desktop-acceptance/normal.thread.json",
+      "bytes": 9811,
+      "sha256": "c4b4443e228c24a0563084e0a8e4b747b707c0299ffde997ba1955ada574e2f5",
+      "scope": "Selected structured tool results; Shell aggregated output is absent from commandExecution."
+    },
+    {
+      "id": "desktop_normal_rollout",
+      "path": "D:/zzd/slop/codex-sol-host-runs/desktop-acceptance/normal.rollout.jsonl",
+      "bytes": 232299,
+      "sha256": "963365e2f75ed0e898d321b56d9da732cc50cdd7f017f5e2aa8cfa96d5dd3125",
+      "scope": "session_meta host version and native PreToolUse denial; no reasoning copied."
+    },
+    {
+      "id": "first_stop_started",
+      "path": "D:/zzd/slop/codex-sol-host-runs/desktop-acceptance/stop.started.json",
+      "bytes": 115,
+      "sha256": "9468d4d7c9bb8f9b807473ba2dd4d8440a63c2ff8ce31e0d35eb2783036be627",
+      "scope": "Invalid first attempt worker start."
+    },
+    {
+      "id": "first_stop_action",
+      "path": "D:/zzd/slop/codex-sol-host-runs/desktop-acceptance/stop.action.json",
+      "bytes": 240,
+      "sha256": "f9680afcf4c698000e99a8854874a4459d616c91da24c6052ddc04e7bb43903e",
+      "scope": "Invalid first attempt click after timeout response."
+    },
+    {
+      "id": "first_stop_protocol",
+      "path": "D:/zzd/slop/codex-sol-host-runs/desktop-acceptance/protocol.late-click.jsonl",
+      "bytes": 811,
+      "sha256": "113af47b92c4c4ead0aad90b18b7b049fcb527f045280c990671a6a535497966",
+      "scope": "Late click protocol capture; excluded from cancellation result."
+    },
+    {
+      "id": "first_stop_receipt",
+      "path": "D:/zzd/slop/codex-sol-windows-acceptance/.codex/sol/receipts/8f4a209cb17582e4a6f702e5d31fc61af73bbf48800a2456d5f413eb38a641fa.json",
+      "bytes": 994,
+      "sha256": "128cf2a696a2ba505f9418d37c494d3d827f70f25753d7425d4f5f30090fde2e",
+      "scope": "First attempt timeout receipt; click happened afterward."
+    },
+    {
+      "id": "valid_stop_action",
+      "path": "D:/zzd/slop/codex-sol-host-runs/desktop-acceptance/stop2.action.json",
+      "bytes": 341,
+      "sha256": "d01dc4c863b01387739a92048e47e90e8874e27aa980aac0b9441613977d5664",
+      "scope": "Valid Stop click timestamps and marker."
+    },
+    {
+      "id": "valid_stop_immediate",
+      "path": "D:/zzd/slop/codex-sol-host-runs/desktop-acceptance/stop2.immediate.json",
+      "bytes": 3435,
+      "sha256": "e7ff3e393ae0c1ec77579443b30fd9eb23ac0a63ca9be252f3379ac68a9a0cb2",
+      "scope": "Post-click child/owner snapshot."
+    },
+    {
+      "id": "valid_stop_final",
+      "path": "D:/zzd/slop/codex-sol-host-runs/desktop-acceptance/stop2.final.json",
+      "bytes": 3542,
+      "sha256": "1b59c9c2d2664791a2f5ec69de0585bbd188d33291c17364f16033b6081223d1",
+      "scope": "Process state after 90-second timeout."
+    },
+    {
+      "id": "valid_stop_thread",
+      "path": "D:/zzd/slop/codex-sol-host-runs/desktop-acceptance/stop2.thread.json",
+      "bytes": 509,
+      "sha256": "de9569963eb5f24a46305f01d6f1f12da2e093fb957518b827a20cfab1c62f89",
+      "scope": "Desktop turn status."
+    },
+    {
+      "id": "valid_stop_ui",
+      "path": "D:/zzd/slop/codex-sol-host-runs/desktop-acceptance/stop2.ui.txt",
+      "bytes": 38068,
+      "sha256": "484f596f86a8889ec976174c7ed4eee3a60d733d289be8a77df23c9c788b302c",
+      "scope": "Stop status text excerpt only."
+    },
+    {
+      "id": "valid_stop_protocol",
+      "path": "D:/zzd/slop/codex-sol-host-runs/desktop-acceptance/stop2.protocol.json",
+      "bytes": 2083,
+      "sha256": "71e01a0558b31ec3c34b60c0203f4bc1c7c296b0efe09f8669bd2b699cbc155b",
+      "scope": "MCP event ids/timestamps and cancellation notification count; params omitted."
+    },
+    {
+      "id": "valid_stop_rollout",
+      "path": "D:/zzd/slop/codex-sol-host-runs/desktop-acceptance/stop2.rollout.jsonl",
+      "bytes": 110688,
+      "sha256": "4e640938e737ee7f63a487c96f9a216458e75c794f11dfd94aec8971ec88738a",
+      "scope": "Full rollout retained locally; selected tool results only."
+    },
+    {
+      "id": "recovery_thread",
+      "path": "D:/zzd/slop/codex-sol-host-runs/desktop-acceptance/recovery.thread.json",
+      "bytes": 7568,
+      "sha256": "7a453226bb0f6652874c6702f5d1750047e463d0e8d49a069ee9c253d406fd39",
+      "scope": "Completed fresh-chat patch and receipt/output recall results."
+    },
+    {
+      "id": "recovery_rollout",
+      "path": "D:/zzd/slop/codex-sol-host-runs/desktop-acceptance/recovery.rollout.jsonl",
+      "bytes": 156846,
+      "sha256": "388a50b78a51e65aaa71a1fc63d4341ec38ce71f3f81ba2cacf1cf459bb7b2c1",
+      "scope": "Full rollout retained locally; no reasoning copied."
+    },
+    {
+      "id": "recovery_ui",
+      "path": "D:/zzd/slop/codex-sol-host-runs/desktop-acceptance/recovery.ui.txt",
+      "bytes": 40987,
+      "sha256": "2707fed16850f45d70cfb1499ecfafb40b9f436dedf8289eb790b56b68ebe9d4",
+      "scope": "Fresh chat interaction, without Desktop restart."
+    },
+    {
+      "id": "recovery_final",
+      "path": "D:/zzd/slop/codex-sol-host-runs/desktop-acceptance/recovery.final.json",
+      "bytes": 2247,
+      "sha256": "bb3cab9c252e4b1135b869cf6d3f44b5a735a6ff5dec0b1ee2c6e8a1b1f68cc6",
+      "scope": "Config/rules/mode restoration and process cleanup snapshot."
+    },
+    {
+      "id": "valid_stop_receipt_envelope",
+      "path": "D:/zzd/slop/codex-sol-windows-acceptance/.codex/sol/receipts/b3e279f9af33e595206b3219407e4f6c84384dc6e8533a1185e6948efec213d4.json",
+      "bytes": 994,
+      "sha256": "477ed1d232aff05034916d69378c9d8e47ef6aa1a3643b96fe49427ed3a0d05e",
+      "scope": "Persisted 90-second timeout ValidationReceipt."
+    },
+    {
+      "id": "prior_tui_evidence",
+      "path": "D:/zzd/codex-sol/fixtures/t3/tui-evidence.json",
+      "bytes": 15172,
+      "sha256": "cb15965fda68a7d4e975acce2da295aa1b72341f5a307b746ffe809c31487f6c",
+      "scope": "Prior TUI evidence for same hook hash."
+    },
+    {
+      "id": "project_config_snapshot",
+      "path": "D:/zzd/slop/codex-sol-host-runs/desktop-acceptance/config.enabled.before-stop.toml",
+      "bytes": 444,
+      "sha256": "9e45b111a3eda15fdcba9397d7f6441c490f811a1fe282badea34937c322a463",
+      "scope": "Project configuration snapshot."
+    },
+    {
+      "id": "pretest_rules_snapshot",
+      "path": "D:/zzd/slop/codex-sol-host-runs/desktop-acceptance/rules.before-stop.json",
+      "bytes": 360,
+      "sha256": "ada6916a5d8319f3f96271bb68cfc87f823cef94bd88f2b5556e9a0f53861633",
+      "scope": "Restoration comparison baseline."
+    },
+    {
+      "id": "pretest_mode_snapshot",
+      "path": "D:/zzd/slop/codex-sol-host-runs/desktop-acceptance/mode.before-stop.txt",
+      "bytes": 17,
+      "sha256": "69cadd462074c88a9af7f1981575b4316fc6ab3250ad037dc9c39f51e1ca3758",
+      "scope": "Restoration comparison baseline."
+    },
+    {
+      "id": "normal_marker_result",
+      "path": "D:/zzd/slop/codex-sol-windows-acceptance/.codex/sol/native/48fe98e1990d9748257f757e18b20da7d18462188751257d0968ce3ee71479f4.result.json",
+      "bytes": 1092,
+      "sha256": "1e2e74a63c88040231190370ec425d147943a3ea06466af2288543b1d1bb52a3",
+      "scope": "Managed Shell marker result."
+    },
+    {
+      "id": "normal_packed_result",
+      "path": "D:/zzd/slop/codex-sol-windows-acceptance/.codex/sol/native/854d374fd529a7ff507d285e10d08881cac73ac4e9c5bf2ed8a5ce217b9ba67d.result.json",
+      "bytes": 4327,
+      "sha256": "a54a0904a8d76e0fbc0df2cfeb230b886683e38f86201382571e808d88162cfb",
+      "scope": "Complete packed stdout result metadata."
+    },
+    {
+      "id": "normal_exit7_result",
+      "path": "D:/zzd/slop/codex-sol-windows-acceptance/.codex/sol/native/00b251504652cab7e43a89457fc83677f0250af02e7625fa73407725e7e5d43a.result.json",
+      "bytes": 1109,
+      "sha256": "ce3cd0e14341d373a1bd4def17114153c1ebf8d5ff8670b891d429dda8e9b1d3",
+      "scope": "Managed nonzero-exit result."
+    }
+  ],
+  "cases": [
+    {
+      "id": "normal_shell_marker",
+      "status": "passed",
+      "thread_id": "01a0f25f-6d76-79d0-b426-25eafdd563c5",
+      "tool": "Bash",
+      "tool_status": "ok",
+      "execution": {
+        "status": "passed",
+        "reason": "success",
+        "exit_code": 0,
+        "duration_ms": 680
+      },
+      "changed_paths": [],
+      "validation": null,
+      "stdout": {
+        "schema_version": 1,
+        "handle": "TnHIsMTMb8h4MeBdXF9P5rMEFZsBDArU",
+        "sha256": "54eefd522310c68fdf475614d0c7d8dfe054287d503e5cf1d101a1a8f3ba6a6b",
+        "bytes": 32,
+        "media_type": "text/plain; charset=utf-8",
+        "complete": true
+      },
+      "stderr": {
+        "schema_version": 1,
+        "handle": "Xg_06PO4QyFWVICQlkwHvu-VkwlpdBM2",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "media_type": "text/plain; charset=utf-8",
+        "complete": true
+      },
+      "stdout_excerpt": "DESKTOP_HOOK_CHECK_20260930_01\r\n",
+      "result_file": "48fe98e1990d9748257f757e18b20da7d18462188751257d0968ce3ee71479f4.result.json"
+    },
+    {
+      "id": "large_stdout_pack_and_recall",
+      "status": "passed",
+      "thread_id": "01a0f25f-6d76-79d0-b426-25eafdd563c5",
+      "tool": "Bash",
+      "tool_status": "ok",
+      "execution": {
+        "status": "passed",
+        "reason": "success",
+        "exit_code": 0,
+        "duration_ms": 679
+      },
+      "observation_mode": "packed",
+      "raw_stdout": {
+        "schema_version": 1,
+        "handle": "8A53cUbgRfAxYF0cZ7xmc9XTVcEKm0OK",
+        "sha256": "2c95c6b6840c60e200f45c77d114acd03abbfeccab3a2a149901ad7290aad86d",
+        "bytes": 143118,
+        "media_type": "text/plain; charset=utf-8",
+        "complete": true
+      },
+      "raw_stderr": {
+        "schema_version": 1,
+        "handle": "5ixFxbKl47Y-7zcUjyB68eiuxohMkOj_",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "media_type": "text/plain; charset=utf-8",
+        "complete": true
+      },
+      "preview_omitted_bytes": 139976,
+      "recall": {
+        "tool": "sol_recall",
+        "handle": "8A53cUbgRfAxYF0cZ7xmc9XTVcEKm0OK",
+        "selector": {
+          "kind": "keyword",
+          "literal": "ANCHOR=codex-sol-windows-acceptance",
+          "context_lines": 0
+        },
+        "truncated": false,
+        "next_cursor": null,
+        "chunks": [
+          {
+            "start_byte": 71680,
+            "end_byte": 71716,
+            "text": "ANCHOR=codex-sol-windows-acceptance\n",
+            "start_line": 257,
+            "end_line": 257
+          }
+        ]
+      },
+      "result_file": "854d374fd529a7ff507d285e10d08881cac73ac4e9c5bf2ed8a5ce217b9ba67d.result.json"
+    },
+    {
+      "id": "native_patch_hook_route",
+      "status": "passed",
+      "thread_id": "01a0f25f-6d76-79d0-b426-25eafdd563c5",
+      "native_patch": {
+        "status": "blocked_by_PreToolUse",
+        "output_id": "ctco_01a0f262-7ca2-7a72-a84f-2dff3860cd34",
+        "call_id": "call_VqQQsm1tgxYSHyvnvLQt8LbV",
+        "message": "Command blocked by PreToolUse hook: Use codex_sol.sol_apply_patch with the same context patch to receive a Validation Receipt. Native apply_patch cannot be switched to another tool by a Hook."
+      },
+      "managed_patch": {
+        "tool": "sol_apply_patch",
+        "call_id": "23ee352f-d3ee-4ff4-a781-97cdb635aa90",
+        "same_patch_as_blocked_attempt": true,
+        "patch_argument_bytes": 111,
+        "patch_argument_sha256": "2dedfaaf1b9fae255df12430d47c385580cd8d2f54f106f65fd3e18ab2f866fc",
+        "tool_status": "ok",
+        "execution": {
+          "status": "passed",
+          "reason": "success",
+          "exit_code": 0,
+          "duration_ms": 77
+        },
+        "changed_paths": [
+          "desktop_native_20260930_01.py"
+        ],
+        "observation_stdout": {
+          "schema_version": 1,
+          "handle": "A_Ea9h-7nIiRKYb2xfxicl_q653ZMHar",
+          "sha256": "e7aa1319906b9a2111beb2c40ea05016b6180b928e6c797c0d026b2c3364088b",
+          "bytes": 70,
+          "media_type": "text/plain; charset=utf-8",
+          "complete": true
+        },
+        "observation_stderr": {
+          "schema_version": 1,
+          "handle": "F-nkmjIMasnBEcgVIgcNZEl-Rt9gToVn",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "media_type": "text/plain; charset=utf-8",
+          "complete": true
+        },
+        "change_event": {
+          "schema_version": 1,
+          "handle": "nHRlLsPKmBRbvoMOjG4Y9vcDWD8c1TrG",
+          "sha256": "1dfb018140f61c87a3209993f96a49aad91180124ceae0f6bfd2936aa5ecc6b5",
+          "bytes": 351,
+          "media_type": "application/json",
+          "complete": true
+        },
+        "receipt": {
+          "receipt_id": "8b93f14c-239b-46ef-b4ad-3fc67b3a069f",
+          "event_id": "ed861ded-c943-4b92-8352-f92c2dc631e9",
+          "change_digest": "76c76c388d14fb57e82960381ece652f687a719e62246ed861233da14943492e",
+          "status": "passed",
+          "reason": "all_checks_passed",
+          "evidence_handle": "d_Uo8EIUxmqKY_U8uqGKJa5virdlZo2f",
+          "archive_ref": {
+            "schema_version": 1,
+            "handle": "d_Uo8EIUxmqKY_U8uqGKJa5virdlZo2f",
+            "sha256": "c4101bfa7decaef496d936f20b33fbda17c97ac259c03f44d552a193431f2fb2",
+            "bytes": 935,
+            "media_type": "application/json",
+            "complete": true
+          },
+          "checks": [
+            {
+              "id": "windows_acceptance/mode_check",
+              "status": "passed",
+              "reason": "success",
+              "exit_code": 0,
+              "duration_ms": 90,
+              "output": [
+                {
+                  "schema_version": 1,
+                  "handle": "f-77qjKpSkB8ySXXPWTaQnUfoe51os6W",
+                  "sha256": "5a24bdc9c4d2e0ed78519f7cb1849d24e07857df61d087a5f64812bde87fba9e",
+                  "bytes": 25,
+                  "media_type": "text/plain; charset=utf-8",
+                  "complete": true
+                },
+                {
+                  "schema_version": 1,
+                  "handle": "GEOUv6MeOLXwD8o5NmLNwWYz3obWBOoA",
+                  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                  "bytes": 0,
+                  "media_type": "text/plain; charset=utf-8",
+                  "complete": true
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "receipt_recall": {
+        "tool": "sol_recall",
+        "handle": "d_Uo8EIUxmqKY_U8uqGKJa5virdlZo2f",
+        "selector": {
+          "kind": "keyword",
+          "literal": "checks",
+          "context_lines": 0
+        },
+        "result": {
+          "handle": "d_Uo8EIUxmqKY_U8uqGKJa5virdlZo2f",
+          "sha256": "c4101bfa7decaef496d936f20b33fbda17c97ac259c03f44d552a193431f2fb2",
+          "chunks": [
+            {
+              "start_byte": 0,
+              "end_byte": 935,
+              "start_line": 1,
+              "end_line": 1
+            }
+          ],
+          "truncated": false,
+          "next_cursor": null
+        }
+      }
+    },
+    {
+      "id": "managed_shell_exit7",
+      "status": "passed",
+      "thread_id": "01a0f25f-6d76-79d0-b426-25eafdd563c5",
+      "tool": "Bash",
+      "tool_status": "error",
+      "execution": {
+        "status": "failed",
+        "reason": "nonzero_exit",
+        "exit_code": 7,
+        "duration_ms": 601
+      },
+      "changed_paths": [],
+      "validation": null,
+      "stdout": {
+        "schema_version": 1,
+        "handle": "Sqzehwi3KpwD9HHwRDsq_pZ8yrF6rZty",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "media_type": "text/plain; charset=utf-8",
+        "complete": true
+      },
+      "stderr": {
+        "schema_version": 1,
+        "handle": "O20fF3YsXLVQeAHUvVoBS2rEct9xqrwa",
+        "sha256": "4f1bb688b3bf2e69834cb2bbc665cff2a65d99c5479b9b0a4a4c09a9501c3e3a",
+        "bytes": 35,
+        "media_type": "text/plain; charset=utf-8",
+        "complete": true
+      },
+      "stderr_excerpt": "DESKTOP_SHELL_FAILURE_20260930_01\r\n",
+      "outer_desktop_command_execution": {
+        "status": "failed",
+        "exit_code_exposed": false
+      },
+      "result_file": "00b251504652cab7e43a89457fc83677f0250af02e7625fa73407725e7e5d43a.result.json"
+    },
+    {
+      "id": "desktop_stop_cancellation",
+      "status": "failed",
+      "thread_id": "01a0f273-405a-7703-b568-ba4ae06fa754",
+      "turn_id": "01a0f273-43ca-76e2-b105-96769f82cd72",
+      "turn_status": "interrupted",
+      "tool_request": {
+        "id": 2,
+        "started_at": "2026-09-30T13:14:07.865Z",
+        "response_at": "2026-09-30T13:15:38.332Z"
+      },
+      "stop_click": {
+        "action": "Desktop Stop button",
+        "worker_started_at": "2026-09-30T13:14:08.051Z",
+        "clicked_at": "2026-09-30T13:14:23.712Z",
+        "click_completed_at": "2026-09-30T13:14:23.807Z",
+        "worker_pid": 34720,
+        "marker": "DESKTOP_CANCEL_20260930_02",
+        "valid_while_request_pending": true,
+        "ui_text": "你在 0秒 后停止了"
+      },
+      "protocol": {
+        "events": [
+          {
+            "time": "2026-09-30T13:13:55.369Z",
+            "direction": "inbound",
+            "method": "initialize",
+            "id": 0
+          },
+          {
+            "time": "2026-09-30T13:13:55.783Z",
+            "direction": "outbound",
+            "method": null,
+            "id": 0
+          },
+          {
+            "time": "2026-09-30T13:13:55.783Z",
+            "direction": "inbound",
+            "method": "notifications/initialized",
+            "id": null
+          },
+          {
+            "time": "2026-09-30T13:13:55.783Z",
+            "direction": "inbound",
+            "method": "tools/list",
+            "id": 1
+          },
+          {
+            "time": "2026-09-30T13:13:55.787Z",
+            "direction": "outbound",
+            "method": null,
+            "id": 1
+          },
+          {
+            "time": "2026-09-30T13:14:07.865Z",
+            "direction": "inbound",
+            "method": "tools/call",
+            "id": 2
+          },
+          {
+            "time": "2026-09-30T13:15:38.332Z",
+            "direction": "outbound",
+            "method": null,
+            "id": 2
+          }
+        ],
+        "cancelled_notifications": 0
+      },
+      "post_click_snapshot": {
+        "observed_at": "2026-09-30T13:14:42.4550859Z",
+        "child_alive": true,
+        "owner_present": true,
+        "file_present": true,
+        "cancellation_count": 0
+      },
+      "managed_timeout_receipt": {
+        "receipt_id": "96980c8e-52b5-4253-860f-c3b4a11acdcb",
+        "event_id": "dde7aaf2-1762-4459-b8d9-94829d3c1213",
+        "change_digest": "07391075dd1272f1d105c98c65c386173be7dac37d7fe1bb60c41cb037b4ff4b",
+        "status": "timeout",
+        "reason": "timeout",
+        "evidence_handle": "OGiXbBlzzP57hZO3ppOnxga-7J-wpnfx",
+        "archive_ref": {
+          "schema_version": 1,
+          "handle": "OGiXbBlzzP57hZO3ppOnxga-7J-wpnfx",
+          "sha256": "341a7f5aea50680df5b684707c70da22bc5298ef3a43667bd42261aeff88b72d",
+          "bytes": 932,
+          "media_type": "application/json",
+          "complete": true
+        },
+        "checks": [
+          {
+            "id": "windows_acceptance/mode_check",
+            "status": "timeout",
+            "reason": "timeout",
+            "exit_code": 1,
+            "duration_ms": 90306,
+            "output": [
+              {
+                "schema_version": 1,
+                "handle": "s5YzLZ_gJvFGM-jvmbdjUWA6tRFQt5YA",
+                "sha256": "1afed330ba3adb11dd6166e1adac75191180127cb0d63b77941bd372b38dbe0a",
+                "bytes": 45,
+                "media_type": "text/plain; charset=utf-8",
+                "complete": false
+              },
+              {
+                "schema_version": 1,
+                "handle": "1oIrofPf-MLSRg1EFMzDw0gKWSet2kWk",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "bytes": 0,
+                "media_type": "text/plain; charset=utf-8",
+                "complete": false
+              }
+            ]
+          }
+        ]
+      },
+      "timeout_stdout_excerpt": "TEST_MODE=wait waiting_for_release pid=34720\n",
+      "final_process_snapshot": {
+        "observed_at": "2026-09-30T13:16:14.5473344Z",
+        "child_pid": 34720,
+        "child_alive": false,
+        "owner_present": false,
+        "file_present": true
+      },
+      "interpretation": "Desktop set the turn to interrupted, but the stdio capture contains no notifications/cancelled. The worker remained alive after Stop until managed validation returned a 90,306 ms timeout; the final snapshot shows the child and owner gone. This is a timeout receipt, not a cancellation receipt."
+    },
+    {
+      "id": "post_timeout_recovery",
+      "status": "passed",
+      "thread_id": "01a0f277-ad92-7073-9552-7c966e6982cd",
+      "turns": [
+        {
+          "id": "01a0f277-b111-73e2-8fc1-fc9da1e15c3f",
+          "status": "completed"
+        },
+        {
+          "id": "01a0f279-23d3-74a1-a903-a2f5815b6862",
+          "status": "completed"
+        }
+      ],
+      "desktop_app_restarted": false,
+      "new_managed_patch": {
+        "tool": "sol_apply_patch",
+        "tool_status": "ok",
+        "execution": {
+          "status": "passed",
+          "reason": "success",
+          "exit_code": 0,
+          "duration_ms": 78
+        },
+        "changed_paths": [
+          "desktop_recovery_20260930_01.py"
+        ],
+        "change_event": {
+          "schema_version": 1,
+          "handle": "cv4LGcn_51blnFJdqhpALsJR74LPBcww",
+          "sha256": "3896f83b49b43bbd5eb7db325dc35f9e20d6699bd1320539bb46d4803ee5d241",
+          "bytes": 353,
+          "media_type": "application/json",
+          "complete": true
+        },
+        "receipt": {
+          "receipt_id": "31608f28-8cb6-4732-ab88-a3a8ce3546ee",
+          "event_id": "491bb57e-7a4d-405c-b9c2-2cddd2e52ae0",
+          "change_digest": "0357897da4e8467237815a9f4851e492149f3c8bfa7b3a844685f99c2a7cb945",
+          "status": "passed",
+          "reason": "all_checks_passed",
+          "evidence_handle": "MOW7bkEQFoz78GfjSrRTZpm7uMoBJJyZ",
+          "archive_ref": {
+            "schema_version": 1,
+            "handle": "MOW7bkEQFoz78GfjSrRTZpm7uMoBJJyZ",
+            "sha256": "6059e30447490dddca5df6d877c341228fbb1ffc1bef3be8318afe81fa7cdfa7",
+            "bytes": 935,
+            "media_type": "application/json",
+            "complete": true
+          },
+          "checks": [
+            {
+              "id": "windows_acceptance/mode_check",
+              "status": "passed",
+              "reason": "success",
+              "exit_code": 0,
+              "duration_ms": 88,
+              "output": [
+                {
+                  "schema_version": 1,
+                  "handle": "nfEfciS7kX0LLyJV9t6RS76ypwHar-NQ",
+                  "sha256": "62e8f055941f6b3a5bd01bae0ad975d28af29b8f8cd08d79e3c9cdc312fd0062",
+                  "bytes": 25,
+                  "media_type": "text/plain; charset=utf-8",
+                  "complete": true
+                },
+                {
+                  "schema_version": 1,
+                  "handle": "hIe1g-vPbfL2rScN731NQz5YV9UXHM5W",
+                  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                  "bytes": 0,
+                  "media_type": "text/plain; charset=utf-8",
+                  "complete": true
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "old_stdout_recall": {
+        "handle": "s5YzLZ_gJvFGM-jvmbdjUWA6tRFQt5YA",
+        "source_bytes": 45,
+        "source_complete": false,
+        "source_sha256": "1afed330ba3adb11dd6166e1adac75191180127cb0d63b77941bd372b38dbe0a",
+        "selector": {
+          "kind": "keyword",
+          "literal": "TEST_MODE=wait waiting_for_release pid=34720",
+          "context_lines": 0
+        },
+        "truncated": false,
+        "returned_bytes": 45,
+        "text": "TEST_MODE=wait waiting_for_release pid=34720\n"
+      },
+      "old_receipt_recall": {
+        "receipt_id": "96980c8e-52b5-4253-860f-c3b4a11acdcb",
+        "handle": "OGiXbBlzzP57hZO3ppOnxga-7J-wpnfx",
+        "source_bytes": 932,
+        "source_complete": true,
+        "source_sha256": "341a7f5aea50680df5b684707c70da22bc5298ef3a43667bd42261aeff88b72d",
+        "first_literal_query": {
+          "literal": "\"status\": \"timeout\"",
+          "chunks": 0
+        },
+        "successful_query": {
+          "literal": "96980c8e-52b5-4253-860f-c3b4a11acdcb",
+          "chunks": 1,
+          "bytes": 932,
+          "truncated": false,
+          "sha256": "341a7f5aea50680df5b684707c70da22bc5298ef3a43667bd42261aeff88b72d"
+        }
+      },
+      "note": "The first literal status query returned zero chunks, a selector mismatch rather than evidence loss. Searching by receipt_id returned the archived timeout receipt. The old stdout source remains complete=false even though recall.truncated=false."
+    }
+  ],
+  "invalid_attempts": [
+    {
+      "id": "desktop_cancel_20260930_01",
+      "status": "invalid_timing_excluded",
+      "worker_pid": 28548,
+      "worker_started_at": "2026-09-30T13:04:24.603Z",
+      "timeout_receipt_id": "e54dd9f5-f9e8-4ac3-805a-ea955ea8a34f",
+      "timeout_duration_ms": 30308,
+      "reason": "The intended click happened after the timeout result; the actual Desktop Stop action cannot be established, so this attempt is not counted as a cancellation test.",
+      "intended_stop_click_at": "2026-09-30T13:05:05.643Z"
+    }
+  ],
+  "final_state": {
+    "observed_at": "2026-09-30T13:21:31.4965526Z",
+    "owner_present": false,
+    "checked_old_stop_pids": [
+      28548,
+      34720
+    ],
+    "old_stop_pids_alive": [],
+    "native_running_count": 0,
+    "receipt_count": 12,
+    "config_matches_restored_backup": true,
+    "rules_matches_restored_backup": true,
+    "mode_matches_restored_backup": true
+  },
+  "limits": [
+    "Windows Desktop Full Access only.",
+    "Desktop Stop cancellation did not pass: the valid click interrupted the UI turn while the managed call continued until its timeout; the stdio proxy captured no notifications/cancelled.",
+    "Linux acceptance deferred.",
+    "Restricted sandbox and ask/approval profiles were not tested.",
+    "No Desktop restart or hard-crash recovery was tested.",
+    "Prior TUI evidence covers review of the same hook hash; it does not establish Desktop independently completed each trust approval.",
+    "Retained rollout files contain full sessions; this evidence JSON includes only necessary metadata and tool results, not reasoning or full conversation text."
+  ]
+}

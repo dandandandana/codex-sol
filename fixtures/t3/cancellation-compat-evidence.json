@@ -1,0 +1,1173 @@
+{
+  "schema_version": 1,
+  "recorded_on": "2026-10-01",
+  "status": "desktop_tui_bridge_passed",
+  "scope": "Windows Full Access V0.1 MCP cancellation compatibility; Linux deferred",
+  "implementation": {
+    "host_version": "0.159.2",
+    "patch_engine_version": "0.158.0",
+    "optional_env": "CODEX_SOL_HOST_EXECUTABLE",
+    "native_mcp_cancel_fixed": false,
+    "signal_source": "explicit target turn_aborted rollout event",
+    "poll_ms": 500,
+    "global_config_changed": false,
+    "desktop_restarted": false
+  },
+  "final_source_hashes": [
+    {
+      "path": "D:/zzd/codex-sol/src/host-cancellation.mjs",
+      "bytes": 8573,
+      "sha256": "dc963d0bcfc9779985a1b09e25c8eae228e3855467d988f44aa7d1dda2005b25"
+    },
+    {
+      "path": "D:/zzd/codex-sol/src/managed-command.mjs",
+      "bytes": 5153,
+      "sha256": "260e22d2191c5c4c45aa87fa5077bda8a9a2cecb50c9b861f198645b45e7430c"
+    },
+    {
+      "path": "D:/zzd/codex-sol/src/native-hook.mjs",
+      "bytes": 9776,
+      "sha256": "2cc0599622863da023b67c85aed3903088eddb1b7abd37c8dd43a078c85430a7"
+    },
+    {
+      "path": "D:/zzd/codex-sol/src/pack.mjs",
+      "bytes": 11418,
+      "sha256": "fc78082e0d8209a65e5250eec06acc03ce55852e38e74b1378e80cec466ac67e"
+    },
+    {
+      "path": "D:/zzd/codex-sol/src/patch.mjs",
+      "bytes": 2743,
+      "sha256": "a34bad5c808c05c124b1744a493df1f1b6f2e9674adccbdb18df569df32b2d26"
+    },
+    {
+      "path": "D:/zzd/codex-sol/src/process.mjs",
+      "bytes": 4508,
+      "sha256": "b8436a2e3e5c05a479b586af51c6c994c3fe80602140225d62c3fdd488d0aa11"
+    },
+    {
+      "path": "D:/zzd/codex-sol/src/read.mjs",
+      "bytes": 3422,
+      "sha256": "1f229f01f65b13fbcfefa3cb5481a1f005e472a7052a221f4f22e66cdb0666d8"
+    },
+    {
+      "path": "D:/zzd/codex-sol/src/recall.mjs",
+      "bytes": 7836,
+      "sha256": "1b0ba23c9c30f1f544bfa21b2d1edeaaf4a57559bc00d4e879b5b057e8a43b1a"
+    },
+    {
+      "path": "D:/zzd/codex-sol/src/schema.mjs",
+      "bytes": 874,
+      "sha256": "d11b589b786f6627e2d0144564d0fc3842cf1718ae77d10cc926da8034b3db42"
+    },
+    {
+      "path": "D:/zzd/codex-sol/src/server.mjs",
+      "bytes": 9268,
+      "sha256": "a3ec455bdeb80acc8c5f37bfa1618221565d9a7778806887292109071f673a77"
+    },
+    {
+      "path": "D:/zzd/codex-sol/src/store.mjs",
+      "bytes": 11452,
+      "sha256": "1cbb648f67c3848777d11d9f9cafa5474bbfe994639799a57802f7cb45522383"
+    },
+    {
+      "path": "D:/zzd/codex-sol/src/validation.mjs",
+      "bytes": 12673,
+      "sha256": "8e16a0088f1a6f2e2ded8f3732ef83cd67aba08111e4e0d2335a85c180e928d9"
+    },
+    {
+      "path": "D:/zzd/codex-sol/src/workspace-lock.mjs",
+      "bytes": 5845,
+      "sha256": "33c630c82cc95064e7c66df7baa19a54e8bca2e6de6c3179cdb4a18e120b9a37"
+    },
+    {
+      "path": "D:/zzd/codex-sol/src/workspace.mjs",
+      "bytes": 2299,
+      "sha256": "d29d028fc574c68c298e0edaa5efb83414c86555058c7b74fc0b36604411c124"
+    }
+  ],
+  "checks": {
+    "command": "npm run check",
+    "checked_on": "2026-10-01",
+    "exit_code": 0,
+    "tests": 81,
+    "passed": 81,
+    "skipped": 0,
+    "audit_vulnerabilities": 0
+  },
+  "desktop": {
+    "app_package": "OpenAI.Codex 26.928.2636.0",
+    "hook_trust": {
+      "fresh_project_trust": true,
+      "individually_reviewed": 3,
+      "action": "全部允许",
+      "review_source": {
+        "path": "D:/zzd/slop/codex-sol-host-runs/stop-compat-20261001/rawdir/desktop-hooks-review-ui.txt",
+        "bytes": 4117,
+        "sha256": "78ef4dd83067e925adde466531c2c811faa091d2e6575614f14d0fc1dc895d76"
+      },
+      "action_source": {
+        "path": "D:/zzd/slop/codex-sol-host-runs/stop-compat-20261001/rawdir/desktop-hooks-allow-action.json",
+        "bytes": 170,
+        "sha256": "d340b5e79ef75e6048f00cfb7d1c54ec48016f06745f92e22c92ee9ff213400a"
+      }
+    },
+    "trusted_shell_probe": {
+      "marker": "DESKTOP_TRUSTED_HOOK_20261001",
+      "source": {
+        "path": "D:/zzd/slop/codex-sol-stop-compat-20261001/.codex/sol/native/4a935633657a923f9077b9acf03b8c31300a615d27d858ac013be93260e40a38.result.json",
+        "bytes": 1091,
+        "sha256": "ddf0449a7ed8f2f1437b9db27adb1f51285e8dec5be9450d7b7329eff7658586"
+      },
+      "execution": {
+        "status": "passed",
+        "reason": "success",
+        "exit_code": 0,
+        "duration_ms": 665
+      },
+      "observation": {
+        "schema_version": 1,
+        "call_id": "4a935633657a923f9077b9acf03b8c31300a615d27d858ac013be93260e40a38",
+        "tool": "Bash",
+        "tool_status": "ok",
+        "mode": "inline",
+        "raw": [
+          {
+            "schema_version": 1,
+            "handle": "c8VBQdNp8K82rADtbh0CDxq4lXXKG7RU",
+            "sha256": "2ca3631091d5196f648410d2afd612866d6d7599621bbc65da38cc9fd1ceb7f0",
+            "bytes": 31,
+            "media_type": "text/plain; charset=utf-8",
+            "complete": true
+          },
+          {
+            "schema_version": 1,
+            "handle": "NQt2Cvzw5m0Csg3PSWkzZrYm6i3MLhan",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0,
+            "media_type": "text/plain; charset=utf-8",
+            "complete": true
+          }
+        ],
+        "summary": "tool_status=ok; upstream_complete=true; mode=inline; raw_bytes=31; raw_complete=true; omitted_bytes=0",
+        "excerpts": [
+          {
+            "handle": "c8VBQdNp8K82rADtbh0CDxq4lXXKG7RU",
+            "start_byte": 0,
+            "end_byte": 31,
+            "text": "DESKTOP_TRUSTED_HOOK_20261001\r\n"
+          }
+        ],
+        "omitted_bytes": 0,
+        "reason": "inline_preview"
+      }
+    },
+    "unconfigured_baseline": {
+      "result": "failed_native_cancellation",
+      "action": {
+        "before": "2026-10-01T02:35:34.790Z",
+        "after": "2026-10-01T02:35:34.878Z",
+        "action": "GUI Stop",
+        "started": {
+          "mode": "wait",
+          "pid": 10960,
+          "nonce": "bf8acf35-8a1c-4698-8337-97c3b737b255",
+          "started_at": "2026-10-01T02:35:19.588Z"
+        },
+        "element_index": 4122
+      },
+      "final": {
+        "at": "2026-10-01T02:41:00.202Z",
+        "child_pid": 10960,
+        "child_alive": false,
+        "owner_present": false,
+        "receipt": {
+          "event_id": "9e7d4dd6-5729-4cd7-b749-b6de13162a90",
+          "receipt": {
+            "schema_version": 1,
+            "receipt_id": "a6389248-8732-4dc1-b24e-ef8356cade1a",
+            "event_id": "9e7d4dd6-5729-4cd7-b749-b6de13162a90",
+            "change_digest": "e803031fa4e830ab1999b39ea63613fceaabb53aa3825e358a7bf8f13406b939",
+            "validation_key": "3c763264f1ca37e586be1970b39bdffdcc162f238b1bc2981ff584cacbf7f29b",
+            "status": "timeout",
+            "reason": "timeout",
+            "checks": [
+              {
+                "id": "windows_acceptance/mode_check",
+                "status": "timeout",
+                "reason": "timeout",
+                "exit_code": 1,
+                "duration_ms": 90273,
+                "output": [
+                  {
+                    "schema_version": 1,
+                    "handle": "l9F_7OKENuoSNJvmSYngTIEjDAqKp7lA",
+                    "sha256": "4e0479a5e61b64653da8d55e97dfd956236b47e3a10d29271814b83f80a7277e",
+                    "bytes": 45,
+                    "media_type": "text/plain; charset=utf-8",
+                    "complete": false
+                  },
+                  {
+                    "schema_version": 1,
+                    "handle": "ODDEgOSfcReMpW1tAuIpG6YenU8JycY-",
+                    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                    "bytes": 0,
+                    "media_type": "text/plain; charset=utf-8",
+                    "complete": false
+                  }
+                ]
+              }
+            ],
+            "evidence_handle": "_krjVY_cAgG-WSltVFZ7ohZ5wQ9FrXcb"
+          }
+        }
+      },
+      "cancel_notifications": 0,
+      "immediate_owner_probe_excluded": "incorrect path; no owner presence claim from that sample"
+    },
+    "rejected_state_probe": {
+      "result": "invalid_false_positive_excluded",
+      "reason": "foreign unfinished thread status interpreted as interrupted; this implementation was discarded",
+      "thread": {
+        "thread_id": "01a0f558-6926-79f3-94f7-0a5589569161",
+        "turns": [
+          {
+            "turn_id": "01a0f558-6c82-74e1-9234-e34732cd1806",
+            "status": "completed",
+            "tools": [
+              {
+                "tool": "sol_apply_patch",
+                "status": "failed",
+                "arguments": {
+                  "patch": "*** Begin Patch\n*** Add File: desktop_cancel_20261001_guard.py\n+print(\"DESKTOP_CANCEL_20261001_GUARD\")\n*** End Patch"
+                },
+                "result": [
+                  {
+                    "tool_status": "error",
+                    "execution": null,
+                    "changed_paths": [],
+                    "validation": null,
+                    "observation": {
+                      "schema_version": 1,
+                      "call_id": "3f44fc3a-a3d1-4cc8-8aaf-dc3868e98072",
+                      "tool": "sol_apply_patch",
+                      "tool_status": "error",
+                      "mode": "inline",
+                      "raw": [],
+                      "summary": "tool_status=error; upstream_complete=false; mode=inline; raw_bytes=0; raw_complete=true; omitted_bytes=0",
+                      "excerpts": [],
+                      "omitted_bytes": 0,
+                      "reason": "upstream_error"
+                    },
+                    "error": {
+                      "code": "INTERRUPTED",
+                      "message": "Managed modification was interrupted before acquiring the workspace lock.",
+                      "retryable": false
+                    },
+                    "changed_paths_known": false,
+                    "changed_path_count": null,
+                    "changed_paths_omitted": 0
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "explicit_event_bridge": {
+      "result": "passed",
+      "thread_id": "01a0f566-816d-7430-860b-040e858c99ee",
+      "turn_id": "01a0f566-853d-7d53-b85f-e361a9e3b3a8",
+      "request_id": 2,
+      "request_at": "2026-10-01T02:59:20.019Z",
+      "action": {
+        "before": "2026-10-01T02:59:38.576Z",
+        "after": "2026-10-01T02:59:38.657Z",
+        "started": {
+          "mode": "wait",
+          "pid": 27020,
+          "nonce": "47038158-1f41-4390-8439-a5af8e220fea",
+          "started_at": "2026-10-01T02:59:20.368Z"
+        },
+        "action": "GUI Stop"
+      },
+      "response_at": "2026-10-01T02:59:39.358Z",
+      "stop_to_response_ms": 701,
+      "events": [
+        {
+          "timestamp": "2026-10-01T02:58:52.058Z",
+          "type": "task_started",
+          "turn_id": "01a0f566-853d-7d53-b85f-e361a9e3b3a8"
+        },
+        {
+          "timestamp": "2026-10-01T02:59:38.715Z",
+          "type": "turn_aborted",
+          "turn_id": "01a0f566-853d-7d53-b85f-e361a9e3b3a8",
+          "reason": "interrupted"
+        }
+      ],
+      "cancel_notifications": 0,
+      "receipt": {
+        "schema_version": 1,
+        "receipt_id": "48a0a92b-5159-4f74-a001-598d693c678a",
+        "event_id": "51ab8f0c-ac5d-4885-b0b5-3064e530b913",
+        "change_digest": "fe41f06ec9898b9152c5c6c39444867a3ba75d13fc28801df08a7630aa22f5dd",
+        "validation_key": "f481e006eb260241966af60617bcbeaf58384b457350bf3552c1ad7c57dcfa5f",
+        "status": "error",
+        "reason": "interrupted",
+        "checks": [
+          {
+            "id": "windows_acceptance/mode_check",
+            "status": "error",
+            "reason": "interrupted",
+            "exit_code": 1,
+            "duration_ms": 19016,
+            "output": [
+              {
+                "schema_version": 1,
+                "handle": "neJeilNU-ifO4K1Jros1w7vu8EX29W0-",
+                "sha256": "b5733a87235cf4f71ec0c70301bf7ee88bdf54162cdd8b299e2c316541ed2795",
+                "bytes": 45,
+                "media_type": "text/plain; charset=utf-8",
+                "complete": false
+              },
+              {
+                "schema_version": 1,
+                "handle": "CZJnPdFwULbxYy-S6d9fpAHgPde8Ri5w",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "bytes": 0,
+                "media_type": "text/plain; charset=utf-8",
+                "complete": false
+              }
+            ]
+          }
+        ],
+        "evidence_handle": "TCWriEFq1jc7aaf6FbZhwtYgMhtVH2ls"
+      },
+      "cleanup": {
+        "sampled_at": "2026-10-01T02:59:57.128Z",
+        "child_pid": 27020,
+        "child_alive": false,
+        "owner_present": false
+      }
+    },
+    "recovery": {
+      "result": "passed",
+      "thread_id": "01a0f569-b285-7b71-b4eb-52dbd55ae6e4",
+      "turns": [
+        {
+          "turn_id": "01a0f569-b5e0-7ed2-a993-f0b1ac5baa03",
+          "status": "completed",
+          "tools": [
+            {
+              "tool": "sol_apply_patch",
+              "status": "completed",
+              "arguments": {
+                "patch": "*** Begin Patch\n*** Add File: desktop_recovery_20261001_events.py\n+print(\"DESKTOP_RECOVERY_20261001_EVENTS\")\n*** End Patch"
+              },
+              "result": [
+                {
+                  "tool_status": "ok",
+                  "execution": {
+                    "status": "passed",
+                    "reason": "success",
+                    "exit_code": 0,
+                    "duration_ms": 74
+                  },
+                  "changed_paths": [
+                    "desktop_recovery_20261001_events.py"
+                  ],
+                  "validation": {
+                    "event_id": "bd49c6e3-61c7-4f94-956e-31dd6224a0d7",
+                    "change_digest": "bf2dc6069772b70f6f78cf3c1abac472e93076970fce92f85f35834ead22cd1f",
+                    "status": "passed",
+                    "reason": "all_checks_passed",
+                    "executed": 1,
+                    "skipped": 0,
+                    "first_failure": null,
+                    "evidence_handle": "e3S8NI0gD-e7k4HXJAyMGI-WDOsvQX1l"
+                  },
+                  "observation": {
+                    "schema_version": 1,
+                    "call_id": "f2568d0f-243c-4f19-bc39-39390a67e02e",
+                    "tool": "sol_apply_patch",
+                    "tool_status": "ok",
+                    "mode": "inline",
+                    "raw": [
+                      {
+                        "schema_version": 1,
+                        "handle": "8Pu4Yrre_OvMCEUIOzaoL-1r_3l7ch-d",
+                        "sha256": "4af1d67aec7ded6a0191b55d7b18b0d9b206882c2b7d65d861656f336cc40181",
+                        "bytes": 76,
+                        "media_type": "text/plain; charset=utf-8",
+                        "complete": true
+                      },
+                      {
+                        "schema_version": 1,
+                        "handle": "sGqSxb1lrSdGt7MVbsO8qF5PLuTNUM1n",
+                        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                        "bytes": 0,
+                        "media_type": "text/plain; charset=utf-8",
+                        "complete": true
+                      }
+                    ],
+                    "summary": "tool_status=ok; upstream_complete=true; mode=inline; raw_bytes=76; raw_complete=true; omitted_bytes=0",
+                    "excerpts": [
+                      {
+                        "handle": "8Pu4Yrre_OvMCEUIOzaoL-1r_3l7ch-d",
+                        "start_byte": 0,
+                        "end_byte": 76,
+                        "text": "Success. Updated the following files:\nA desktop_recovery_20261001_events.py\n"
+                      }
+                    ],
+                    "omitted_bytes": 0,
+                    "reason": "inline_preview"
+                  },
+                  "change_event_raw": {
+                    "schema_version": 1,
+                    "handle": "7zEFfe7iQtveTPbrhYpT8eGhXrDrt8tc",
+                    "sha256": "74d9e65ab8c55417e3eb469fd56e887d368ab7799fd938216cd43f9262f8db92",
+                    "bytes": 357,
+                    "media_type": "application/json",
+                    "complete": true
+                  },
+                  "changed_paths_known": true,
+                  "changed_path_count": 1,
+                  "changed_paths_omitted": 0
+                }
+              ]
+            },
+            {
+              "tool": "sol_recall",
+              "status": "completed",
+              "arguments": {
+                "handle": "neJeilNU-ifO4K1Jros1w7vu8EX29W0-",
+                "selector": {
+                  "kind": "lines",
+                  "start": 1,
+                  "end": 1
+                }
+              },
+              "result": [
+                {
+                  "schema_version": 1,
+                  "handle": "neJeilNU-ifO4K1Jros1w7vu8EX29W0-",
+                  "sha256": "b5733a87235cf4f71ec0c70301bf7ee88bdf54162cdd8b299e2c316541ed2795",
+                  "chunks": [
+                    {
+                      "start_byte": 0,
+                      "end_byte": 45,
+                      "text": "TEST_MODE=wait waiting_for_release pid=27020\n",
+                      "start_line": 1,
+                      "end_line": 1
+                    }
+                  ],
+                  "truncated": false,
+                  "next_cursor": null
+                }
+              ]
+            },
+            {
+              "tool": "sol_recall",
+              "status": "completed",
+              "arguments": {
+                "handle": "TCWriEFq1jc7aaf6FbZhwtYgMhtVH2ls",
+                "selector": {
+                  "kind": "keyword",
+                  "literal": "48a0a92b-5159-4f74-a001-598d693c678a",
+                  "context_lines": 0
+                }
+              },
+              "result": [
+                {
+                  "schema_version": 1,
+                  "handle": "TCWriEFq1jc7aaf6FbZhwtYgMhtVH2ls",
+                  "sha256": "1ee81c5f5150e5f2517d628100dcd9a57060351d7d914d98ddb70f83db587d4c",
+                  "chunks": [
+                    {
+                      "start_byte": 0,
+                      "end_byte": 936,
+                      "text": "{\"schema_version\":1,\"receipt_id\":\"48a0a92b-5159-4f74-a001-598d693c678a\",\"event_id\":\"51ab8f0c-ac5d-4885-b0b5-3064e530b913\",\"change_digest\":\"fe41f06ec9898b9152c5c6c39444867a3ba75d13fc28801df08a7630aa22f5dd\",\"validation_key\":\"f481e006eb260241966af60617bcbeaf58384b457350bf3552c1ad7c57dcfa5f\",\"status\":\"error\",\"reason\":\"interrupted\",\"checks\":[{\"id\":\"windows_acceptance/mode_check\",\"status\":\"error\",\"reason\":\"interrupted\",\"exit_code\":1,\"duration_ms\":19016,\"output\":[{\"schema_version\":1,\"handle\":\"neJeilNU-ifO4K1Jros1w7vu8EX29W0-\",\"sha256\":\"b5733a87235cf4f71ec0c70301bf7ee88bdf54162cdd8b299e2c316541ed2795\",\"bytes\":45,\"media_type\":\"text/plain; charset=utf-8\",\"complete\":false},{\"schema_version\":1,\"handle\":\"CZJnPdFwULbxYy-S6d9fpAHgPde8Ri5w\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"bytes\":0,\"media_type\":\"text/plain; charset=utf-8\",\"complete\":false}]}],\"evidence_handle\":\"TCWriEFq1jc7aaf6FbZhwtYgMhtVH2ls\"}",
+                      "start_line": 1,
+                      "end_line": 1
+                    }
+                  ],
+                  "truncated": false,
+                  "next_cursor": null
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "old_stdout_complete": false,
+      "receipt_archive_complete": true,
+      "no_replay": true
+    },
+    "archives": [
+      {
+        "raw": {
+          "handle": "TCWriEFq1jc7aaf6FbZhwtYgMhtVH2ls",
+          "sha256": "1ee81c5f5150e5f2517d628100dcd9a57060351d7d914d98ddb70f83db587d4c",
+          "bytes": 936,
+          "media_type": "application/json",
+          "complete": true,
+          "schema_version": 1
+        },
+        "path": "D:/zzd/slop/codex-sol-stop-compat-20261001/.codex/sol/observations/TCWriEFq1jc7aaf6FbZhwtYgMhtVH2ls/raw",
+        "capture": {
+          "tool": "validation_receipt",
+          "channel": "response",
+          "source_form": "response_json"
+        },
+        "verified": true
+      },
+      {
+        "raw": {
+          "handle": "neJeilNU-ifO4K1Jros1w7vu8EX29W0-",
+          "sha256": "b5733a87235cf4f71ec0c70301bf7ee88bdf54162cdd8b299e2c316541ed2795",
+          "bytes": 45,
+          "media_type": "text/plain; charset=utf-8",
+          "complete": false,
+          "schema_version": 1
+        },
+        "path": "D:/zzd/slop/codex-sol-stop-compat-20261001/.codex/sol/observations/neJeilNU-ifO4K1Jros1w7vu8EX29W0-/raw",
+        "capture": {
+          "tool": "validation",
+          "channel": "stdout",
+          "source_form": "stream_bytes"
+        },
+        "verified": true
+      },
+      {
+        "raw": {
+          "handle": "CZJnPdFwULbxYy-S6d9fpAHgPde8Ri5w",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "media_type": "text/plain; charset=utf-8",
+          "complete": false,
+          "schema_version": 1
+        },
+        "path": "D:/zzd/slop/codex-sol-stop-compat-20261001/.codex/sol/observations/CZJnPdFwULbxYy-S6d9fpAHgPde8Ri5w/raw",
+        "capture": {
+          "tool": "validation",
+          "channel": "stderr",
+          "source_form": "stream_bytes"
+        },
+        "verified": true
+      },
+      {
+        "raw": {
+          "handle": "_krjVY_cAgG-WSltVFZ7ohZ5wQ9FrXcb",
+          "sha256": "102a1a6c4785ed05c01313109d61228c1924e5708b6d7d3ad39b5bb4d0e986ef",
+          "bytes": 932,
+          "media_type": "application/json",
+          "complete": true,
+          "schema_version": 1
+        },
+        "path": "D:/zzd/slop/codex-sol-stop-compat-20261001/.codex/sol/observations/_krjVY_cAgG-WSltVFZ7ohZ5wQ9FrXcb/raw",
+        "capture": {
+          "tool": "validation_receipt",
+          "channel": "response",
+          "source_form": "response_json"
+        },
+        "verified": true
+      },
+      {
+        "raw": {
+          "handle": "l9F_7OKENuoSNJvmSYngTIEjDAqKp7lA",
+          "sha256": "4e0479a5e61b64653da8d55e97dfd956236b47e3a10d29271814b83f80a7277e",
+          "bytes": 45,
+          "media_type": "text/plain; charset=utf-8",
+          "complete": false,
+          "schema_version": 1
+        },
+        "path": "D:/zzd/slop/codex-sol-stop-compat-20261001/.codex/sol/observations/l9F_7OKENuoSNJvmSYngTIEjDAqKp7lA/raw",
+        "capture": {
+          "tool": "validation",
+          "channel": "stdout",
+          "source_form": "stream_bytes"
+        },
+        "verified": true
+      },
+      {
+        "raw": {
+          "handle": "ODDEgOSfcReMpW1tAuIpG6YenU8JycY-",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "media_type": "text/plain; charset=utf-8",
+          "complete": false,
+          "schema_version": 1
+        },
+        "path": "D:/zzd/slop/codex-sol-stop-compat-20261001/.codex/sol/observations/ODDEgOSfcReMpW1tAuIpG6YenU8JycY-/raw",
+        "capture": {
+          "tool": "validation",
+          "channel": "stderr",
+          "source_form": "stream_bytes"
+        },
+        "verified": true
+      },
+      {
+        "raw": {
+          "handle": "e3S8NI0gD-e7k4HXJAyMGI-WDOsvQX1l",
+          "sha256": "28dee7882ad52379ff52909343b725deb1c5e788c9f42bf3bac477a349d2908f",
+          "bytes": 935,
+          "media_type": "application/json",
+          "complete": true,
+          "schema_version": 1
+        },
+        "path": "D:/zzd/slop/codex-sol-stop-compat-20261001/.codex/sol/observations/e3S8NI0gD-e7k4HXJAyMGI-WDOsvQX1l/raw",
+        "capture": {
+          "tool": "validation_receipt",
+          "channel": "response",
+          "source_form": "response_json"
+        },
+        "verified": true
+      },
+      {
+        "raw": {
+          "handle": "nMXK0WrM6STs0GlpeRXbJUuBFGtDzmuk",
+          "sha256": "722fde9565125d7189e3b6da649df2a9c495e13a464890aede19ceddc6508c66",
+          "bytes": 25,
+          "media_type": "text/plain; charset=utf-8",
+          "complete": true,
+          "schema_version": 1
+        },
+        "path": "D:/zzd/slop/codex-sol-stop-compat-20261001/.codex/sol/observations/nMXK0WrM6STs0GlpeRXbJUuBFGtDzmuk/raw",
+        "capture": {
+          "tool": "validation",
+          "channel": "stdout",
+          "source_form": "stream_bytes"
+        },
+        "verified": true
+      },
+      {
+        "raw": {
+          "handle": "AWaEdupr4MiI3UbZIpXJWq1qJoO5ntDh",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "media_type": "text/plain; charset=utf-8",
+          "complete": true,
+          "schema_version": 1
+        },
+        "path": "D:/zzd/slop/codex-sol-stop-compat-20261001/.codex/sol/observations/AWaEdupr4MiI3UbZIpXJWq1qJoO5ntDh/raw",
+        "capture": {
+          "tool": "validation",
+          "channel": "stderr",
+          "source_form": "stream_bytes"
+        },
+        "verified": true
+      },
+      {
+        "raw": {
+          "handle": "8Pu4Yrre_OvMCEUIOzaoL-1r_3l7ch-d",
+          "sha256": "4af1d67aec7ded6a0191b55d7b18b0d9b206882c2b7d65d861656f336cc40181",
+          "bytes": 76,
+          "media_type": "text/plain; charset=utf-8",
+          "complete": true,
+          "schema_version": 1
+        },
+        "path": "D:/zzd/slop/codex-sol-stop-compat-20261001/.codex/sol/observations/8Pu4Yrre_OvMCEUIOzaoL-1r_3l7ch-d/raw",
+        "capture": {
+          "tool": "sol_apply_patch",
+          "channel": "stdout",
+          "source_form": "stream_bytes"
+        },
+        "verified": true
+      },
+      {
+        "raw": {
+          "handle": "sGqSxb1lrSdGt7MVbsO8qF5PLuTNUM1n",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "media_type": "text/plain; charset=utf-8",
+          "complete": true,
+          "schema_version": 1
+        },
+        "path": "D:/zzd/slop/codex-sol-stop-compat-20261001/.codex/sol/observations/sGqSxb1lrSdGt7MVbsO8qF5PLuTNUM1n/raw",
+        "capture": {
+          "tool": "sol_apply_patch",
+          "channel": "stderr",
+          "source_form": "stream_bytes"
+        },
+        "verified": true
+      },
+      {
+        "raw": {
+          "handle": "7zEFfe7iQtveTPbrhYpT8eGhXrDrt8tc",
+          "sha256": "74d9e65ab8c55417e3eb469fd56e887d368ab7799fd938216cd43f9262f8db92",
+          "bytes": 357,
+          "media_type": "application/json",
+          "complete": true,
+          "schema_version": 1
+        },
+        "path": "D:/zzd/slop/codex-sol-stop-compat-20261001/.codex/sol/observations/7zEFfe7iQtveTPbrhYpT8eGhXrDrt8tc/raw",
+        "capture": {
+          "tool": "change_event",
+          "channel": "response",
+          "source_form": "response_json"
+        },
+        "verified": true
+      }
+    ],
+    "sources": [
+      {
+        "path": "D:/zzd/slop/codex-sol-host-runs/stop-compat-20261001/rawdir/desktop-hooks-review-ui.txt",
+        "bytes": 4117,
+        "sha256": "78ef4dd83067e925adde466531c2c811faa091d2e6575614f14d0fc1dc895d76"
+      },
+      {
+        "path": "D:/zzd/slop/codex-sol-host-runs/stop-compat-20261001/rawdir/desktop-hooks-allow-action.json",
+        "bytes": 170,
+        "sha256": "d340b5e79ef75e6048f00cfb7d1c54ec48016f06745f92e22c92ee9ff213400a"
+      },
+      {
+        "path": "D:/zzd/slop/codex-sol-host-runs/stop-compat-20261001/rawdir/desktop-baseline-stop.action.json",
+        "bytes": 286,
+        "sha256": "6a1cec891cba713e9b26eb9b86b03aeebb3f341d00e50bf80fce5eb988d1d522"
+      },
+      {
+        "path": "D:/zzd/slop/codex-sol-host-runs/stop-compat-20261001/rawdir/desktop-baseline-stop.immediate.json",
+        "bytes": 1984,
+        "sha256": "e79dbbd5d07cfef0bbed904507965ecd2eec5a3729d1d9e20e55d650e99b901c"
+      },
+      {
+        "path": "D:/zzd/slop/codex-sol-host-runs/stop-compat-20261001/rawdir/desktop-baseline-stop.final.json",
+        "bytes": 1563,
+        "sha256": "17b24104fd8d230d5976081814f6595cc09303171fab65eeddeca8bede02ddb9"
+      },
+      {
+        "path": "D:/zzd/slop/codex-sol-host-runs/stop-compat-20261001/rawdir/desktop-baseline.protocol.jsonl",
+        "bytes": 2094,
+        "sha256": "ee0cfa7bee702b1f79cd4f71ffcb38aadea84480765e44592f5dd84c5005e2df"
+      },
+      {
+        "path": "D:/zzd/slop/codex-sol-host-runs/stop-compat-20261001/rawdir/desktop-baseline.thread.json",
+        "bytes": 2702,
+        "sha256": "300c22579d28cc809e368c2b67c9443d34f87b3f50810fc46db27cfcb6ab00bb"
+      },
+      {
+        "path": "D:/zzd/slop/codex-sol-host-runs/stop-compat-20261001/rawdir/desktop-state-rejected.thread.json",
+        "bytes": 2326,
+        "sha256": "e79038b74f56266a05dc7912b3f4094c5f9dad22ed260195a0f676c4cafb61d8"
+      },
+      {
+        "path": "D:/zzd/slop/codex-sol-host-runs/stop-compat-20261001/rawdir/guard-state-rejected.protocol.jsonl",
+        "bytes": 2088,
+        "sha256": "028d1eebd0bfebbebfd568262dcf0bedeb4803738f55a2124c69f0d019a2ca1d"
+      },
+      {
+        "path": "D:/zzd/slop/codex-sol-host-runs/stop-compat-20261001/rawdir/desktop-events-stop.action.json",
+        "bytes": 261,
+        "sha256": "e442160d28453779d56dd4e53875f6aa401c6fdf714cc2f9efad4f29c62a7b98"
+      },
+      {
+        "path": "D:/zzd/slop/codex-sol-host-runs/stop-compat-20261001/rawdir/desktop-events-stop.before-ui.txt",
+        "bytes": 38022,
+        "sha256": "1928ade16f3592879bbe3b0b52bbf4a6eb9d646e444022103aa470376ded8a9a"
+      },
+      {
+        "path": "D:/zzd/slop/codex-sol-host-runs/stop-compat-20261001/rawdir/desktop-events-stop.after-ui.txt",
+        "bytes": 38014,
+        "sha256": "def22fa6c190d30d7ae978f67261d237c8ef34e31a3fbce32bc2695b24ff2bdc"
+      },
+      {
+        "path": "D:/zzd/slop/codex-sol-host-runs/stop-compat-20261001/rawdir/desktop-events-stop.immediate.json",
+        "bytes": 2675,
+        "sha256": "6499a5af4a2972c01695699b31a509f98efab493643992269028afa748ee6b8d"
+      },
+      {
+        "path": "D:/zzd/slop/codex-sol-host-runs/stop-compat-20261001/rawdir/desktop-events-stop.protocol.jsonl",
+        "bytes": 2090,
+        "sha256": "1c791902f924ec5da8825c15972089a019d40ba6046c1be5efc5f7dcfe735067"
+      },
+      {
+        "path": "D:/zzd/slop/codex-sol-host-runs/stop-compat-20261001/rawdir/desktop-events.thread.json",
+        "bytes": 659,
+        "sha256": "344111dddb9093d71524e083a1b716f197806a19ed9db81d7f50238e03021dbf"
+      },
+      {
+        "path": "D:/zzd/slop/codex-sol-host-runs/stop-compat-20261001/rawdir/desktop-events-cancel.event.json",
+        "bytes": 610,
+        "sha256": "31bdaaa83d0c1b1f054ba8d008348241e87eb7321ccb73a416d3966c4d462906"
+      },
+      {
+        "path": "D:/zzd/slop/codex-sol-host-runs/stop-compat-20261001/rawdir/desktop-recovery.thread.json",
+        "bytes": 6430,
+        "sha256": "1082816ee6801eeb83b6e79d8ad90ac5202b9d980c39e7fddd8cf704c3c05821"
+      },
+      {
+        "path": "D:/zzd/slop/codex-sol-host-runs/stop-compat-20261001/rawdir/recovery.protocol.jsonl",
+        "bytes": 4605,
+        "sha256": "9bf67a37aa7a2388f8a7c725791df526db0aab44c4be165547235be4ab69efc3"
+      }
+    ]
+  },
+  "tui": {
+    "unconfigured_baseline": {
+      "case": "TUI-0.159.2-Esc-01",
+      "result": "failed_stop_acceptance",
+      "host_exe": "<USER_HOME>\\AppData\\Local\\OpenAI\\Codex\\bin\\c6fe824d725f02d7\\codex.exe",
+      "client_version": "0.159.2",
+      "codex_version": "0.159.2",
+      "model": "gpt-6-luna",
+      "reasoning_effort": "max",
+      "sandbox_mode": "danger-full-access",
+      "approval_policy": "never",
+      "hook_trust_bypass": false,
+      "thread_id": "01a0f555-27fe-7e82-81ea-e545875ef225",
+      "turn_id": "01a0f55b-08a8-7213-93e3-091a1e036291",
+      "tool_name": "sol_apply_patch",
+      "call_id": "exec-9805aebe-70c0-4462-b7a6-392c3841aa2e",
+      "request_id": 2,
+      "tools_call_count": 1,
+      "cancel_notification_count": 0,
+      "validator_started_at": "2026-10-01T02:46:34.973Z",
+      "validator_pid": 38812,
+      "validator_nonce": "f92693a7-cffd-4d6c-91ae-2c2ee878efed",
+      "watcher_observed_at": "2026-10-01T02:46:34.9903115Z",
+      "esc_send_started_at": "2026-10-01T02:46:35.018Z",
+      "esc_send_completed_at": "2026-10-01T02:46:35.399Z",
+      "mcp_response_at": "2026-10-01T02:48:05.204Z",
+      "receipt_status": "timeout",
+      "receipt_reason": "timeout",
+      "check_id": "windows_acceptance/mode_check",
+      "check_status": "timeout",
+      "check_duration_ms": 90262,
+      "stdout_handle": "qhsw_zLBjWOsHBm_YpGl1KfdUc2A4lDg",
+      "stdout_bytes": 45,
+      "stdout_complete": false,
+      "api_error_interrupted": false,
+      "tui_displayed_interrupted": true,
+      "runner_alive_at_esc": "not_sampled",
+      "runner_alive_post_timeout": false,
+      "owner_file_present_post_timeout": false,
+      "post_timeout_snapshot_at": "2026-10-01T02:53:13.3922514Z",
+      "receipt_path": "D:\\zzd\\slop\\codex-sol-host-runs\\stop-compat-20261001\\tui01592\\receipt.json",
+      "wire_path": "D:\\zzd\\slop\\codex-sol-host-runs\\stop-compat-20261001\\tui01592\\rawdir\\protocol.jsonl",
+      "started_copy_path": "D:\\zzd\\slop\\codex-sol-host-runs\\stop-compat-20261001\\tui01592\\started.json",
+      "observations_path": "D:\\zzd\\slop\\codex-sol-host-runs\\stop-compat-20261001\\tui01592\\observations"
+    },
+    "explicit_event_bridge": {
+      "result": "passed",
+      "client_version": "0.159.2",
+      "hook_trust_bypass": false,
+      "thread_id": "01a0f572-e5ec-7052-b452-6a6c7ae9ea90",
+      "turn_id": "01a0f5a0-3a99-7213-97d7-63f62ffef274",
+      "request_id": 4,
+      "request_at": "2026-10-01T04:01:59.129Z",
+      "response_at": "2026-10-01T04:02:00.054Z",
+      "action": {
+        "at": "2026-10-01T04:01:53.813628+00:00",
+        "pid": 42024,
+        "sent_key": "enter",
+        "validator": {
+          "mode": "wait",
+          "pid": 32652,
+          "nonce": "57b26eb9-04c9-40c4-a6cd-1b5f42c3bcb0",
+          "started_at": "2026-10-01T04:01:59.451Z"
+        },
+        "esc_at": "2026-10-01T04:01:59.483562+00:00",
+        "esc_sent": true
+      },
+      "stop_to_response_ms": 571,
+      "events": [
+        {
+          "at": "2026-10-01T04:01:53.893Z",
+          "type": "task_started",
+          "turn_id": "01a0f5a0-3a99-7213-97d7-63f62ffef274",
+          "root_turn_id": "01a0f5a0-3a99-7213-97d7-63f62ffef274",
+          "started_at": 1790827313,
+          "model_context_window": 258400,
+          "collaboration_mode_kind": "default"
+        },
+        {
+          "at": "2026-10-01T04:01:59.516Z",
+          "type": "turn_aborted",
+          "turn_id": "01a0f5a0-3a99-7213-97d7-63f62ffef274",
+          "reason": "interrupted",
+          "started_at": 1790827313,
+          "completed_at": 1790827319,
+          "duration_ms": 5632
+        }
+      ],
+      "cancel_notifications": 0,
+      "receipt": {
+        "schema_version": 1,
+        "receipt_id": "40ab882e-fe98-42a0-b0c0-7bf8db3c6c18",
+        "event_id": "7f47d294-ad7b-4e75-845a-fe1b95bfa8ac",
+        "change_digest": "7e5908ea704658b8b191b4e7e5afe1d13a33342f7daa8c84f8b2f68759246c6e",
+        "validation_key": "edefa941920de733cc166ccfc6cae95f44abadb4bc1465e438eac8b9346847eb",
+        "status": "error",
+        "reason": "interrupted",
+        "checks": [
+          {
+            "id": "windows_acceptance/mode_check",
+            "status": "error",
+            "reason": "interrupted",
+            "exit_code": 1,
+            "duration_ms": 651,
+            "output": [
+              {
+                "schema_version": 1,
+                "handle": "jFrSQjbYAKId8lQbsEr6iGTXF3LBixuz",
+                "sha256": "1ddeb77802ff8dcd2e964f6f44690108d9173f48e654cf489624482ccce67cc1",
+                "bytes": 45,
+                "media_type": "text/plain; charset=utf-8",
+                "complete": false
+              },
+              {
+                "schema_version": 1,
+                "handle": "6GyfOLhkub82nCgxU-oskrJSVQEXhw-J",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "bytes": 0,
+                "media_type": "text/plain; charset=utf-8",
+                "complete": false
+              }
+            ]
+          }
+        ],
+        "evidence_handle": "OZIFWeYNSt3swGO8hspi5hxKZSgLcxw4"
+      },
+      "cleanup": {
+        "sampled_at": "2026-10-01T04:06:19.024814+00:00",
+        "validator_pid": 32652,
+        "validator_alive": false,
+        "owner_present": false,
+        "final_mode": "pass"
+      },
+      "archives": [
+        {
+          "raw": {
+            "handle": "jFrSQjbYAKId8lQbsEr6iGTXF3LBixuz",
+            "sha256": "1ddeb77802ff8dcd2e964f6f44690108d9173f48e654cf489624482ccce67cc1",
+            "bytes": 45,
+            "media_type": "text/plain; charset=utf-8",
+            "complete": false,
+            "schema_version": 1
+          },
+          "source": {
+            "path": "D:/zzd/slop/codex-sol-tui-01592-20261001/.codex/sol/observations/jFrSQjbYAKId8lQbsEr6iGTXF3LBixuz/raw",
+            "bytes": 45,
+            "sha256": "1ddeb77802ff8dcd2e964f6f44690108d9173f48e654cf489624482ccce67cc1"
+          },
+          "verified": true
+        },
+        {
+          "raw": {
+            "handle": "6GyfOLhkub82nCgxU-oskrJSVQEXhw-J",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0,
+            "media_type": "text/plain; charset=utf-8",
+            "complete": false,
+            "schema_version": 1
+          },
+          "source": {
+            "path": "D:/zzd/slop/codex-sol-tui-01592-20261001/.codex/sol/observations/6GyfOLhkub82nCgxU-oskrJSVQEXhw-J/raw",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "verified": true
+        },
+        {
+          "raw": {
+            "handle": "OZIFWeYNSt3swGO8hspi5hxKZSgLcxw4",
+            "sha256": "eebdfa44ad804317349de3bfa3320c3a45fd36bf58e867e013e35c165c250322",
+            "bytes": 934,
+            "media_type": "application/json",
+            "complete": true,
+            "schema_version": 1
+          },
+          "source": {
+            "path": "D:/zzd/slop/codex-sol-tui-01592-20261001/.codex/sol/observations/OZIFWeYNSt3swGO8hspi5hxKZSgLcxw4/raw",
+            "bytes": 934,
+            "sha256": "eebdfa44ad804317349de3bfa3320c3a45fd36bf58e867e013e35c165c250322"
+          },
+          "verified": true
+        }
+      ],
+      "recovery": {
+        "result": "passed_after_correcting_recall_arguments",
+        "mutation_replayed": false,
+        "patch_turn_id": "01a0f5a1-991b-7330-a054-0848aae8c471",
+        "recall_turn_id": "01a0f5a2-7f34-7663-bdf8-8f286c877c32",
+        "patch": {
+          "tool_status": "ok",
+          "execution": {
+            "status": "passed",
+            "reason": "success",
+            "exit_code": 0,
+            "duration_ms": 61
+          },
+          "changed_paths": [
+            "final_recovery_20261001.py"
+          ],
+          "validation": {
+            "event_id": "7a9e310b-a789-4360-a74a-953a5e86e394",
+            "change_digest": "d17ad9b9703dd8cb234d4021f40c3377928618ba7dff95350491a26a9c132f84",
+            "status": "passed",
+            "reason": "all_checks_passed",
+            "executed": 1,
+            "skipped": 0,
+            "first_failure": null,
+            "evidence_handle": "OwjwBw8PXbXJWV3fGkDHaSe-IXwmL4S-"
+          },
+          "observation": {
+            "schema_version": 1,
+            "call_id": "084b2645-77e1-42d1-87b5-1877faff6187",
+            "tool": "sol_apply_patch",
+            "tool_status": "ok",
+            "mode": "inline",
+            "raw": [
+              {
+                "schema_version": 1,
+                "handle": "8oAv1bvQG8FBPtu9TH0cbPVw0J6PILHJ",
+                "sha256": "e26add12aa8682ab54af680dea65c255fd925b03f25a9138cae16b5a2bf3cf03",
+                "bytes": 67,
+                "media_type": "text/plain; charset=utf-8",
+                "complete": true
+              },
+              {
+                "schema_version": 1,
+                "handle": "7ax-ZDUJwJcYOK_0PV_WS0Gs7SzBQmMG",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "bytes": 0,
+                "media_type": "text/plain; charset=utf-8",
+                "complete": true
+              }
+            ],
+            "summary": "tool_status=ok; upstream_complete=true; mode=inline; raw_bytes=67; raw_complete=true; omitted_bytes=0",
+            "excerpts": [
+              {
+                "handle": "8oAv1bvQG8FBPtu9TH0cbPVw0J6PILHJ",
+                "start_byte": 0,
+                "end_byte": 67,
+                "text": "Success. Updated the following files:\nA final_recovery_20261001.py\n"
+              }
+            ],
+            "omitted_bytes": 0,
+            "reason": "inline_preview"
+          },
+          "change_event_raw": {
+            "schema_version": 1,
+            "handle": "C3Dmwp9HhYsBbttvZC7GWbErdt34xdfL",
+            "sha256": "57a02e4db4ace07bf977bd8339b71214b2d6783fc1c8d6e473056adac5f1ba44",
+            "bytes": 348,
+            "media_type": "application/json",
+            "complete": true
+          },
+          "changed_paths_known": true,
+          "changed_path_count": 1,
+          "changed_paths_omitted": 0
+        },
+        "initial_recall_errors": [
+          {
+            "call": "sol_recall lines",
+            "isError": true,
+            "values": [
+              "Input validation error: Invalid arguments for tool sol_recall: selector.kind: Invalid discriminator value. Expected 'lines' | 'keyword' | 'bytes'"
+            ]
+          },
+          {
+            "call": "sol_recall keyword",
+            "isError": true,
+            "values": [
+              "Input validation error: Invalid arguments for tool sol_recall: selector.kind: Invalid discriminator value. Expected 'lines' | 'keyword' | 'bytes'"
+            ]
+          }
+        ],
+        "corrected_recalls": [
+          {
+            "call": 1,
+            "isError": false,
+            "values": [
+              {
+                "schema_version": 1,
+                "handle": "jFrSQjbYAKId8lQbsEr6iGTXF3LBixuz",
+                "sha256": "1ddeb77802ff8dcd2e964f6f44690108d9173f48e654cf489624482ccce67cc1",
+                "chunks": [
+                  {
+                    "start_byte": 0,
+                    "end_byte": 45,
+                    "text": "TEST_MODE=wait waiting_for_release pid=32652\n",
+                    "start_line": 1,
+                    "end_line": 1
+                  }
+                ],
+                "truncated": false,
+                "next_cursor": null
+              }
+            ]
+          },
+          {
+            "call": 2,
+            "isError": false,
+            "values": [
+              {
+                "schema_version": 1,
+                "handle": "OZIFWeYNSt3swGO8hspi5hxKZSgLcxw4",
+                "sha256": "eebdfa44ad804317349de3bfa3320c3a45fd36bf58e867e013e35c165c250322",
+                "chunks": [
+                  {
+                    "start_byte": 0,
+                    "end_byte": 934,
+                    "text": "{\"schema_version\":1,\"receipt_id\":\"40ab882e-fe98-42a0-b0c0-7bf8db3c6c18\",\"event_id\":\"7f47d294-ad7b-4e75-845a-fe1b95bfa8ac\",\"change_digest\":\"7e5908ea704658b8b191b4e7e5afe1d13a33342f7daa8c84f8b2f68759246c6e\",\"validation_key\":\"edefa941920de733cc166ccfc6cae95f44abadb4bc1465e438eac8b9346847eb\",\"status\":\"error\",\"reason\":\"interrupted\",\"checks\":[{\"id\":\"windows_acceptance/mode_check\",\"status\":\"error\",\"reason\":\"interrupted\",\"exit_code\":1,\"duration_ms\":651,\"output\":[{\"schema_version\":1,\"handle\":\"jFrSQjbYAKId8lQbsEr6iGTXF3LBixuz\",\"sha256\":\"1ddeb77802ff8dcd2e964f6f44690108d9173f48e654cf489624482ccce67cc1\",\"bytes\":45,\"media_type\":\"text/plain; charset=utf-8\",\"complete\":false},{\"schema_version\":1,\"handle\":\"6GyfOLhkub82nCgxU-oskrJSVQEXhw-J\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"bytes\":0,\"media_type\":\"text/plain; charset=utf-8\",\"complete\":false}]}],\"evidence_handle\":\"OZIFWeYNSt3swGO8hspi5hxKZSgLcxw4\"}",
+                    "start_line": 1,
+                    "end_line": 1
+                  }
+                ],
+                "truncated": false,
+                "next_cursor": null
+              }
+            ]
+          }
+        ],
+        "old_stdout_complete": false,
+        "receipt_archive_complete": true
+      },
+      "sources": [
+        {
+          "path": "D:/zzd/slop/codex-sol-host-runs/stop-compat-20261001/tui01592/final-wire.jsonl",
+          "bytes": 6985,
+          "sha256": "0b85e31d4f5d5484fa1832e0667c866ece9a39855d005b1cb5252f840af84aa2"
+        },
+        {
+          "path": "D:/zzd/slop/codex-sol-host-runs/stop-compat-20261001/tui01592/final-esc.action.json",
+          "bytes": 1088,
+          "sha256": "e3acf0daefc088810b96f8b0305ac55c61a53fe047ef9e7e65c4e33698a8de46"
+        },
+        {
+          "path": "D:/zzd/slop/codex-sol-host-runs/stop-compat-20261001/tui01592/final-cleanup.json",
+          "bytes": 166,
+          "sha256": "258fd6f84b6a16ef48c75f3d6211bed5d4bda043cb61684e28b5ee0c1b27cbc7"
+        },
+        {
+          "path": "D:/zzd/slop/codex-sol-host-runs/stop-compat-20261001/tui01592/final-recovery.ui.json",
+          "bytes": 996,
+          "sha256": "67d8168a935fe19b8bf5c2109b2df39e4c7c543e48711d9f55ebb6c65efb722c"
+        },
+        {
+          "path": "D:/zzd/slop/codex-sol-tui-01592-20261001/.codex/hooks.json",
+          "bytes": 1105,
+          "sha256": "7f944574aaf697f15d995cdda0eeb2df6f2b59b378be21c71a6219c8c22a3b4e"
+        },
+        {
+          "path": "D:/zzd/slop/codex-sol-tui-01592-20261001/.codex/config.toml",
+          "bytes": 816,
+          "sha256": "4d508abe09207bc3a5c72f98db584ac90dabddf10f702776c88eb4f98d59a3bd"
+        }
+      ],
+      "limitations": [
+        "Reused the already-authenticated isolated TUI; fresh launches failed workspace routing discovery before any tool call.",
+        "Native Shell cancellation and restricted sandbox/ask are separate unverified paths."
+      ]
+    }
+  },
+  "limits": [
+    "Native MCP cancellation notifications still absent in tested hosts; bridge must be explicitly configured.",
+    "Restricted sandbox/ask approval and native Shell GUI Stop are not covered by this bridge.",
+    "Only recorded local versions are validated; rollout format is a version-specific compatibility boundary.",
+    "Old failure evidence remains unchanged; recall truncation and source completeness are separate."
+  ],
+  "path_redaction": "User-home prefixes are normalized to <USER_HOME>; source SHA-256 values refer to the unchanged local source files."
+}

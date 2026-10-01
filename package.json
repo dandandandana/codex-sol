@@ -1,0 +1,16 @@
+{
+  "name": "codex-sol",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=20.8" },
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "check": "npm test && npm audit --audit-level=high --registry=https://registry.npmjs.org/"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "2.2.0",
+    "ajv": "8.20.0",
+    "zod": "4.6.5"
+  }
+}

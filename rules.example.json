@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "rules": [
+    {
+      "schema_version": 1,
+      "id": "python",
+      "globs": ["**/*.py"],
+      "watch_paths": ["**/*"],
+      "commands": [
+        {
+          "id": "unit-tests",
+          "argv": ["python", "-m", "unittest", "discover", "-s", "tests"],
+          "cwd": ".",
+          "timeout_ms": 120000
+        }
+      ]
+    }
+  ]
+}
