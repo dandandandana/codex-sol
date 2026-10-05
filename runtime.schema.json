@@ -172,8 +172,8 @@
         "workspace": { "$ref": "#/$defs/NonEmptyString" },
         "rules": { "$ref": "#/$defs/NonEmptyString" },
         "node": { "$ref": "#/$defs/NonEmptyString" },
-        "shell": { "$ref": "#/$defs/NonEmptyString" },
-        "load_profile": { "type": "boolean" },
+        "shell": { "$ref": "#/$defs/NonEmptyString", "description": "Absolute PowerShell executable on Windows or Bash executable on Linux." },
+        "load_profile": { "type": "boolean", "description": "Windows controls PowerShell profiles; Linux true uses bash --login -c, false uses --noprofile --norc -c. Noninteractive Bash still honors inherited BASH_ENV." },
         "timeout_ms": { "type": "integer", "minimum": 1, "maximum": 300000 },
         "generated": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/WorkspaceGlob" } }
       },

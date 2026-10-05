@@ -1,6 +1,6 @@
 # Codex-SoL V0.1
 
-SoL-Pi 的 Codex 本地适配项目：帮助模型发现并复用项目内已登记的组件，在修改后维护模块职责和公共契约，并用真实检查、复核与恢复记录延续下一次任务。当前主要验证 JavaScript 项目和 Windows 宿主。
+SoL-Pi 的 Codex 本地适配项目：帮助模型发现并复用项目内已登记的组件，在修改后维护模块职责和公共契约，并用真实检查、复核与恢复记录延续下一次任务。当前主要验证 JavaScript 项目；Windows 宿主证据保留，Linux CLI 接入已在 WSL2 Ubuntu 24.04 验证，范围见 [Linux 使用与验收](fixtures/linux/README.md)。
 
 优先通过[本地插件安装说明](PLUGIN.md)接入；插件标识为 `codex-sol@sol-local`。本仓库保存开发源码，安装前需要依照说明生成兼容插件包。真实模型稳定自主连续任务、完整 Desktop GUI 流程和成本对照仍待验收。
 
@@ -33,13 +33,13 @@ V0.1 原始范围覆盖以上 MCP 工具和按项目配置的 Windows Bash/Shell
 
 需要 Node.js 20.8 或更新版本。在本目录运行 `npm install`，将 [rules.example.json](rules.example.json) 复制到目标项目并按项目修改。规则命令是固定 `argv`，不由模型生成，也不经 shell。
 
-在目标项目 `.codex/config.toml` 中新增 MCP server，保留已有配置；将尖括号值替换成真实绝对路径。`CODEX_SOL_PATCH_EXECUTABLE` 必须指向安装的 Codex 实际 `.exe`，不能指向 `.cmd` / `.bat` shim。
+在目标项目 `.codex/config.toml` 中新增 MCP server，保留已有配置；将尖括号值替换成真实绝对路径。`CODEX_SOL_PATCH_EXECUTABLE` 必须指向安装的 Codex 原生执行文件（Windows `.exe`、Linux ELF），不能指向 `.cmd` / `.bat` shim 或 npm JS 启动器。
 
 ```toml
 [mcp_servers.codex_sol]
 command = "node"
 args = ["<Codex-SoL 目录绝对路径>/src/server.mjs"]
-env = { CODEX_SOL_WORKSPACE = "<目标项目绝对路径>", CODEX_SOL_RULES = "<目标项目规则文件绝对路径>", CODEX_SOL_PATCH_EXECUTABLE = "<Codex 实际 codex.exe 绝对路径>", CODEX_SOL_GENERATED_PATHS = '["**/__pycache__", "**/*.pyc"]' }
+env = { CODEX_SOL_WORKSPACE = "<目标项目绝对路径>", CODEX_SOL_RULES = "<目标项目规则文件绝对路径>", CODEX_SOL_PATCH_EXECUTABLE = "<Codex 原生执行文件绝对路径>", CODEX_SOL_GENERATED_PATHS = '["**/__pycache__", "**/*.pyc"]' }
 ```
 
 `CODEX_SOL_GENERATED_PATHS` 是可选 JSON 数组，用于排除测试生成物；其他语言请替换示例 glob。把目标项目的 `.codex/sol/` 加入 `.gitignore`。
@@ -82,7 +82,15 @@ hooks = true
 
 Codex 按 Git 工作区根发现项目 Hook。把 `.codex/hooks.json` 放在实际 Git 根；若要在嵌套验收目录单独启用 Hook，该目录必须成为独立 Git 根（`git init` 即可，无需提交），否则应把 Hook 配置放在 Codex 实际识别的根目录。确认 `NativeConfig.workspace` 与 Hook 所属项目根一致。
 
-Shell 命令仍由宿主 Shell 工具发起；Hook 在该命令中启动本地 runner，保留宿主选定的工作目录及其 sandbox/token 执行边界，并由配置指定 PowerShell 版本、profile 和超时。PreToolUse 返回 `permissionDecision=allow` 与 `updatedInput`，它有自己的审批语义，不保证保留普通 Shell 的逐命令 ask 提示。当前 CLI/TUI 运行使用 `-a never` 或 `danger-full-access`，受限 sandbox 与 ask 审批尚未验证。失败反馈不会撤销已执行的副作用。Linux 原生 Hook 接入按本轮范围暂缓，未实现或验收。
+Shell 命令仍由宿主 Shell 工具发起；Hook 在该命令中启动本地 runner，保留宿主选定的工作目录及其 sandbox/token 执行边界，并由配置指定 PowerShell 版本、profile 和超时。PreToolUse 返回 `permissionDecision=allow` 与 `updatedInput`，它有自己的审批语义，不保证保留普通 Shell 的逐命令 ask 提示。当前 CLI/TUI 运行使用 `-a never` 或 `danger-full-access`，受限 sandbox 与 ask 审批尚未验证。失败反馈不会撤销已执行的副作用。
+
+## 接入 Linux 终端
+
+使用 Linux 自身的 Node.js 20.8+、npm 和 Codex；WSL 下将检查工作区放在 Linux 文件系统中。先按 [PLUGIN.md](PLUGIN.md) 从 `codex/linux-adaptation` 分支接入插件；已有该分支工作区可直接安装依赖并打包，无需重新克隆。
+
+需要包装普通 Bash 操作时，另将 [native.linux.example.json](native.linux.example.json) 复制为项目 `.codex/native.json` 并填入实际路径。Linux 的 Node/Bash 路径支持符号链接，并核验执行权限；`load_profile=false` 使用 `--noprofile --norc -c`，`true` 使用 `--login -c`。非交互 Bash 仍会读取继承的 `BASH_ENV`。
+
+插件已有四项 Hook；额外 Bash 包装只合并 `^Bash$` 的 PreToolUse/PostToolUse，保留插件的 SessionStart、写入门禁和 Stop。完整配置、真实原生 Codex 文件的选择、复跑命令与验收边界见 [Linux 使用与验收](fixtures/linux/README.md)。Linux 已验证 Bash 非零退出、路径与权限、原生 patch、锁、超时和 SIGTERM 后恢复，以及真实 Codex app-server 的插件安装/重启装载。TUI 的交互审阅、Esc 中断和 Linux 宿主取消桥接仍需单独验收。
 
 ## 检查与详细合同
 

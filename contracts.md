@@ -13,8 +13,8 @@
 | 接口 | 输入 | 输出 | 副作用与失败 |
 | --- | --- | --- | --- |
 | `onChange(event: ChangeEvent)` | 实际改动路径、事件 ID、变更摘要 | `ValidationReceipt` | 串行选择规则、运行命令、归档输出与完整回执；重复 event_id 返回同一回执；运行中断记 `error/interrupted`，不自动重跑。 |
-| `sol_apply_patch(patch)` | Codex Begin Patch / End Patch 格式，最多 24,000 UTF-8 字节 | `ManagedCommandResult` | Windows 配置 `CODEX_SOL_PATCH_EXECUTABLE` 为实际 Codex `.exe` 后，以 `--codex-run-as-apply-patch` 调用原生 patch 引擎；按工作区快照识别真实改动并验证。 |
-| Windows Bash Hook runner | 原宿主 Bash/Shell 的 1–8000 字符命令及 `NativeConfig` | `ManagedCommandResult` 写入私有结果文件 | PreToolUse 改写当前 Shell 命令为本地 runner 启动命令；runner 在宿主 Shell 的工作目录、sandbox/token 下执行配置的 PowerShell，再对比变化并同步验证；PostToolUse 从私有结果文件读取失败结果。 |
+| `sol_apply_patch(patch)` | Codex Begin Patch / End Patch 格式，最多 24,000 UTF-8 字节 | `ManagedCommandResult` | 配置 `CODEX_SOL_PATCH_EXECUTABLE` 为实际 Codex 原生执行文件（Windows `.exe` / Linux ELF），以 `--codex-run-as-apply-patch` 调用引擎；按工作区快照识别真实改动并验证。 |
+| 原生 Bash Hook runner | 原宿主 Bash/Shell 的 1–8000 字符命令及 `NativeConfig` | `ManagedCommandResult` 写入私有结果文件 | PreToolUse 改写当前 Shell 命令为本地 runner 启动命令；runner 在宿主 Shell 的工作目录、sandbox/token 下执行 Windows PowerShell 或 Linux Bash，再对比变化并同步验证；PostToolUse 从私有结果文件读取失败结果。 |
 | `capture(meta: CaptureMeta, chunks: AsyncIterable<Uint8Array>)` | 包装边界取得的字节流或序列化响应 | `RawRef` | 工具启动前建立临时归档；边收边写，校验大小和 SHA-256，fsync 后原子提交；失败不发 handle。 |
 | `pack(meta: PackMeta, refs: RawRef[])` | 已提交原文引用与原工具结果状态 | `ObservationPack` | 按字节预算生成确定性摘要和摘录；不调用模型；失败语义不可改成 `ok`。 |
 | `recall(request: RecallRequest)` | handle 与 lines / keyword / bytes selector | `RecallResult` 或 `RecallError` | 每次打开核验 SHA-256，从不可变原文读取；单页最多 8 KiB；不接受任意路径。 |
@@ -74,19 +74,21 @@
 - Windows 和 Linux 的原生锁由操作系统随主进程退出释放。持锁期间，`.codex/sol/managed-modification.owner.json` 持久化 owner PID 和 runner 状态 `starting`、`running` 或 `idle`。主进程退出而 runner 仍运行时，新进程继续等待；runner 结束后可接收新的修改。新事件恢复不会清理旧 receipts、observations 或 `.running` 证据；若重新投递同一个事件，会将该事件的 `.running` 标记转为已持久化的 `error/interrupted` 回执，不重放旧验证。
 - 等锁的请求可取消；handler 内部应快速以 `INTERRUPTED` 结束，且在获得锁和开始修改前不得产生工作区改动。MCP SDK 2.2.0 对 `notifications/cancelled` 会 abort handler signal 并抑制该请求的 JSON-RPC 响应；stdio 验收不得要求客户端收到 `INTERRUPTED` payload。
 - owner 文件损坏，或验证启动期间主进程退出、状态停在 `starting` 且无法确认 child PID 时，必须返回 `RECOVERY_REQUIRED`。人工处理前先确认相关 Codex-SoL 主进程和验证 runner 均已退出。旧版 `.codex/sol/managed-modification.lock/` 目录也不会自动清理，需先停旧进程再清理。
-- 当前工作环境为 Windows；Linux 与其他 Unix 平台未在此环境实测。其他 Unix 的目录锁崩溃恢复不能套用 Windows/Linux 的 OS 自动释放行为。
+- Windows 既有验收保留；2026-10-05 在 WSL2 Ubuntu 24.04 的 Linux 文件系统中运行完整回归，覆盖跨进程锁、退出恢复和 Bash 后代清理，见 [Linux 验收](fixtures/linux/README.md)。其他 Unix 的目录锁崩溃恢复未实测，不能套用 Windows/Linux 的 OS 自动释放行为。
 
-## 7. Windows 原生操作接入
+## 7. Windows / Linux 原生操作接入
 
-- `runtime.schema.json` 中的 `NativeConfig` 和 `NativeRequest` 是 runner 的内部合同，不是 Codex Hook 输入 schema。当前 native Hook adapter 仅支持 Windows；`workspace`、`rules`、`node`、`shell` 都必须是绝对路径。运行时把 workspace 解析为真实路径，规则文件须为有界普通 JSON 文件，Node 和 PowerShell 配置须指向普通可执行文件。`load_profile`、`timeout_ms`（最大 300,000 ms）和 `generated` 按配置生效。
+- `runtime.schema.json` 中的 `NativeConfig` 和 `NativeRequest` 是 runner 的内部合同，不是 Codex Hook 输入 schema。native Hook adapter 支持 Windows PowerShell 与 Linux Bash，其他平台明确报 `CONFIG_ERROR`；`workspace`、`rules`、`node`、`shell` 都必须是绝对路径。运行时把 workspace 解析为真实路径，规则文件须为有界普通 JSON 文件。Linux 的 Node/Bash 路径可经符号链接解析到普通文件，且须具备当前用户的执行权限；Windows 沿用普通文件校验。`timeout_ms`（最大 300,000 ms）和 `generated` 按配置生效，schema_version 仍为 1，无配置迁移。
+- Windows 的 `load_profile=false` 使用 PowerShell `-NoProfile`。Linux 的 `true` 使用 Bash `--login -c`，`false` 使用 `--noprofile --norc -c`；非交互 Bash 仍遵循继承的 `BASH_ENV`。配置的 Linux shell 必须是 Bash，不支持把其他 shell 当作 Bash 启动。
 - Codex 按 Git 工作区根发现项目 Hook。`.codex/hooks.json` 与 Hook 所属项目根必须对应 Codex 实际识别的 Git 根；嵌套验收目录要单独使用 Hooks 时，应为该目录建立独立 Git 根（`git init` 即可，无需提交），或把配置放到实际 Git 根。`NativeConfig.workspace` 应指向同一项目根，避免 Hook、runner 与受管工作区不一致。
 - 项目 `.codex/config.toml` 需启用 `[features] hooks = true`；已有 MCP server 和 feature 设置应合并保留，不改全局配置。CLI/TUI 从 `/hooks` 审阅项目定义；Desktop 从“设置 → 钩子”检查 project Hook 项目、命令、matcher、timeout 和启用状态。
-- `sol_apply_patch` 只接受普通 Codex Begin Patch / End Patch 格式，最大 24,000 UTF-8 字节，路径为工作区相对路径。会拒绝越界路径、分隔符/ADS、`.git/` 和 `.codex/sol/`（大小写别名也拒绝），并在真实文件解析时拒绝经 junction / symlink 逃逸。工具用 `argv=[CODEX_SOL_PATCH_EXECUTABLE, '--codex-run-as-apply-patch', patch]` 调用引擎；该变量必须是安装后真正的 Codex `.exe` 绝对路径，不能是 `.cmd` 或 `.bat` shim。已有三工具行为保持兼容，新增 MCP 工具为 `sol_apply_patch`。
+- `validateWorkspacePath` 是无 I/O 的公共路径校验，文件操作与 patch 预检共用。路径使用工作区相对 `/` 分隔形式；空路径、绝对或驱动器形式、NUL、反斜杠、空段及 `.` / `..` 段均拒绝。`.git/`、`.codex/sol/` 是保留路径；Windows 按大小写别名匹配并额外拒绝 ADS、DOS 设备名、尾点/空格及非法文件名字符；Linux 按大小写区分，允许其他符合上述公共约束的文件名。`workspaceFile` 继续执行真实文件系统检查，拒绝链接逃逸；纯词法校验不替代该检查。
+- `sol_apply_patch` 只接受普通 Codex Begin Patch / End Patch 格式，最大 24,000 UTF-8 字节。工具用 `argv=[CODEX_SOL_PATCH_EXECUTABLE, '--codex-run-as-apply-patch', patch]` 调用引擎；该变量须是实际 Codex 原生执行文件的绝对路径，不能是 `.cmd` / `.bat` shim 或 npm JS 启动器。Linux 在执行前要求当前用户有执行权限；无权限报 `CONFIG_ERROR`，不启动 patch、不修改文件。
 - PreToolUse 对原生 `apply_patch`、`Edit`、`Write` 返回 deny，并告知使用 `sol_apply_patch`。这是路由指引，不会把当前原生调用变成同一 MCP 调用，也不保证覆盖其他写入工具。
-- 对 Bash/Shell，PreToolUse 把原命令写入 `.codex/sol/native/` 下的私有请求文件，并把 `updatedInput.command` 改成在原宿主 Shell 中调用本地 Node runner。Runner 从 `NativeConfig` 读取实际 PowerShell 路径、是否加载 profile 和超时；执行时保留宿主选择的工作目录，并要求该目录位于配置 workspace 内。Runner 在原 Shell 工具上下文中执行，宿主配置的 sandbox/token 仍是执行边界；但 PreToolUse 返回 `permissionDecision=allow` 与 `updatedInput`，这有独立审批语义，不能据此声称保留普通 Shell 的逐命令 ask 提示。当前 CLI/TUI 验收运行使用 `-a never` 或 `danger-full-access`，受限 sandbox 和 ask 模式未验证。这不是给模型新增的任意命令 MCP 工具。
+- 对 Bash/Shell，PreToolUse 把原命令写入 `.codex/sol/native/` 下的私有请求文件，并把 `updatedInput.command` 改成在原宿主 Shell 中调用本地 Node runner。Linux 启动路径使用 POSIX 单引号转义和 `exec`，原命令留在请求文件中，不拼进启动命令；Windows 沿用 PowerShell 转义。Runner 从 `NativeConfig` 读取实际 shell 路径、是否加载 profile 和超时；执行时保留宿主选择的工作目录，并要求该目录位于配置 workspace 内。Runner 在原 Shell 工具上下文中执行，宿主配置的 sandbox/token 仍是执行边界；但 PreToolUse 返回 `permissionDecision=allow` 与 `updatedInput`，这有独立审批语义，不能据此声称保留普通 Shell 的逐命令 ask 提示。当前宿主验收运行使用 `-a never` 或 `danger-full-access`，受限 sandbox 和 ask 模式未验证。这不是给模型新增的任意命令 MCP 工具。
 - Bash 命令长度为 1–8000 字符。工作区锁覆盖实际执行、执行前后变化检测及有变化时的同步验证。无变化不创建事件，也不验证。变化路径按完整集合记录；响应超预算时可省略 `changed_paths` 条目，但保留 `changed_path_count`、`changed_paths_omitted`，并通过 `change_event_raw` handle 精确召回事件。stdout 和 stderr 都捕获，即使退出码非零、超时或取消；结果中的 `execution`、`validation`、`tool_status` 各自表达执行、验证与宿主工具状态。ObservationPack 最大 4 KiB，managed-command envelope 最大 8 KiB。
 - PostToolUse 从 `.codex/sol/native/<call_id>.result.json` 读取提交结果；`tool_status` 非 `ok` 时用 `decision:block` 反馈完整 JSON，不依赖宿主 `tool_response`。执行已经发生后，反馈不会撤销它；中断且无提交结果时不自动重放。
-- Hook 是受信任项目配置的一部分，不是绝对安全边界。项目 `.codex/` 必须可信，Hook 必须在宿主提供的入口审阅并信任当前精确定义；CLI/TUI 使用 `/hooks`，Desktop 使用“设置 → 钩子”。不要改全局 trust 设置或常态绕过 trust。未信任项目、Hook 未获信任、其他或专业写入工具都可能绕过本层。本轮 Linux 原生 Hook 接入按用户要求暂缓，不实现或验收。
+- Hook 是受信任项目配置的一部分，不是绝对安全边界。项目 `.codex/` 必须可信，Hook 必须在宿主提供的入口审阅并信任当前精确定义；CLI/TUI 使用 `/hooks`，Desktop 使用“设置 → 钩子”。不要改全局 trust 设置或常态绕过 trust。未信任项目、Hook 未获信任、其他或专业写入工具都可能绕过本层。Linux 已通过真实 Bash runner 的失败反馈、去重、超时、SIGTERM 清理及后续恢复；真实 Codex app-server 另行通过插件装载，不代替 TUI 按 Esc 或 Linux 宿主取消桥接验收。
 
 ## 8. Optional MCP host cancellation bridge
 
@@ -145,6 +147,8 @@
 - 当前状态为 open/dirty/checking/completed/interrupted/abandoned。latest_validation 仍是原单次操作回执，不证明累计检查覆盖或语义复核；只有 §13 完成证据有效且已发布才 task_complete=true。IF-004 交付时，变更状态职责 Context 注入和新的 PreToolUse/Stop 门禁尚未接入；现有 Context accepted 仍是写前产物交接。后续状态投影按 §14、PreToolUse/Stop 门禁按 §15 接入，历史范围与当前实现分别记录。
 
 ## 13. 架构维护、复核与完成收尾（IF-004）
+
+Linux 的逐规则运行条件核验包括实际检查程序的当前执行权限。即使程序字节不变，撤销执行权限也会使对应缓存证据失效；只影响该规则，保留历史回执，不自动重跑。恢复执行权限后，原字节及其他输入、环境条件仍相同时可重新核验为有效。
 
 - 新登记在原记录增加可选 baseline_architecture_ref，保存初始架构/source/declaration facts 及真实 UTF-8 来源引用；显式调整保留此初始材料。旧记录先核验原始正文 SHA 再 parse，可选字段不通过默认值改写身份。缺初始事实返回 BEFORE_IMPACT_UNAVAILABLE，不从当前图伪造历史，也不将未经批准的初始快照称为认可基线。
 - sol_change_review 的严格输入由 changeReviewSchema 定义：prepare 为 `{change,phase:"prepare"}`；submit 为 `{change,phase:"submit",review_context_handle,review}`。仅 open/dirty 接受。prepare 固定需求/验收集合、累计路径、scope、源码、声明/policy、Context 配置和规则计划；返回 4096-byte packet 与完整归档。单来源 1 MiB UTF-8，归档 JSON 256 KiB；越限或来源变化明确失败。

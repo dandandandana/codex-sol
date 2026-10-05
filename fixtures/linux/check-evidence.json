@@ -1,0 +1,637 @@
+{
+  "schema_version": 1,
+  "stage": "linux-adaptation",
+  "recorded_at": "2026-10-05T10:56:25.751Z",
+  "status": "passed",
+  "branch": "codex/linux-adaptation",
+  "base_commit": "3f6ea68b9809c6443b155d6d90fb47b05f6a783e",
+  "command": {
+    "argv": [
+      "npm",
+      "run",
+      "check"
+    ],
+    "test_script": "node --test --test-concurrency=4 tests/*.test.mjs",
+    "check_script": "npm test && npm audit --audit-level=high --registry=https://registry.npmjs.org/"
+  },
+  "platforms": {
+    "windows": {
+      "schema_version": 1,
+      "status": "passed",
+      "platform": "win32",
+      "arch": "x64",
+      "uid": null,
+      "runtime": {
+        "node": "v24.11.0",
+        "npm": "11.6.3"
+      },
+      "command": {
+        "argv": [
+          "npm",
+          "run",
+          "check"
+        ],
+        "cwd": ".",
+        "started_at": "2026-10-05T10:54:32.824Z",
+        "ended_at": "2026-10-05T10:55:49.141Z",
+        "exit_code": 0,
+        "signal": null
+      },
+      "native_patch": {
+        "version": "codex-cli 0.160.0",
+        "sha256": "37762753b554982eef1c109303d1be652b6397f1479e844794353a85650199c6",
+        "actually_configured": true
+      },
+      "tests": {
+        "tests": 249,
+        "pass": 240,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 9,
+        "todo": 0
+      },
+      "audit": {
+        "status": "passed",
+        "vulnerabilities": 0,
+        "registry": "https://registry.npmjs.org/",
+        "audit_level": "high"
+      },
+      "source_inputs_unchanged": true,
+      "raw_log": {
+        "path": "slop/linux-adaptation/final-windows.log",
+        "bytes": 25196,
+        "sha256": "13e708191e31bed5aaaf58057cf5b521beba800b5f2059092e89a3e85a4a9ae9",
+        "distribution": "Ignored local acceptance artifact"
+      },
+      "source_input_count": 77,
+      "skip_scope": "Nine Linux-only regressions"
+    },
+    "linux": {
+      "schema_version": 1,
+      "status": "passed",
+      "platform": "linux",
+      "arch": "x64",
+      "uid": 1000,
+      "runtime": {
+        "node": "v24.11.0",
+        "npm": "11.6.1"
+      },
+      "command": {
+        "argv": [
+          "npm",
+          "run",
+          "check"
+        ],
+        "cwd": ".",
+        "started_at": "2026-10-05T10:54:57.944Z",
+        "ended_at": "2026-10-05T10:55:55.501Z",
+        "exit_code": 0,
+        "signal": null
+      },
+      "native_patch": {
+        "version": "codex-cli 0.160.0",
+        "sha256": "12eb3e81114588aca3b7998f4f19e8997b056aca08e57a7ca7c8a3ec8c652aad",
+        "actually_configured": true
+      },
+      "tests": {
+        "tests": 249,
+        "pass": 248,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 1,
+        "todo": 0
+      },
+      "audit": {
+        "status": "passed",
+        "vulnerabilities": 0,
+        "registry": "https://registry.npmjs.org/",
+        "audit_level": "high"
+      },
+      "source_inputs_unchanged": true,
+      "raw_log": {
+        "path": "slop/linux-adaptation/final-linux.log",
+        "bytes": 25801,
+        "sha256": "feda548db9cde1fb4a45f20d2e3f335080a10a482eba9899f49bb1696d1cff8e",
+        "distribution": "Ignored local acceptance artifact"
+      },
+      "source_input_count": 77,
+      "skip_scope": "One Windows uppercase metadata-alias regression"
+    }
+  },
+  "source_inputs_identical_across_platforms": true,
+  "source_inputs": [
+    {
+      "path": ".codex-plugin/plugin.json",
+      "bytes": 355,
+      "sha256": "b58dae388cfc4900a22b0d289781d87b2da04606c5d4bd51e4da38a37a46c021"
+    },
+    {
+      "path": ".mcp.json",
+      "bytes": 4225,
+      "sha256": "49c67bfe7aed67fc03c77b01d572a300a07edd52d4992af15ba3fe2d2e33d25d"
+    },
+    {
+      "path": "PLUGIN.md",
+      "bytes": 8555,
+      "sha256": "36eda43f573528c9684a4c8e6c0780bba3bed26674de3a469e83f2fa918965dd"
+    },
+    {
+      "path": "architecture.example.json",
+      "bytes": 25398,
+      "sha256": "73aeedbe5e36fb8ebd0910a570ddb6a38d6ed07868b5d70eefb054379d8a7549"
+    },
+    {
+      "path": "context.example.json",
+      "bytes": 1842,
+      "sha256": "f5dc3936c5ce13c506994ac3aeae9ffa74151759c23c8395df1beeae4933adf3"
+    },
+    {
+      "path": "fixtures/host/run-plugin-load.mjs",
+      "bytes": 7530,
+      "sha256": "23f78423446d40c357ebef7514fcb4a2613a256ea27b64bf0d6b9a8369ce4877"
+    },
+    {
+      "path": "hooks/hooks.json",
+      "bytes": 1034,
+      "sha256": "5face5c50f448f174c0ad498e18f461650b0f4d40e50df8a503ba7a59155a09d"
+    },
+    {
+      "path": "mcp.json",
+      "bytes": 259,
+      "sha256": "4b574340086d223f7116700115ad3674b9ebda0b7b938835c43667227aa3f1ef"
+    },
+    {
+      "path": "native.linux.example.json",
+      "bytes": 239,
+      "sha256": "738a6a122703f7896cc7120cfe7e8522f6478388a4a47077c5f1e38143257615"
+    },
+    {
+      "path": "package-lock.json",
+      "bytes": 4628,
+      "sha256": "24cb62a9e9110d14784df19ffc2cba858bed2246665bfcc8f8337ebf8552c0ac"
+    },
+    {
+      "path": "package.json",
+      "bytes": 456,
+      "sha256": "d892e0cfd171924bcf178dcfa4e0b2d17c023dd56278c345e3318504fa0c22ce"
+    },
+    {
+      "path": "plugin.json",
+      "bytes": 467,
+      "sha256": "dc5fcc229e0dafb4ad4a62eb97d3c6ee8e7de05130bcb21159bd6a79e348769f"
+    },
+    {
+      "path": "rules.example.json",
+      "bytes": 370,
+      "sha256": "0f258614fdf6fa4b9d287b0ed98164cf06203bda67bfe132160289b8b31221e6"
+    },
+    {
+      "path": "runtime.schema.json",
+      "bytes": 17938,
+      "sha256": "cd2e4ca7a2bdfe88e03e3aa9c42143755cc1fb9612573c21993a9ab4c2493e98"
+    },
+    {
+      "path": "scripts/package-plugin.mjs",
+      "bytes": 8569,
+      "sha256": "c5a1d7e5f67108cd7bb2964eb82fe31318c57aa66bddce6eaa465ce67c3b1aa1"
+    },
+    {
+      "path": "sol-project.example.json",
+      "bytes": 166,
+      "sha256": "71b20f49dffcc2e38158349ec2ccf04367ddeccf1761e8a48cc95867d81aa7ad"
+    },
+    {
+      "path": "src/architecture/change.mjs",
+      "bytes": 59250,
+      "sha256": "b985b3d44b9972359f084e1f5f5a72e0018d72b892817e1842dfe51f214b959d"
+    },
+    {
+      "path": "src/architecture/context.mjs",
+      "bytes": 27015,
+      "sha256": "221e22f8a0af37ff76ef6dba4d8d73ccb1bcde213104109ddfb7bb13bb7dbf82"
+    },
+    {
+      "path": "src/architecture/index.mjs",
+      "bytes": 29543,
+      "sha256": "16a76d78831fb9fb503fc2674fb3d4dab58260be2b43ba5a5bb065f61675dc61"
+    },
+    {
+      "path": "src/architecture/session.mjs",
+      "bytes": 11031,
+      "sha256": "c19c1e8c57d7492a950eb758e277affd57868a7bd72e835c0227d766890133d7"
+    },
+    {
+      "path": "src/context-hook.mjs",
+      "bytes": 9775,
+      "sha256": "7f7c5ef5cda11e094dadaa11e77acc6f3c06974c2638f2e15ed492c8a34db3f4"
+    },
+    {
+      "path": "src/host-cancellation.mjs",
+      "bytes": 8573,
+      "sha256": "dc963d0bcfc9779985a1b09e25c8eae228e3855467d988f44aa7d1dda2005b25"
+    },
+    {
+      "path": "src/managed-command.mjs",
+      "bytes": 5256,
+      "sha256": "bd4862e3dd1f58abd47b49ce3df5d149c96d9e0b996bb922dc7040e0612129aa"
+    },
+    {
+      "path": "src/native-hook.mjs",
+      "bytes": 10291,
+      "sha256": "c1a1dfd729b4b518d72cbe64eba6d7675126f18ea1df57afe12268ca3a2cde02"
+    },
+    {
+      "path": "src/pack.mjs",
+      "bytes": 11418,
+      "sha256": "fc78082e0d8209a65e5250eec06acc03ce55852e38e74b1378e80cec466ac67e"
+    },
+    {
+      "path": "src/patch.mjs",
+      "bytes": 2562,
+      "sha256": "36f24388e8bd6cfb3230cefa3d7df55bb98a1a5d16881db8de147f8225892f2f"
+    },
+    {
+      "path": "src/plugin-bootstrap.cjs",
+      "bytes": 3963,
+      "sha256": "bc4e5d94a3a711dc479c467e5632c3f5b9fd467ef45005a2d60d6ca64f410e0d"
+    },
+    {
+      "path": "src/plugin-launcher.mjs",
+      "bytes": 7995,
+      "sha256": "457a2238863d303cceb35eb113f6af436f8cef5453a7e38980f19984828dc40e"
+    },
+    {
+      "path": "src/process.mjs",
+      "bytes": 4508,
+      "sha256": "b8436a2e3e5c05a479b586af51c6c994c3fe80602140225d62c3fdd488d0aa11"
+    },
+    {
+      "path": "src/read.mjs",
+      "bytes": 3422,
+      "sha256": "1f229f01f65b13fbcfefa3cb5481a1f005e472a7052a221f4f22e66cdb0666d8"
+    },
+    {
+      "path": "src/recall.mjs",
+      "bytes": 8106,
+      "sha256": "7f01ce271603c70ebfd5bad806f733bc3776567e34665395946ea2d4784bc2a4"
+    },
+    {
+      "path": "src/schema.mjs",
+      "bytes": 874,
+      "sha256": "d11b589b786f6627e2d0144564d0fc3842cf1718ae77d10cc926da8034b3db42"
+    },
+    {
+      "path": "src/server.mjs",
+      "bytes": 19938,
+      "sha256": "3fe4d03ca3f19d161c41f8b5eb8b3f01404797b77355dc963534df3ad8c9f6cc"
+    },
+    {
+      "path": "src/store.mjs",
+      "bytes": 11452,
+      "sha256": "1cbb648f67c3848777d11d9f9cafa5474bbfe994639799a57802f7cb45522383"
+    },
+    {
+      "path": "src/validation.mjs",
+      "bytes": 29656,
+      "sha256": "dc141f4971aa21e8817da75be67f74e5afd3bb875887630f73bd52628fb62e2b"
+    },
+    {
+      "path": "src/workspace-lock.mjs",
+      "bytes": 5845,
+      "sha256": "33c630c82cc95064e7c66df7baa19a54e8bca2e6de6c3179cdb4a18e120b9a37"
+    },
+    {
+      "path": "src/workspace.mjs",
+      "bytes": 4374,
+      "sha256": "e679a100ba14439adde6bf96126cd4ffbda0943db0e9f00021c25fe40f52741c"
+    },
+    {
+      "path": "tests/architecture-maintenance.test.mjs",
+      "bytes": 18071,
+      "sha256": "ec650a42218f3df6f17c2c25060559b2224841de96820f2eb4e5ce7d45fdb041"
+    },
+    {
+      "path": "tests/architecture.test.mjs",
+      "bytes": 10942,
+      "sha256": "3962fd50dd7676d495f6fb4ae4b638a19c8af1d3760771a2c8d6b9846a87eec7"
+    },
+    {
+      "path": "tests/capture-failure.test.mjs",
+      "bytes": 10099,
+      "sha256": "0c9f321aa07e542337ba2c957b3b1fa8d28f08039a5916c291d819958139a43c"
+    },
+    {
+      "path": "tests/change-hooks.test.mjs",
+      "bytes": 16835,
+      "sha256": "8c20b8c4ebfa7128d5e12fd40768b23235d20ecfe626461c782a90a531c8fffd"
+    },
+    {
+      "path": "tests/change.test.mjs",
+      "bytes": 22403,
+      "sha256": "e336818e2237d58707b2e303717dcf67c9b66ecab82add91030f2bc4c3724030"
+    },
+    {
+      "path": "tests/closure.test.mjs",
+      "bytes": 30085,
+      "sha256": "f4c9eb4eac26c8046776a75843ebfb40405a6f03e02eef57e2419e00af9cccd0"
+    },
+    {
+      "path": "tests/context-change-hook.test.mjs",
+      "bytes": 21244,
+      "sha256": "b035f7374f36b60f2d98920b76890803ca28ed25657ba3d25e0882e0d3f6abd2"
+    },
+    {
+      "path": "tests/context-change.test.mjs",
+      "bytes": 18326,
+      "sha256": "7f459848cd56e410c1ab3ff1db340a54490ff72ecdc61e3c23afe54f86c47db6"
+    },
+    {
+      "path": "tests/context-hook.test.mjs",
+      "bytes": 13659,
+      "sha256": "f96b6b18a265466aff6b458aa8c1b216b39f1f0bb4ae9318dddbdf8852dba119"
+    },
+    {
+      "path": "tests/context.test.mjs",
+      "bytes": 19504,
+      "sha256": "1e6a0e1c67bb2812db395f7701fbca6fc17aaf3b3aad7c73ac11852209df5043"
+    },
+    {
+      "path": "tests/failure-protocol.test.mjs",
+      "bytes": 19200,
+      "sha256": "8894b977310318075aabc47db0a0ac0af4a05ad8e5d40e8e059510f6d5e7c3d4"
+    },
+    {
+      "path": "tests/helpers/mcp-client.mjs",
+      "bytes": 6091,
+      "sha256": "fe520f34c4e0f8db388e9b02887fe411a8538044755231d9e28abbdeeb0848fd"
+    },
+    {
+      "path": "tests/host-cancellation.test.mjs",
+      "bytes": 12085,
+      "sha256": "b2c495e5c072d612ea2c1d21287fefba7b784ec34fad0375778861de792d0bb1"
+    },
+    {
+      "path": "tests/host-client.test.mjs",
+      "bytes": 6604,
+      "sha256": "c6569296f679e0b1b5979e85fc1e1db0a8a1fc5887ee54a1786069bcc71472b4"
+    },
+    {
+      "path": "tests/linux.test.mjs",
+      "bytes": 11802,
+      "sha256": "4f5601061fdc94f67cf8cca090d3d86f19c6b8b5a5ac23b08e0779be2342785e"
+    },
+    {
+      "path": "tests/mcp.test.mjs",
+      "bytes": 5704,
+      "sha256": "f8358f3ee0a1dc91a5abcfe891c2acf20444f918f79ad68e88d1ed6ef86624d2"
+    },
+    {
+      "path": "tests/native-hook.test.mjs",
+      "bytes": 12422,
+      "sha256": "567130afeeac4ef144eba536a88f09ecfa3e18bc9bf265427f94632f5698a769"
+    },
+    {
+      "path": "tests/native-integration.test.mjs",
+      "bytes": 13869,
+      "sha256": "4571b91bc903e6741a41aaf7ac5e7495763e46c40dad518ab7d2024adf36fee1"
+    },
+    {
+      "path": "tests/pack.test.mjs",
+      "bytes": 3657,
+      "sha256": "3cdc29fddc6330678aacbb7d4d7291a052d5743b7283efff53c23a0322c4e28d"
+    },
+    {
+      "path": "tests/plugin-bootstrap.test.mjs",
+      "bytes": 4814,
+      "sha256": "fa5ea5f94edbbc497ee08dc1544d2a5ad4b86cd1ddb7e0bf2168bce49f29a4f3"
+    },
+    {
+      "path": "tests/plugin-package.test.mjs",
+      "bytes": 13058,
+      "sha256": "540e218c756d6a36d51fcd498e19eb84a8861e36ab417888b9505c7a8423e21a"
+    },
+    {
+      "path": "tests/plugin-project.test.mjs",
+      "bytes": 10818,
+      "sha256": "67fbf95077e7a914bcbfca31423d8f02f210f1b78045919fd7cbdaf8e239efb0"
+    },
+    {
+      "path": "tests/plugin-runtime.test.mjs",
+      "bytes": 18019,
+      "sha256": "50c0cdec83901f693e1b81e974fcef7220dba04ea7b1b07c226d82b94f2331ee"
+    },
+    {
+      "path": "tests/self-eval.test.mjs",
+      "bytes": 15707,
+      "sha256": "31da3095b81d7b03bb24033610fb619a4a2c3ed87b4df4050a670026003e58b6"
+    },
+    {
+      "path": "tests/store-recall.test.mjs",
+      "bytes": 14509,
+      "sha256": "969b47a7bbcdce8678b9e08897d1a5c37d2b5151954de189dec0188360744f8c"
+    },
+    {
+      "path": "tests/validation-failure.test.mjs",
+      "bytes": 11602,
+      "sha256": "e5379d563a543c933149cddd77c26469ef43bf0bbcb101cba9daac8e98e49bc0"
+    },
+    {
+      "path": "tests/validation-reuse.test.mjs",
+      "bytes": 20122,
+      "sha256": "58c8a63e11c487d462606efbcb31e6ad601b3c917fb0e9da985d37de50846e1a"
+    },
+    {
+      "path": "tests/validation.test.mjs",
+      "bytes": 8172,
+      "sha256": "14502cca8e122a6273c6b6795f4cb79f5f47ecdcd230e003fce15add2f4c668a"
+    },
+    {
+      "path": "tests/workspace-lock.test.mjs",
+      "bytes": 3723,
+      "sha256": "171cd5914faed4f8ee671b48c718430385e411d9ba1f73f0742ca7d84b85b57f"
+    },
+    {
+      "path": "vendor/normify/engine/changes.js",
+      "bytes": 12354,
+      "sha256": "5b333d5ce6ece29b820310e272ead26429da01862733940d9af48bac9fba5914"
+    },
+    {
+      "path": "vendor/normify/engine/compile.js",
+      "bytes": 10325,
+      "sha256": "23d2392c9e9a6b3f71a3e2bc8b4ff1ef3ffd6adc4fc4fd41cc17f1fa3ccf14d9"
+    },
+    {
+      "path": "vendor/normify/engine/diag.js",
+      "bytes": 1130,
+      "sha256": "b71cfd5f34423b806ae62213562ec31ccf0dc54bf24b710502224625cbda2a0c"
+    },
+    {
+      "path": "vendor/normify/engine/frontmatter.js",
+      "bytes": 22363,
+      "sha256": "406fed9d12cfc14178b7beef967245703e90ae84864d38e9ef022df353cb9905"
+    },
+    {
+      "path": "vendor/normify/engine/ids.js",
+      "bytes": 2982,
+      "sha256": "104a242cb339430913427bef1d8248d322e383c5d7db3b671ec1a4b84b7dfdb2"
+    },
+    {
+      "path": "vendor/normify/engine/layout.js",
+      "bytes": 20116,
+      "sha256": "e650ac9b097533b8d03a7ce30c50ff0a597e942954a2b7932eb75311a21e619d"
+    },
+    {
+      "path": "vendor/normify/engine/policy.js",
+      "bytes": 22835,
+      "sha256": "baf5a6fe054a37c228eb22739a36625c0f7532d13c87a0f87cd090e1024328d2"
+    },
+    {
+      "path": "vendor/normify/engine/store.js",
+      "bytes": 14921,
+      "sha256": "52e4b6d7d1af22ef4f89b1ecc3546620d3afafc5af4646f45d74d1eb12e52c1d"
+    },
+    {
+      "path": "vendor/normify/engine/types.js",
+      "bytes": 1034,
+      "sha256": "04c3215e4325c7b4e67cb5d25725943e64c6bf8d9735711e20ccdd413921870f"
+    },
+    {
+      "path": "vendor/normify/engine/validate.js",
+      "bytes": 18168,
+      "sha256": "15062dc29377b4eaa5c66fcd07637139d567f93ff19a70d3d71094f14b413306"
+    },
+    {
+      "path": "vendor/normify/provenance.json",
+      "bytes": 1211,
+      "sha256": "5fe52f76b242fe5f2226053a7da69339f508b895a7649aeead5029a12daa6187"
+    }
+  ],
+  "linux_environment": {
+    "distribution": "Ubuntu-24.04",
+    "host": "WSL2",
+    "filesystem": "Linux user-home checkout",
+    "shell": "GNU Bash 5.2.21",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "audit_network": {
+      "default_dns_status": "EAI_AGAIN",
+      "workaround": "Private mount namespace with invocation-local registry hosts mapping from live Windows DNS",
+      "tests_run_as_normal_user": true,
+      "system_network_config_changed": false,
+      "tls_verification_disabled": false,
+      "post_run_default_registry_dns": "unavailable",
+      "post_run_global_hosts_registry_mapping": "absent"
+    },
+    "baseline": {
+      "tests": 240,
+      "pass": 231,
+      "fail": 0,
+      "skipped": 9,
+      "check_exit_code": 1,
+      "reason": "npm audit registry DNS lookup failed",
+      "raw_log": {
+        "path": "slop/linux-adaptation/baseline-linux.log",
+        "bytes": 25595,
+        "sha256": "686f25cc18fe470b011c2270d853bc21c789f9512c854e52fb6500dfe0f2a9ee",
+        "distribution": "Ignored local acceptance artifact"
+      }
+    }
+  },
+  "prior_linux_attempts": [
+    {
+      "tests": {
+        "tests": 249,
+        "pass": 247,
+        "fail": 1,
+        "cancelled": 0,
+        "skipped": 1,
+        "todo": 0
+      },
+      "exit_code": 1,
+      "resolution": "The old byte-change fixture also removed execute permission; it now preserves mode 0755 and keeps the exact changed-conditions assertion.",
+      "raw_log": {
+        "path": "slop/linux-adaptation/attempt-linux-permission-fixture.log",
+        "bytes": 26455,
+        "sha256": "9173cfea435617db5a05f25d7b534caf894f8575e09f984d62992cb83352aee9",
+        "distribution": "Ignored local acceptance artifact"
+      }
+    },
+    {
+      "tests": {
+        "tests": 249,
+        "pass": 247,
+        "fail": 1,
+        "cancelled": 0,
+        "skipped": 1,
+        "todo": 0
+      },
+      "exit_code": 1,
+      "resolution": "The old fixed 150 ms abort could occur before command startup; cancellation now waits for actual output and preserves every original receipt/output assertion.",
+      "raw_log": {
+        "path": "slop/linux-adaptation/attempt-linux-cancellation-timing.log",
+        "bytes": 26117,
+        "sha256": "7fdae9ffae6b85514374c8e8aa93da563b929749b17f54a74ab88257541d7c4f",
+        "distribution": "Ignored local acceptance artifact"
+      }
+    }
+  ],
+  "additional_checks": {
+    "syntax": {
+      "status": "passed",
+      "files": [
+        "fixtures/host/run-plugin-load.mjs",
+        "scripts/package-plugin.mjs",
+        "src/native-hook.mjs",
+        "src/patch.mjs",
+        "src/plugin-launcher.mjs",
+        "src/validation.mjs",
+        "src/workspace.mjs",
+        "tests/linux.test.mjs",
+        "tests/native-hook.test.mjs",
+        "tests/native-integration.test.mjs",
+        "tests/plugin-package.test.mjs",
+        "tests/plugin-project.test.mjs",
+        "tests/validation-reuse.test.mjs",
+        "tests/validation.test.mjs"
+      ]
+    },
+    "git_diff_check": "passed",
+    "linux_native_example_schema": "passed",
+    "default_login": {
+      "node": "v22.23.1",
+      "npm": "12.0.2",
+      "codex": "codex-cli 0.160.0",
+      "platform": "linux",
+      "scope": "Real Bash login PATH without test PATH overrides",
+      "tests": {
+        "tests": 34,
+        "pass": 34,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "command": [
+        "node",
+        "--test",
+        "--test-concurrency=4",
+        "tests/linux.test.mjs",
+        "tests/native-hook.test.mjs",
+        "tests/validation-reuse.test.mjs"
+      ],
+      "raw_log": {
+        "path": "slop/linux-adaptation/default-login-linux.log",
+        "bytes": 7891,
+        "sha256": "7cd46222c1c8ffdf41356106e4d24fb46cb89600db356f0218672dbb27f6f1b6",
+        "distribution": "Ignored local acceptance artifact"
+      }
+    },
+    "lint": "not configured",
+    "format": "not configured",
+    "typecheck": "not configured"
+  },
+  "limits": [
+    "Linux acceptance is WSL2 x64; no independent Linux host or ARM64 acceptance.",
+    "No Linux interactive TUI Hook trust/Esc, host cancellation bridge, restricted sandbox/ask or Desktop GUI acceptance.",
+    "This file records pre-commit verification; commit/push state is not validation evidence. No model requests, version bump or public release performed."
+  ]
+}

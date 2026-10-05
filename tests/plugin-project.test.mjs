@@ -164,8 +164,8 @@ test('required rules must exist and optional executables must be absolute regula
   await assert.rejects(resolvePluginProject(root), { code: 'ENOENT' });
 
   await writeRules(root);
-  const runner = join(root, 'runner.cmd');
-  await writeFile(runner, 'exit /b 0\n');
+  const runner = join(root, process.platform === 'win32' ? 'runner.cmd' : 'runner');
+  await writeFile(runner, process.platform === 'win32' ? 'exit /b 0\n' : '#!/bin/sh\nexit 0\n', { mode: 0o755 });
   await writeProject(root, projectConfig({ patch_executable: runner, host_executable: runner }));
   const resolved = await resolvePluginProject(root);
   assert.equal(resolved.patchExecutable, runner);

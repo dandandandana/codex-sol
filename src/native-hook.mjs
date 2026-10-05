@@ -1,4 +1,5 @@
-import { readFile, mkdir, open, lstat, realpath, unlink } from 'node:fs/promises';
+import { access, readFile, mkdir, open, lstat, realpath, unlink } from 'node:fs/promises';
+import { constants } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,6 +11,7 @@ import { writeAtomicJSON } from './workspace.mjs';
 
 const ENTRY = fileURLToPath(import.meta.url);
 const quotePS = (value) => `'${value.replaceAll("'", "''")}'`;
+const quoteSH = (value) => `'${value.replaceAll("'", "'\"'\"'")}'`;
 const sha = (value) => createHash('sha256').update(value).digest('hex');
 
 async function readJSON(path, maxBytes = 131072) {
@@ -20,13 +22,17 @@ async function readJSON(path, maxBytes = 131072) {
 
 export async function loadNativeConfig(path) {
   const config = assertContract('NativeConfig', await readJSON(path));
-  if (process.platform !== 'win32') throw new SolFault('CONFIG_ERROR', 'Native tool integration currently supports Windows only.');
+  if (!['win32', 'linux'].includes(process.platform)) throw new SolFault('CONFIG_ERROR', 'Native tool integration supports Windows PowerShell and Linux Bash.');
   for (const key of ['workspace', 'rules', 'node', 'shell']) {
     if (!isAbsolute(config[key])) throw new SolFault('CONFIG_ERROR', `Native config ${key} must be an absolute path.`);
   }
   config.workspace = await realpath(config.workspace);
   for (const key of ['node', 'shell']) {
+    if (process.platform === 'linux') config[key] = await realpath(config[key]);
     if (!(await lstat(config[key])).isFile()) throw new SolFault('CONFIG_ERROR', `Native config ${key} must be an executable file.`);
+    if (process.platform === 'linux') await access(config[key], constants.X_OK).catch(() => {
+      throw new SolFault('CONFIG_ERROR', `Native config ${key} must be executable by this user.`);
+    });
   }
   const store = await createObservationStore(config.workspace);
   const rules = assertContract('RulesConfig', await readJSON(config.rules));
@@ -47,7 +53,7 @@ const deny = (reason) => ({ hookSpecificOutput: { hookEventName: 'PreToolUse', p
 /** Only rewrites native shell input; no arbitrary shell tool is exposed over MCP. */
 export async function handleNativeHook(event, configPath) {
   if (!event || typeof event !== 'object') throw new SolFault('INPUT_ERROR', 'Hook input must be an object.');
-  if (event.hook_event_name === 'SessionStart') return { hookSpecificOutput: { hookEventName: 'SessionStart', additionalContext: 'Codex-SoL is enabled for this Windows project. For context patches use codex_sol.sol_apply_patch with the normal Begin Patch format. Native apply_patch is routed by denial to that tool. For full writes/deletes use sol_apply_changes; for file reads and exact archived output use sol_read_file / sol_recall. Ordinary Shell calls are wrapped under the host shell permissions. Read tool_status, execution and validation separately; never describe failed, stale, timeout or interrupted receipts as passed.' } };
+  if (event.hook_event_name === 'SessionStart') return { hookSpecificOutput: { hookEventName: 'SessionStart', additionalContext: 'Codex-SoL is enabled for this project. For context patches use codex_sol.sol_apply_patch with the normal Begin Patch format. Native apply_patch is routed by denial to that tool. For full writes/deletes use sol_apply_changes; for file reads and exact archived output use sol_read_file / sol_recall. Ordinary Shell calls are wrapped under the host shell permissions. Read tool_status, execution and validation separately; never describe failed, stale, timeout or interrupted receipts as passed.' } };
   if (event.hook_event_name === 'PreToolUse' && ['apply_patch', 'Edit', 'Write'].includes(event.tool_name)) return deny('Use codex_sol.sol_apply_patch with the same context patch to receive a Validation Receipt. Native apply_patch cannot be switched to another tool by a Hook.');
   if (event.tool_name !== 'Bash') return {};
   try {
@@ -68,7 +74,10 @@ export async function handleNativeHook(event, configPath) {
         const existing = assertContract('NativeRequest', await readJSON(requestPath));
         if (JSON.stringify(existing) !== JSON.stringify(request)) return deny('A different command already uses this tool call ID. It will not be replayed.');
       }
-      return { hookSpecificOutput: { hookEventName: 'PreToolUse', permissionDecision: 'allow', updatedInput: { ...event.tool_input, command: `& ${quotePS(config.node)} ${quotePS(ENTRY)} --run ${quotePS(requestPath)}` } } };
+      const commandInput = process.platform === 'win32'
+        ? `& ${quotePS(config.node)} ${quotePS(ENTRY)} --run ${quotePS(requestPath)}`
+        : `exec ${quoteSH(config.node)} ${quoteSH(ENTRY)} --run ${quoteSH(requestPath)}`;
+      return { hookSpecificOutput: { hookEventName: 'PreToolUse', permissionDecision: 'allow', updatedInput: { ...event.tool_input, command: commandInput } } };
     }
     if (event.hook_event_name === 'PostToolUse') {
       let value;
@@ -101,13 +110,17 @@ export async function runNativeRequest(requestPath, { signal } = {}) {
   try { await marker.writeFile(JSON.stringify({ pid: process.pid, started_at: new Date().toISOString() })); await marker.sync(); }
   finally { await marker.close(); }
   // Preserve the host-selected working directory and its sandbox/token. The
-  // configured PowerShell version and profile setting are part of this adapter.
+  // configured PowerShell/Bash version and profile setting belong to this adapter.
   const actualCwd = await realpath(process.cwd());
   const cwd = relative(store.workspaceRoot, actualCwd);
   if (cwd === '..' || cwd.startsWith(`..${sep}`) || isAbsolute(cwd)) throw new SolFault('PATH_ERROR', 'Native Shell cwd is outside the configured workspace.');
   const argv = [config.shell];
-  if (!config.load_profile) argv.push('-NoProfile');
-  argv.push('-NonInteractive', '-EncodedCommand', Buffer.from(request.command, 'utf16le').toString('base64'));
+  if (process.platform === 'win32') {
+    if (!config.load_profile) argv.push('-NoProfile');
+    argv.push('-NonInteractive', '-EncodedCommand', Buffer.from(request.command, 'utf16le').toString('base64'));
+  } else {
+    argv.push(...(config.load_profile ? ['--login'] : ['--noprofile', '--norc']), '-c', request.command);
+  }
   const result = await runManagedCommand(store, validator, { argv, cwd: cwd.split(sep).join('/') || '.', timeout_ms: config.timeout_ms }, { tool: 'Bash', generated: config.generated, signal, callId: request.call_id });
   await writeAtomicJSON(resultPath, result);
   await unlink(join(spool, `${request.call_id}.running`));

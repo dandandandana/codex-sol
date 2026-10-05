@@ -143,3 +143,14 @@ CHANGE-01–03 本片完整检查 124/124、0 跳过，审计 0 漏洞；本机 
 - `check-evidence.json`：标准 `npm run check` 在 Node **v24.11.0** / npm 元数据 **11.6.1** 下通过 **229/229、0 失败、0 跳过，npm audit 0 漏洞**；75 个运行/检查输入前后 SHA 一致。保留此前一次新 fixture argv 过长失败及修正记录，另一次默认 24 并行下 native timeout timing 失败；后一单测独立复跑通过，未修改 `core.killTree`。标准检查的 Node test concurrency 设为 4，全部断言和跨进程、取消、后代终止覆盖保留；这不代表高负载硬实时保证。
 
 Host 边界见 [合同 §15](../contracts.md#15-宿主写门禁与本地插件接入)：Hook 只覆盖已注册并受信任的事件/匹配工具，不覆盖普通 Shell、Desktop GUI 或所有原生写路径。TUI 0.158 初始 `/hooks` 审阅、Context prepare、Stop `{}` 和源码 SHA 不变通过；同 session 两次 resume 因 account/read workspace discovery timeout（`code=-32603`）失败并保留。随后已安装 bundled CLI 0.160 的同 session真实 PTY resume 与四条 Hook 正常 hash 校验通过；Desktop GUI、稳定自主连续任务、固定 A/B token/费用和公开发布均未验收。
+
+## Linux CLI 适配（2026-10-05）
+
+| ID | 场景 | 当前证据 |
+| --- | --- | --- |
+| LINUX-01 | 平台路径、原生 Bash 与执行权限 | `tests/linux.test.mjs` 八项；既有 native Hook/patch 用例在 Linux 实际执行；`tests/validation-reuse.test.mjs` 追加执行权限撤销回归 |
+| LINUX-02 | 全量回归与默认终端 | Linux 248 通过、1 Windows 专项跳过；Windows 240 通过、9 Linux 专项跳过；均 249 项、0 失败、审计 0 漏洞；默认 Linux Node 22 另有 34/34 专项；[检查记录](linux/check-evidence.json) |
+| LINUX-03 | 实际 Codex 安装与重启装载 | 隔离 CODEX_HOME、Codex 0.160.0、1773 文件本地包、四个 Hook、十三工具连接；无模型请求；[Host 记录](linux/host-evidence.json) |
+| LINUX-04 | 当前公共契约与静态索引 | `validateWorkspacePath` 登记在原工作区模块；ready 21/48/77，3 条既有非阻塞诊断；[索引](linux/index-evidence.json) |
+
+环境、安装方式、完整 Hook 示例和可复跑命令见 [Linux 使用与验收](linux/README.md)。该阶段覆盖 WSL2 Linux x64，不覆盖独立普通 Linux 主机、Linux TUI 正常交互信任/Esc、Linux 宿主取消桥接或受限 sandbox／ask。历史 Windows 和模型证据保持各阶段边界。

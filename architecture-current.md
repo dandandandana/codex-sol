@@ -1,6 +1,6 @@
 # 当前架构与测试边界
 
-更新日期：2026-10-04。本文描述当前已存在的实现；设计与后续接口合同仍以 [architecture.md](architecture.md) 和 [contracts.md](contracts.md) 为准。
+更新日期：2026-10-05。本文描述当前已存在的实现；设计与后续接口合同仍以 [architecture.md](architecture.md) 和 [contracts.md](contracts.md) 为准。
 
 ## 原始目标与当前状态
 
@@ -11,6 +11,7 @@
 | 编码时优先复用 | 可查询已登记能力、真实导出位置和直接使用方；登记时保存候选引用与复用理由；一个指导下普通需求已实际复用组件并通过验收 | 稳定自主发现效果与固定任务对照证据 |
 | 修改后延续架构 | 前后事实比较生成维护建议；绑定写入声明后按当前版本复核；有效复核与累计检查可由明确分工的独立 reviewer 提交并发布，随后 Context/Hook 只读恢复能检出当前 completed | 模型稳定自主维护的效果证据；本轮复核明确由人分工，不代表模型独立语义闭环 |
 | 后续任务沿用架构 | 程序与真实 STDIO 已接通修改、维护、复核、累计检查、完成及后续查询；变更状态已进入 Context；PreToolUse/Stop 已接入并做限定宿主验收；本地插件已打包、隔离安装并验收 Hook/MCP 加载 | Desktop GUI 本轮未验收；同 session 的 TUI 0.158 resume 两次因宿主 discovery timeout 失败，但已安装 bundled CLI 0.160 的真实 PTY resume 和 hooks 通过；稳定自主连续任务与固定 A/B token/费用效果 |
+| Linux 终端适配 | Linux Bash wrapper、平台路径约束、执行权限及缓存失效已接入；在 WSL2 Linux 文件系统运行真实 patch/Bash 与 Codex app-server 插件装载 | 独立普通 Linux 主机、Linux TUI 的交互信任/Esc、Linux 宿主取消桥接及受限 sandbox／ask 尚未验收 |
 
 IF-004 交付阶段（2026-10-04）的完整检查为 **180/180、0 跳过、审计 0 漏洞**，原生 Codex patch 实际运行，见 [闭环验收](fixtures/closure/README.md)；其 66 条静态导入是该阶段历史索引。此前既有能力检查 **126/126**，指导下的独立分类需求项目检查 **27/27**、黑盒验收 **20/20**，历史保存在 [前阶段验收](fixtures/current-stage/README.md)。
 
@@ -70,7 +71,7 @@ Codex-SoL：本地 Node.js 服务与宿主适配
 
 ## 数据、覆盖与限制
 
-- 架构声明与 policy 来自工作区配置指定的文件；`architecture.example.json` 是本项目示例，不应复制成别的项目的实际架构。Context 状态阶段索引 **20/44/70** 见 [Context 索引](fixtures/context-state/index-evidence.json)；最新 Host 阶段索引为 **ready：21 模块 / 47 能力 / 77 静态导入**，有 3 条非阻塞 warning，见 [最新索引](fixtures/host/index-evidence.json)。其中包含既有 layout/missing/root-no-source 诊断与 launcher leaf-too-coarse 诊断，均不阻塞；CommonJS bootstrap 记录为 `non_javascript_source`，不伪造静态导出。IF-004 的 **20/44/66** 仍是历史数据，见 [闭环索引](fixtures/closure/index-evidence.json)。
+- 架构声明与 policy 来自工作区配置指定的文件；`architecture.example.json` 是本项目示例，不应复制成别的项目的实际架构。当前 Linux 适配阶段索引为 **ready：21 模块 / 48 能力 / 77 静态导入**，见 [当前索引](fixtures/linux/index-evidence.json)；新增能力仅为现有工作区模块的公共路径校验，未新增职责模块。2026-10-04 Host 的 **21/47/77** 与 Context 的 **20/44/70** 分别保留在 [Host 索引](fixtures/host/index-evidence.json) 和 [Context 索引](fixtures/context-state/index-evidence.json)。3 条非阻塞诊断仍为 layout/missing、root-no-source 与 launcher leaf-too-coarse；CommonJS bootstrap 记录为 `non_javascript_source`，不伪造静态导出。IF-004 的 **20/44/66** 仍是历史数据，见 [闭环索引](fixtures/closure/index-evidence.json)。
 - Host 插件只接受显式项目 `.codex/sol-project.json`；Git 项目用最近的真实根，无 Git 时只看精确 cwd。Hook/MCP launcher realpath 必须匹配。运行入口用相同的最小 OS 环境重启；`execution_path` 可固定 runtime/检查 PATH，未配置时继承路径变化会反映在 freshness。完整配置和打包边界见 [合同 §15](contracts.md#15-宿主写门禁与本地插件接入)。
 - 查询按已声明 source 收集事实；收尾额外核对累计未登记 JS 源码，不是扫描全部仓库的发现平台，也不是完整调用图。动态导入、间接调用、外部依赖及其他语言列未覆盖。Normify revision 仅作声明元数据。
 - Context 职责契约由配置指定；来源与产物使用现有不可变 ObservationStore。完整包上限 4096 UTF-8 字节，省略内容通过 recall 获取。
@@ -85,7 +86,7 @@ Codex-SoL：本地 Node.js 服务与宿主适配
 
 此前按用户要求先保存架构文档、检查现有实现，再用独立普通需求验证组件复用；记录保存在 fixtures/current-stage/。本轮延续三个直接 `gpt-6.1-sol` / high 子代理的分工，禁止孙代理，分别负责验证器、索引维护和只读复核；父代理负责协调器、MCP 接入及集成。
 
-变更状态 Context 阶段 `npm run check` **199/199、0 跳过、依赖审计 0 漏洞**；59 个运行/检查输入前后 SHA 一致，见 [该阶段检查记录](fixtures/context-state/check-evidence.json)。当时索引为 **20/44/70**，见 [Context 索引证据](fixtures/context-state/index-evidence.json)。后续 Host/package 验收与当前索引 **21/47/77** 见 [Host 验收](fixtures/host/README.md) 及其检查/索引证据；不把两阶段结果合并或回写。
+变更状态 Context 阶段 `npm run check` **199/199、0 跳过、依赖审计 0 漏洞**；59 个运行/检查输入前后 SHA 一致，见 [该阶段检查记录](fixtures/context-state/check-evidence.json)。当时索引为 **20/44/70**，见 [Context 索引证据](fixtures/context-state/index-evidence.json)。后续 Host/package 阶段索引 **21/47/77** 见 [Host 验收](fixtures/host/README.md) 及其检查/索引证据；各阶段结果保持独立。
 
 本轮标准 `npm run check` 使用 Node test concurrency 上限 4，并已在 Node **v24.11.0** / npm 元数据 **11.6.1** 下通过 **229/229、0 失败、0 跳过，npm audit 0 漏洞**；75 个运行/检查输入前后 SHA 一致，见 [Host 检查证据](fixtures/host/check-evidence.json)。此前一次完整运行因新夹具长 argv 失败，修正夹具参数后，另一次运行在默认 24 并行时出现 native timeout timing 失败；该单测独立复跑通过，未修改 `core.killTree`，也未削弱原断言。并发上限 4 保留跨进程、取消与后代终止覆盖，只调整检查调度；这不是 Windows 高负载下硬实时 deadline 的保证。
 
@@ -94,3 +95,11 @@ Codex-SoL：本地 Node.js 服务与宿主适配
 TUI 0.158 初始 `/hooks` 审阅、`sol_context_prepare`、Stop `{}` 和源码 SHA 不变已通过；同 session 的两次 0.158 resume 均因 account/read workspace discovery timeout（`code=-32603`）失败并保留。随后使用已安装、未升级或另行安装的 bundled CLI 0.160，在同 session 的真实 PTY resume 通过：SessionStart `source=resume` 返回 `context_restore=ready`，`tui-readonly` / `plan` 的 `context_handle` 与 session pointer 精确一致；UserPromptSubmit 和 Stop 均实际执行并返回 `{}`，源码 SHA 未变，四条 `hooks/list` 定义均与正常审阅 hash 匹配且没有 bypass。隔离 package 加载最终通过，包含 1772 个文件、四个 Hook 与十三个架构工具，见 [package evidence](fixtures/host/package-evidence.json)。后续需补齐 Desktop GUI 操作，再按固定任务评估稳定自主连续任务及 token/费用 A/B。0.160 app-server/CLI 的生命周期与 compact 验收不等于 Desktop GUI 端到端通过；旧模型错误选择/无效 review 和继承 PATH 范围失败按原证据保留。SoL-Pi 整体尚未完成。
 
 2026-10-04 补充了独立的[本地自评 benchmark](benchmarks/self-eval/README.md)：八个合成 JS 任务、34 个行为检查、88 个合规检查和 12 个适用复用机会，可准备工作区、评分并比较 A/B 报告。正确参考、空白基线及五类错误变体的[评分器校准](benchmarks/self-eval/calibration-evidence.json)已完成；新增回归验证默认/星号导出登记、未实际复用、缺失工作区与超时等路径，最新项目检查见[检查证据](benchmarks/self-eval/check-evidence.json)。这些是 M-004 的评分准备，真实模型与 SoL 开关 A/B、模型 token/费用和任务耗时仍未采集。
+
+## Linux CLI 适配（2026-10-05）
+
+在 `codex/linux-adaptation` 中补齐 Linux Bash wrapper、符号链接执行路径和执行权限，patch 预检共用现有工作区模块的纯路径校验。保留 Windows PowerShell 配置、schema_version=1、锁、验证、归档和恢复流程；未新增依赖或职责模块。撤销检查程序执行权限会使相关历史检查失去当前有效性，历史回执不改写、不自动重跑。
+
+WSL2 Ubuntu 24.04 x64 的 Linux 文件系统完整 `npm run check` **248 通过 / 1 项 Windows 专项跳过 / 0 失败**；Windows 为 **240 通过 / 9 项 Linux 专项跳过 / 0 失败**，均含 249 个计数测试、审计 0 漏洞。77 个运行/检查输入两平台字节相同且各自运行前后不变。两次 Linux 旧夹具失败及修正、WSL DNS 的临时审计方式均保留于 [Linux 检查记录](fixtures/linux/check-evidence.json)。
+
+默认 Linux 登录终端的 Node 22 另有 34/34 专项通过；实际 Codex 0.160.0 的隔离安装/重启装载验证了 1773 文件包、四个 Hook 和十三工具，见 [Linux Host 记录](fixtures/linux/host-evidence.json)。当前索引 **21/48/77、ready**，3 条既有非阻塞诊断，见 [索引](fixtures/linux/index-evidence.json)。Linux TUI 的交互信任/Esc、Linux 宿主取消桥接、受限 sandbox／ask 和独立普通 Linux 主机仍未验收；未增加模型回合、公开发布或版本号。

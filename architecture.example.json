@@ -317,8 +317,8 @@
         }
       ],
       "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
-      "updated_at": "2026-10-03T09:45:23.950Z",
-      "fingerprint": "6c0c3df0d4ed50aca461537908d8b80d778ac5bc304e27fe56551256205c6cf4",
+      "updated_at": "2026-10-05T10:02:10.463Z",
+      "fingerprint": "d9640f309957faf47c8144ac3e1b7ec653f56d00e5886056ff9928826ef2b4cb",
       "apis": [
         {
           "protocol": "rpc",
@@ -403,8 +403,8 @@
         }
       ],
       "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
-      "updated_at": "2026-10-03T15:49:23.099Z",
-      "fingerprint": "1e5151235ca75a6d2fcde9dd19ad14a0da6b1b9fc5be2cb4595d8836b064e243",
+      "updated_at": "2026-10-05T10:02:10.465Z",
+      "fingerprint": "5212cebdd94d28587851b6d1f8120e47620c0af5cc5171f356b0aafefbadea9d",
       "apis": [
         {
           "protocol": "rpc",
@@ -445,8 +445,8 @@
         }
       ],
       "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
-      "updated_at": "2026-10-04T08:13:22.164Z",
-      "fingerprint": "a4d59162c387a9c6341424b71781d5ccc8cfa438a03a00e29a269cc80ea6f9aa",
+      "updated_at": "2026-10-05T10:02:10.465Z",
+      "fingerprint": "ba479d5e9f40d87ece7000d92c8f0d15a9758f8017f622dbdfe078720c24fe42",
       "apis": [
         {
           "protocol": "rpc",
@@ -718,8 +718,8 @@
         }
       ],
       "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
-      "updated_at": "2026-10-04T05:06:52.982Z",
-      "fingerprint": "258fb695098abcecd84f84e3f5e8c6ee85c4890b72540a57da7ece0f053baff5",
+      "updated_at": "2026-10-05T10:02:10.465Z",
+      "fingerprint": "272789e6ee756028b517a1b22b8564122669e7c15ad85d402d107f4518615fa7",
       "apis": [
         {
           "protocol": "rpc",
@@ -789,9 +789,17 @@
         }
       ],
       "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
-      "updated_at": "2026-10-04T03:21:19.618Z",
-      "fingerprint": "3db7474e616468cae3105f1e75e5cb16c98ad004f3e8f5e9b80eb108f7456a94",
+      "updated_at": "2026-10-05T10:02:10.466Z",
+      "fingerprint": "af13e110bb31088fbecc4cbd093b87d6af6b40625a6fee3fc749ee208e49f904",
       "apis": [
+        {
+          "protocol": "rpc",
+          "path": "validateWorkspacePath",
+          "description": {
+            "zh": "无副作用地校验工作区相对文件路径；平台文件名与保留元数据规则由读写及 patch 共同复用，非法路径抛出 PATH_ERROR。",
+            "en": "Validates workspace-relative file paths without I/O; reads, writes and patch preflight share platform filename and reserved metadata rules; invalid paths raise PATH_ERROR."
+          }
+        },
         {
           "protocol": "rpc",
           "path": "workspaceFile",

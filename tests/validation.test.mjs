@@ -4,6 +4,7 @@ import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
+import { setTimeout as delay } from 'node:timers/promises';
 import { createObservationStore } from '../src/store.mjs';
 import { ValidationEngine, digestChangedPaths } from '../src/validation.mjs';
 
@@ -107,17 +108,27 @@ test('timeout kills a spawned descendant before it can write later', async () =>
 });
 
 test('cancellation records interrupted instead of passed and keeps partial output', async () => {
-  const { engine, event, store } = await fixture([command('long', "process.stdout.write('started');setInterval(()=>{},1000)", 10000)]);
+  const { engine, event, store } = await fixture([command('long', "process.stdout.write('started',()=>require('fs').writeFileSync('.codex/sol/cancel-ready','ready'));setInterval(()=>{},1000)", 10000)]);
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 150);
+  const checked = engine.onChange(await event(), { signal: controller.signal });
   try {
-    const receipt = await engine.onChange(await event(), { signal: controller.signal });
+    // Cancel a running command with real output, regardless of hashing/startup time.
+    const deadline = Date.now() + 5000;
+    while (!(await readFile(join(store.solRoot, 'cancel-ready'), 'utf8').catch((error) => {
+      if (error.code === 'ENOENT') return null;
+      throw error;
+    }))) {
+      assert.ok(Date.now() < deadline, 'The check did not emit its startup output.');
+      await delay(10);
+    }
+    controller.abort();
+    const receipt = await checked;
     assert.equal(receipt.status, 'error');
     assert.equal(receipt.reason, 'interrupted');
     assert.equal(receipt.checks[0].reason, 'interrupted');
     assert.equal(receipt.checks[0].output[0].complete, false);
     assert.equal((await store.readVerified(receipt.checks[0].output[0].handle)).buffer.toString(), 'started');
-  } finally { clearTimeout(timer); }
+  } finally { controller.abort(); await checked; }
 });
 
 test('missing executable is an error and does not run later checks', async () => {

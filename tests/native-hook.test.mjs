@@ -11,7 +11,8 @@ import { recall } from '../src/recall.mjs';
 import { createObservationStore } from '../src/store.mjs';
 
 const nativeEntry = fileURLToPath(new URL('../src/native-hook.mjs', import.meta.url));
-const windowsOnly = process.platform === 'win32' ? false : 'Native hook integration requires Windows PowerShell.';
+const nativeOnly = ['win32', 'linux'].includes(process.platform) ? false : 'Native hook integration requires Windows PowerShell or Linux Bash.';
+const quoteSH = (value) => `'${value.replaceAll("'", "'\"'\"'")}'`;
 
 function powershellPath() {
   const systemRoot = process.env.SystemRoot ?? process.env.SYSTEMROOT;
@@ -25,7 +26,7 @@ async function makeFixture(t) {
 
   // Keep configuration and rules outside the actual workspace so they cannot
   // appear as changed workspace inputs during a native command.
-  const workspaceRoot = path.join(outerRoot, "workspace ' & ; #");
+  const workspaceRoot = path.join(outerRoot, "workspace ' & ; # $(printf INJECTED) `printf INJECTED` 中文");
   await mkdir(workspaceRoot);
   const rulesPath = path.join(outerRoot, 'rules.json');
   const configPath = path.join(outerRoot, 'native.json');
@@ -50,7 +51,7 @@ async function makeFixture(t) {
     workspace: workspaceRoot,
     rules: rulesPath,
     node: process.execPath,
-    shell: powershellPath(),
+    shell: process.platform === 'win32' ? powershellPath() : await realpath('/bin/bash'),
     load_profile: false,
     timeout_ms: 10000,
     generated: [],
@@ -92,9 +93,10 @@ function parseRunnerOutput(stdout) {
 }
 
 function runRewrittenCommand(fixture, command) {
-  const completed = spawnSync(fixture.config.shell, [
-    '-NoLogo', '-NoProfile', '-NonInteractive', '-Command', command,
-  ], {
+  const argv = process.platform === 'win32'
+    ? ['-NoLogo', '-NoProfile', '-NonInteractive', '-Command', command]
+    : ['--noprofile', '--norc', '-c', command];
+  const completed = spawnSync(fixture.config.shell, argv, {
     cwd: fixture.workspaceRoot,
     encoding: 'utf8',
     windowsHide: true,
@@ -118,24 +120,26 @@ async function recallText(store, observation, literal) {
   assert.fail(`No captured observation contains ${JSON.stringify(literal)}.`);
 }
 
-test('native PreToolUse safely wraps a command, commits the full failure, and reuses it without replay', { skip: windowsOnly }, async (t) => {
+test('native PreToolUse safely wraps a command, commits the full failure, and reuses it without replay', { skip: nativeOnly }, async (t) => {
   const fixture = await makeFixture(t);
   const effectPath = path.join(fixture.workspaceRoot, 'effect.txt');
   const literal = "literal ' quote ; & Write-Output INJECTED $(this stays data)";
   const stderrAnchor = 'NATIVE_HOOK_STDERR_RECALL_39';
   const psLiteral = (value) => `'${value.replaceAll("'", "''")}'`;
-  const originalCommand = [
+  const originalCommand = process.platform === 'win32' ? [
     `$value = ${psLiteral(literal)}`,
     `[System.IO.File]::AppendAllText(${psLiteral(effectPath)}, $value + [Environment]::NewLine)`,
     `[Console]::Error.WriteLine(${psLiteral(stderrAnchor)})`,
     'exit 7',
-  ].join('; ');
+  ].join('; ') : `printf '%s\\n' ${quoteSH(literal)} >> ${quoteSH(effectPath)}; printf '%s\\n' ${quoteSH(stderrAnchor)} >&2; exit 7`;
 
   const { event, pre, requestPath, request } = await createRequest(fixture, originalCommand);
   assert.equal(pre.hookSpecificOutput.permissionDecision, 'allow');
   assert.equal(request.command, originalCommand, 'PreToolUse must preserve the original Shell text in the request.');
-  assert.match(pre.hookSpecificOutput.updatedInput.command, /''/u, 'The workspace path apostrophe must be doubled in the PowerShell wrapper.');
-  assert.ok(pre.hookSpecificOutput.updatedInput.command.includes(`'${requestPath.replaceAll("'", "''")}'`));
+  if (process.platform === 'win32') {
+    assert.match(pre.hookSpecificOutput.updatedInput.command, /''/u, 'The workspace path apostrophe must be doubled in the PowerShell wrapper.');
+    assert.ok(pre.hookSpecificOutput.updatedInput.command.includes(`'${requestPath.replaceAll("'", "''")}'`));
+  }
 
   const firstRun = runRewrittenCommand(fixture, pre.hookSpecificOutput.updatedInput.command);
   const result = parseRunnerOutput(firstRun.stdout);
@@ -163,9 +167,10 @@ test('native PreToolUse safely wraps a command, commits the full failure, and re
   assert.match(await recallText(store, result.observation, stderrAnchor), new RegExp(stderrAnchor));
 });
 
-test('a successful native result produces an unblocked PostToolUse response', { skip: windowsOnly }, async (t) => {
+test('a successful native result produces an unblocked PostToolUse response', { skip: nativeOnly }, async (t) => {
   const fixture = await makeFixture(t);
-  const { event, pre, requestPath } = await createRequest(fixture, "Write-Output 'native success'", 'native-success-call');
+  const command = process.platform === 'win32' ? "Write-Output 'native success'" : "printf '%s\\n' 'native success'";
+  const { event, pre, requestPath } = await createRequest(fixture, command, 'native-success-call');
   assert.equal(pre.hookSpecificOutput.permissionDecision, 'allow');
 
   const completed = spawnSync(process.execPath, [nativeEntry, '--run', requestPath], {
@@ -181,10 +186,12 @@ test('a successful native result produces an unblocked PostToolUse response', { 
   assert.deepEqual(await handleNativeHook({ ...event, hook_event_name: 'PostToolUse' }, fixture.configPath), {});
 });
 
-test('an existing running marker without a result requires recovery and PostToolUse reports interruption', { skip: windowsOnly }, async (t) => {
+test('an existing running marker without a result requires recovery and PostToolUse reports interruption', { skip: nativeOnly }, async (t) => {
   const fixture = await makeFixture(t);
   const effectPath = path.join(fixture.workspaceRoot, 'must-not-run.txt');
-  const command = `[System.IO.File]::WriteAllText('${effectPath.replaceAll("'", "''")}', 'ran')`;
+  const command = process.platform === 'win32'
+    ? `[System.IO.File]::WriteAllText('${effectPath.replaceAll("'", "''")}', 'ran')`
+    : `printf ran > ${quoteSH(effectPath)}`;
   const { event, requestPath, request } = await createRequest(fixture, command, 'native-interrupted-call');
   const runningPath = path.join(path.dirname(requestPath), `${request.call_id}.running`);
   await writeFile(runningPath, JSON.stringify({ pid: 1, started_at: new Date().toISOString() }));
@@ -198,7 +205,7 @@ test('an existing running marker without a result requires recovery and PostTool
   assert.equal(JSON.parse(post.reason).error.retryable, false);
 });
 
-test('missing configuration and invalid or native patch inputs are denied; SessionStart provides routing context', { skip: windowsOnly }, async (t) => {
+test('missing configuration and invalid or native patch inputs are denied; SessionStart provides routing context', { skip: nativeOnly }, async (t) => {
   const fixture = await makeFixture(t);
   const missing = await handleNativeHook(nativeEvent(fixture, 'Write-Output unreachable'), path.join(fixture.outerRoot, 'missing.json'));
   assert.equal(missing.hookSpecificOutput.permissionDecision, 'deny');
@@ -221,7 +228,7 @@ test('missing configuration and invalid or native patch inputs are denied; Sessi
   assert.match(session.hookSpecificOutput.additionalContext, /never describe failed, stale, timeout or interrupted receipts as passed/u);
 });
 
-test('NativeConfig rejects unknown fields and relative filesystem paths', { skip: windowsOnly }, async (t) => {
+test('NativeConfig rejects unknown fields and relative filesystem paths', { skip: nativeOnly }, async (t) => {
   const fixture = await makeFixture(t);
   const event = nativeEvent(fixture, 'Write-Output unreachable');
   const unknownConfigPath = path.join(fixture.outerRoot, 'unknown-field.json');

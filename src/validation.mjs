@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { createReadStream } from 'node:fs';
-import { lstat, mkdir, open, readdir, readFile, realpath, rename, unlink } from 'node:fs/promises';
+import { constants, createReadStream } from 'node:fs';
+import { access, lstat, mkdir, open, readdir, readFile, realpath, rename, unlink } from 'node:fs/promises';
 import { isAbsolute, join, resolve, sep } from 'node:path';
 import { release } from 'node:os';
 import { isDeepStrictEqual } from 'node:util';
@@ -119,7 +119,11 @@ async function resolveExecutable(executable) {
   // Do not approximate platform/PATH resolution and certify the wrong binary.
   if (!isAbsolute(executable)) return null;
   const file = await realpath(executable);
-  return (await lstat(file)).isFile() ? file : null;
+  if (!(await lstat(file)).isFile()) return null;
+  // Byte-identical Linux programs cannot certify old checks after chmod removes
+  // execute permission. The caller records unverified conditions on access failure.
+  if (process.platform === 'linux') await access(file, constants.X_OK);
+  return file;
 }
 
 // Only hashes leave this function: inherited environment values may contain secrets.

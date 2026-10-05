@@ -13,6 +13,8 @@ import { ValidationEngine } from '../src/validation.mjs';
 import { runManagedCommand } from '../src/managed-command.mjs';
 
 const windowsOnly = process.platform === 'win32' ? false : 'Native integration coverage is currently enabled on Windows only.';
+const patchOnly = process.platform === 'win32' || (process.platform === 'linux' && process.env.CODEX_SOL_PATCH_EXECUTABLE)
+  ? false : 'Configure CODEX_SOL_PATCH_EXECUTABLE to run the installed native Codex engine on Linux.';
 
 async function makeWorkspace(t) {
   const workspaceRoot = await mkdtemp(path.join(os.tmpdir(), 'codex-sol-native-integration-'));
@@ -89,7 +91,7 @@ async function resolvePatchExecutable() {
     }
   }
 
-  throw new Error('Could not resolve the Codex patch executable; configure CODEX_SOL_PATCH_EXECUTABLE with the installed codex.exe path.');
+  throw new Error('Could not resolve the Codex patch executable; configure CODEX_SOL_PATCH_EXECUTABLE with the installed native Codex binary path.');
 }
 
 test('patch path parsing sorts and deduplicates paths and rejects unsafe targets', () => {
@@ -113,10 +115,9 @@ test('patch path parsing sorts and deduplicates paths and rejects unsafe targets
     '../outside.txt',
     'folder\\outside.txt',
     '.git/config',
-    '.GIT/config',
     '.codex/sol/observations/data',
-    '.CODEX/sol/observations/data',
-    'file.txt:stream',
+    'folder/bad\0file.txt',
+    ...(process.platform === 'win32' ? ['.GIT/config', '.CODEX/sol/observations/data', 'file.txt:stream', 'NUL.txt', 'trailing.'] : []),
   ];
   for (const unsafePath of unsafePaths) {
     const unsafePatch = `*** Begin Patch\n*** Add File: ${unsafePath}\n+bad\n*** End Patch`;
@@ -150,7 +151,7 @@ test('patch parser enforces its exact UTF-8 byte limit', () => {
   assert.throws(() => patchPaths(oversized), undefined, 'must reject one byte beyond the UTF-8 limit');
 });
 
-test('real Codex patch engine applies a valid patch and runs validation', { skip: windowsOnly }, async (t) => {
+test('real Codex patch engine applies a valid patch and runs validation', { skip: patchOnly }, async (t) => {
   const { workspaceRoot, store } = await makeWorkspace(t);
   const executable = await resolvePatchExecutable();
   const patch = [
@@ -169,7 +170,7 @@ test('real Codex patch engine applies a valid patch and runs validation', { skip
   assert.ok(result.observation.raw.length > 0);
 });
 
-test('real Codex patch engine reports a context failure without changing the workspace', { skip: windowsOnly }, async (t) => {
+test('real Codex patch engine reports a context failure without changing the workspace', { skip: patchOnly }, async (t) => {
   const { workspaceRoot, store } = await makeWorkspace(t);
   const executable = await resolvePatchExecutable();
   await writeFile(path.join(workspaceRoot, 'context.txt'), 'the actual source line\n');
@@ -192,14 +193,14 @@ test('real Codex patch engine reports a context failure without changing the wor
   assert.equal(await readFile(path.join(workspaceRoot, 'context.txt'), 'utf8'), 'the actual source line\n');
 });
 
-test('managed patch refuses to write through a directory junction', { skip: windowsOnly }, async (t) => {
+test('managed patch refuses to write through a directory link', { skip: patchOnly }, async (t) => {
   const { workspaceRoot, store } = await makeWorkspace(t);
   const executable = await resolvePatchExecutable();
   const realDirectory = path.join(workspaceRoot, 'real-directory');
   const junction = path.join(workspaceRoot, 'linked-directory');
   await mkdir(realDirectory);
   try {
-    await symlink(realDirectory, junction, 'junction');
+    await symlink(realDirectory, junction, process.platform === 'win32' ? 'junction' : 'dir');
   } catch (error) {
     if (['EACCES', 'EPERM', 'ENOTSUP', 'ENOSYS'].includes(error?.code)) {
       t.skip(`Windows directory junctions are unavailable here (${error.code}).`);

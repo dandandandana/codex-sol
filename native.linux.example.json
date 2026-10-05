@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "workspace": "/path/to/project",
+  "rules": "/path/to/project/.codex/rules.json",
+  "node": "/path/to/linux/node",
+  "shell": "/usr/bin/bash",
+  "load_profile": false,
+  "timeout_ms": 300000,
+  "generated": []
+}

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash, randomUUID } from 'node:crypto';
-import { copyFile, mkdtemp, readFile, readdir, rename, rm, unlink, writeFile } from 'node:fs/promises';
+import { chmod, copyFile, mkdtemp, readFile, readdir, rename, rm, unlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createObservationStore, SolFault } from '../src/store.mjs';
@@ -192,12 +192,33 @@ test('completed freshness detects absolute executable changes outside watched in
   assert.equal(receipt.status, 'passed');
   assert.deepEqual((await engine.freshness(receipt, ['a', 'b'])).valid_rule_ids, ['a', 'b']);
   // Replace the file at the same command path without writing a mapped Windows image.
+  // Keep execute permission so this case isolates bytes; chmod has its own regression.
   await rename(executable, `${executable}.previous`);
-  await writeFile(executable, 'changed executable identity');
+  await writeFile(executable, 'changed executable identity', { mode: 0o755 });
   const fresh = await engine.freshness(receipt, ['a', 'b']);
   assert.deepEqual(fresh.valid_rule_ids, ['b']); assert.deepEqual(fresh.missing_rule_ids, ['a']);
   assert.equal(fresh.diagnostics[0].reason, 'runtime_conditions_changed');
   assert.equal(await runs('a'), 'x'); assert.equal(await runs('b'), 'x');
+});
+
+test('Linux loss of execute permission invalidates cached checks without running or changing historical receipts', { skip: process.platform !== 'linux' }, async (t) => {
+  const { root, store, rules, runs } = await fixture(t);
+  const executable = join(root, 'checker');
+  await copyFile(process.execPath, executable);
+  rules.rules[0].commands[0].argv[0] = executable;
+  const engine = new ValidationEngine(store, rules);
+  const receipt = await engine.revalidate({ rule_ids: ['a', 'b'], paths: ['a.txt', 'b.txt', 'missing.txt'] });
+  assert.equal(receipt.status, 'passed');
+  assert.deepEqual((await engine.freshness(receipt, ['a', 'b'])).valid_rule_ids, ['a', 'b']);
+  await chmod(executable, 0o600);
+  const fresh = await engine.freshness(receipt, ['a', 'b']);
+  assert.deepEqual(fresh.valid_rule_ids, ['b']);
+  assert.deepEqual(fresh.missing_rule_ids, ['a']);
+  assert.deepEqual((await engine.reuse(receipt, ['a', 'b'])).valid_rule_ids, ['b']);
+  assert.equal(await runs('a'), 'x'); assert.equal(await runs('b'), 'x');
+  assert.equal(receipt.status, 'passed');
+  await chmod(executable, 0o755);
+  assert.deepEqual((await engine.freshness(receipt, ['a', 'b'])).valid_rule_ids, ['a', 'b']);
 });
 
 test('tampered caller summaries, receipt pointers, output bytes and provenance are never reusable', async (t) => {

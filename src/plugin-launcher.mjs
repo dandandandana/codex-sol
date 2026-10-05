@@ -1,4 +1,5 @@
-import { lstat, realpath } from 'node:fs/promises';
+import { access, lstat, realpath } from 'node:fs/promises';
+import { constants } from 'node:fs';
 import { spawn } from 'node:child_process';
 import { isAbsolute, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -58,8 +59,13 @@ export async function resolvePluginProject(cwd, { signal } = {}) {
   const rulesPath = await workspaceFile(root, config.validation_rules);
   const contextRulesPath = config.context_rules ? await workspaceFile(root, config.context_rules) : undefined;
   for (const field of ['patch_executable', 'host_executable']) if (config[field]) {
-    if (!isAbsolute(config[field]) || !(await lstat(config[field])).isFile())
+    if (!isAbsolute(config[field])) throw new SolFault('PLUGIN_CONFIG', 'Configured executables must be actual absolute file paths.');
+    if (process.platform === 'linux') config[field] = await realpath(config[field]);
+    if (!(await lstat(config[field])).isFile())
       throw new SolFault('PLUGIN_CONFIG', 'Configured executables must be actual absolute file paths.');
+    if (process.platform === 'linux') await access(config[field], constants.X_OK).catch(() => {
+      throw new SolFault('PLUGIN_CONFIG', 'Configured executables must be executable by this user.');
+    });
   }
   const rules = assertContract('RulesConfig', JSON.parse(new TextDecoder('utf-8', { fatal: true })
     .decode(await readWorkspaceBytes(root, config.validation_rules, 256 * 1024, { signal }))));

@@ -12,7 +12,7 @@ const COMMON_REQUIRED_FILES = [
 ];
 const PORTABLE_FILES = ['plugin.json', 'mcp.json'];
 const PLUGIN_GUIDE = 'PLUGIN.md';
-const OPTIONAL_EXAMPLES = ['context.example.json', 'rules.example.json', 'sol-project.example.json'];
+const OPTIONAL_EXAMPLES = ['context.example.json', 'rules.example.json', 'sol-project.example.json', 'native.linux.example.json'];
 const TREE_INPUTS = ['src', 'vendor/normify', 'node_modules'];
 const PACKAGE_DESCRIPTION = 'Local responsibility context and explicit change workflows for Codex projects.';
 

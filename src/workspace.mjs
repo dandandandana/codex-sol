@@ -8,12 +8,17 @@ const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const forbidden = ['.git', '.codex/sol'];
 function fail(code, message) { throw new SolFault(code, message); }
 
-export async function workspaceFile(root, path, { allowMissing = false } = {}) {
-  const normalized = path.replaceAll('\\', '/');
-  if (normalized !== path || !path || path.startsWith('/') || /^[A-Za-z]:/u.test(path) || path.split('/').some((part) => !part || part === '.' || part === '..')) fail('PATH_ERROR', 'Path must be a workspace-relative file path.');
+/** Pure path validation shared by reads, writes and patch preflight. No I/O. */
+export function validateWorkspacePath(path) {
+  if (typeof path !== 'string' || !path || path.includes('\\') || path.includes('\0') || path.startsWith('/') || /^[A-Za-z]:/u.test(path) || path.split('/').some((part) => !part || part === '.' || part === '..')) fail('PATH_ERROR', 'Path must be a workspace-relative file path.');
   const comparison = process.platform === 'win32' ? path.toLowerCase() : path;
   if (forbidden.some((item) => comparison === item || comparison.startsWith(`${item}/`))) fail('PATH_ERROR', 'Path is reserved for project metadata.');
   if (process.platform === 'win32' && path.split('/').some((part) => /[:<>"|?*]/u.test(part) || /[. ]$/u.test(part) || /^(?:con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/iu.test(part))) fail('PATH_ERROR', 'Path is not a regular Windows file path.');
+  return path;
+}
+
+export async function workspaceFile(root, path, { allowMissing = false } = {}) {
+  validateWorkspacePath(path);
   const full = resolve(root, path);
   if (!full.startsWith(`${root}${sep}`)) fail('PATH_ERROR', 'Path escapes workspace.');
   let parent = dirname(full);

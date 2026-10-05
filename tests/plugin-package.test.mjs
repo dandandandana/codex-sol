@@ -140,11 +140,12 @@ test('packaging selects host format safely, copies the allowlist, and launches f
   const pluginEntries = (await readdir(pluginRoot)).sort();
   assert.deepEqual(pluginEntries, [
     '.codex-plugin', '.mcp.json', 'README.md', 'context.example.json', 'hooks',
-    'node_modules', 'package-lock.json', 'package.json', 'runtime.schema.json',
+    'native.linux.example.json', 'node_modules', 'package-lock.json', 'package.json', 'runtime.schema.json',
     'rules.example.json', 'sol-project.example.json', 'src', 'vendor',
   ].sort());
   assert.equal(packed.format, 'codex');
   assert.deepEqual(await readFile(join(pluginRoot, 'README.md')), await readFile(join(repoRoot, 'PLUGIN.md')));
+  assert.deepEqual(await readFile(join(pluginRoot, 'native.linux.example.json')), await readFile(join(repoRoot, 'native.linux.example.json')));
   for (const forbidden of ['.env', '.codex', '.git', 'fixtures', 'logs', 'slop', 'tests']) {
     assert.equal(pluginEntries.includes(forbidden), false, `unexpected project data in package: ${forbidden}`);
   }

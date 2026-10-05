@@ -30,12 +30,13 @@ const originalHome = process.env.CODEX_HOME; process.env.CODEX_HOME = home;
 const marketplace = join(packed.out, '.agents/plugins/marketplace.json');
 const version = execFileSync(executable, ['--version'], { encoding: 'utf8', windowsHide: true }).trim();
 const evidence = { schema_version: 1, date: new Date().toISOString(), host: version, status: 'running',
+  platform: process.platform, arch: process.arch,
   model_requests: 0, isolated_codex_home: true, credentials_copied: false, global_config_changed: false,
   plugin_inventory_file_count: packed.fileCount, package_format: 'codex', hook_trust_bypass: false };
 let host;
 const init = async (extra = []) => {
   host = startAppServer({ executable, cwd: root, args: ['app-server', '-c', 'features.plugins=true', '-c', 'features.hooks=true', '-c', 'notify=[]',
-    '-c', `projects={${JSON.stringify(root.toLowerCase())}={trust_level="trusted"}}`, ...extra] });
+    '-c', `projects={${JSON.stringify(process.platform === 'win32' ? root.toLowerCase() : root)}={trust_level="trusted"}}`, ...extra] });
   await host.request('initialize', { clientInfo: { name: 'sol_plugin_load', version: '1' }, capabilities: { experimentalApi: true } }); host.notify('initialized');
 };
 try {
