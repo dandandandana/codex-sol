@@ -16,6 +16,8 @@ const sourceFile = await readFile(new URL('../src/plugin-bootstrap.cjs', import.
 async function directory(t) {
   const root = await mkdtemp(join(tmpdir(), 'sol-plugin-bootstrap-'));
   t.after(() => rm(root, { recursive: true, force: true }));
+  // Keep project discovery independent of the temp directory's Git ancestry.
+  await mkdir(join(root, '.git'));
   return root;
 }
 

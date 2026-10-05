@@ -106,6 +106,7 @@ test('Linux native executable links resolve, while missing execute permission fa
 
 test('Linux plugin executables accept resolved links and reject non-executable files', { skip: linuxOnly }, async (t) => {
   const f = await fixture(t);
+  await mkdir(join(f.root, '.git'));
   await mkdir(join(f.root, '.codex'));
   await writeFile(join(f.root, 'rules.json'), JSON.stringify({ schema_version: 1, rules: [] }));
   const link = join(f.directory, 'node-link');

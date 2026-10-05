@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, realpath, rm, stat, symlink, writeFile } from 'node:fs/promises';
+import { lstat, mkdtemp, mkdir, realpath, rm, stat, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { handlePluginHook, resolvePluginProject } from '../src/plugin-launcher.mjs';
@@ -11,9 +11,11 @@ import { SolFault } from '../src/store.mjs';
 const launcher = fileURLToPath(new URL('../src/plugin-launcher.mjs', import.meta.url));
 const rules = { schema_version: 1, rules: [] };
 
-async function directory(t, prefix = 'sol-plugin-project-') {
-  const root = await mkdtemp(join(tmpdir(), prefix));
+async function directory(t, { git = true } = {}) {
+  const root = await mkdtemp(join(tmpdir(), 'sol-plugin-project-'));
   t.after(() => rm(root, { recursive: true, force: true }));
+  // Isolate ordinary project fixtures from Git metadata above the temp directory.
+  if (git) await mkdir(join(root, '.git'));
   return root;
 }
 
@@ -64,7 +66,7 @@ test('missing opt-in ignores legacy environment hints and creates no project sta
 });
 
 test('nearest Git root owns opt-in, including a regular .git worktree file', async (t) => {
-  const root = await directory(t);
+  const root = await directory(t, { git: false });
   await writeFile(join(root, '.git'), 'gitdir: .git/worktrees/checkout\n');
   await mkdir(join(root, 'src', 'nested'), { recursive: true });
   await writeRules(root);
@@ -84,7 +86,6 @@ test('a nested Git repository without opt-in does not inherit its outer project 
   const root = await directory(t);
   const nested = join(root, 'vendor', 'child');
   await mkdir(join(nested, 'src'), { recursive: true });
-  await mkdir(join(root, '.git'));
   await mkdir(join(nested, '.git'));
   await writeRules(root);
   await writeProject(root, projectConfig());
@@ -94,7 +95,17 @@ test('a nested Git repository without opt-in does not inherit its outer project 
 });
 
 test('without Git, only the exact cwd can opt in', async (t) => {
-  const parent = await directory(t);
+  const parent = await directory(t, { git: false });
+  // This case requires a genuinely non-Git ancestry; adding a boundary would
+  // change the behavior being tested. Some managed temp roots are inside Git.
+  for (let candidate = await realpath(parent); ; candidate = dirname(candidate)) {
+    const git = await lstat(join(candidate, '.git')).catch((error) => {
+      if (error.code === 'ENOENT') return null;
+      throw error;
+    });
+    if (git) return t.skip('Temporary directory has an ancestor .git marker; a non-Git fixture is unavailable.');
+    if (dirname(candidate) === candidate) break;
+  }
   const child = join(parent, 'child');
   await mkdir(child);
   await writeRules(parent);
