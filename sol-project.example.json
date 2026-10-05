@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "validation_rules": "rules.example.json",
+  "context_rules": "context.example.json",
+  "generated_paths": ["node_modules/**", "dist/**"]
+}

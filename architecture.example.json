@@ -1,0 +1,873 @@
+{
+  "schema_version": 1,
+  "modules": [
+    {
+      "id": "sol",
+      "uid": "e3fa368d",
+      "parent": null,
+      "name": {
+        "zh": "sol",
+        "en": "sol"
+      },
+      "description": {
+        "zh": "职责归属树",
+        "en": "Responsibility tree"
+      },
+      "source": [],
+      "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
+      "updated_at": "2026-10-03T09:45:23.950Z",
+      "fingerprint": "pending"
+    },
+    {
+      "id": "sol.architecture-change",
+      "uid": "1ce8b582",
+      "parent": "sol",
+      "name": {
+        "zh": "变更协调",
+        "en": "Change coordination"
+      },
+      "description": {
+        "zh": "显式变更协调、共用范围预检、复核、完成证据及只读状态投影",
+        "en": "Explicit change coordination, shared scope preflight, review, completion evidence and read-only state projection"
+      },
+      "source": [
+        {
+          "path": "src/architecture/change.mjs"
+        }
+      ],
+      "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
+      "updated_at": "2026-10-04T08:30:50.798Z",
+      "fingerprint": "ab878e166be65cd2c52f5867292f2e448726e627e7256eae3126d7569331af30",
+      "apis": [
+        {
+          "protocol": "rpc",
+          "path": "ChangeCoordinator",
+          "description": {
+            "zh": "单一变更登记、绑定写入、前后事实与累计影响、版本绑定复核、有效检查及原子完成发布；工作区租约内执行，取消与失败保留实际结果。",
+            "en": "Owns one change, bound writes, before/current impact, version-bound review, cumulative checks and atomic completion under the workspace lease; failures retain actual effects."
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "changeBindingSchema",
+          "description": {
+            "zh": "changeBindingSchema",
+            "en": "changeBindingSchema"
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "changeOpenSchema",
+          "description": {
+            "zh": "changeOpenSchema",
+            "en": "changeOpenSchema"
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "changeReviewSchema",
+          "description": {
+            "zh": "写后复核 prepare/submit 的严格输入合同；绑定变更、当前复核材料及逐模块、验收与未覆盖项的依据。",
+            "en": "Strict prepare/submit contract for post-write review bound to the change, current materials and per-module, acceptance and gap evidence."
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "changeCompleteSchema",
+          "description": {
+            "zh": "完成收尾严格输入：当前 change 绑定和当前 review_handle。",
+            "en": "Strict completion input: the current change binding and review_handle."
+          }
+        }
+      ]
+    },
+    {
+      "id": "sol.architecture-context",
+      "uid": "7a0332d2",
+      "parent": "sol",
+      "name": {
+        "zh": "architecture-context",
+        "en": "architecture-context"
+      },
+      "description": {
+        "zh": "准备和核验职责输入、上游成果及可选显式变更状态",
+        "en": "Prepare and verify responsibility inputs, producer artifacts and optional explicit change state"
+      },
+      "source": [
+        {
+          "path": "src/architecture/context.mjs"
+        }
+      ],
+      "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
+      "updated_at": "2026-10-04T04:59:55.581Z",
+      "fingerprint": "81a4c3faddbedb6d6e5ff16797f3397c786b5ab0e3ad3197aa6db431f9fb3602",
+      "apis": [
+        {
+          "protocol": "rpc",
+          "path": "ContextEngine",
+          "description": {
+            "zh": "ContextEngine",
+            "en": "ContextEngine"
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "contextError",
+          "description": {
+            "zh": "contextError",
+            "en": "contextError"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sol.architecture-index",
+      "uid": "2b6c0979",
+      "parent": "sol",
+      "name": {
+        "zh": "architecture-index",
+        "en": "architecture-index"
+      },
+      "description": {
+        "zh": "职责上下文 index.mjs",
+        "en": "职责上下文 index.mjs"
+      },
+      "source": [
+        {
+          "path": "src/architecture/index.mjs"
+        }
+      ],
+      "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
+      "updated_at": "2026-10-04T03:21:19.618Z",
+      "fingerprint": "4bc8f28b5ed68678da1750c416191b23984dc228e9ed06d96a6086f8f725ad4f",
+      "apis": [
+        {
+          "protocol": "rpc",
+          "path": "ArchitectureIndex",
+          "description": {
+            "zh": "只读 Normify 声明与 JavaScript 导入/导出事实、能力发现、版本核验及前后架构维护建议；未覆盖项显式返回，不自动批准契约。",
+            "en": "Read-only Normify declarations and JavaScript import/export facts, capability discovery, freshness and before/current maintenance suggestions; gaps remain explicit without automatic contract approval."
+          }
+        }
+      ]
+    },
+    {
+      "id": "sol.architecture-session",
+      "uid": "572fa8c6",
+      "parent": "sol",
+      "name": {
+        "zh": "architecture-session",
+        "en": "architecture-session"
+      },
+      "description": {
+        "zh": "会话绑定、职责恢复和只读状态提醒",
+        "en": "Session binding, responsibility recovery and read-only state reminders"
+      },
+      "source": [
+        {
+          "path": "src/architecture/session.mjs"
+        }
+      ],
+      "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
+      "updated_at": "2026-10-04T04:59:55.581Z",
+      "fingerprint": "d116023d57e2c2475befd7626df6160066294c8da7a86ff8b916e6aed938a439",
+      "apis": [
+        {
+          "protocol": "rpc",
+          "path": "ContextSessions",
+          "description": {
+            "zh": "ContextSessions",
+            "en": "ContextSessions"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sol.context-hook",
+      "uid": "7a8e45d6",
+      "parent": "sol",
+      "name": {
+        "zh": "context-hook",
+        "en": "context-hook"
+      },
+      "description": {
+        "zh": "显式职责恢复、只读状态提醒、受管写入预检和有界收尾核验",
+        "en": "Explicit responsibility restoration, read-only state reminders, managed write preflight and bounded closeout inspection"
+      },
+      "source": [
+        {
+          "path": "src/context-hook.mjs"
+        }
+      ],
+      "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
+      "updated_at": "2026-10-04T08:30:50.798Z",
+      "fingerprint": "373f1afafa05b546669fa61b56cc0d85219019dc8ad82bddc848cdbb893a5c60",
+      "apis": [
+        {
+          "protocol": "rpc",
+          "path": "handleContextHook",
+          "description": {
+            "zh": "handleContextHook",
+            "en": "handleContextHook"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sol.host-cancellation",
+      "uid": "911552e0",
+      "parent": "sol",
+      "name": {
+        "zh": "host-cancellation",
+        "en": "host-cancellation"
+      },
+      "description": {
+        "zh": "现有 host-cancellation.mjs 的公共职责",
+        "en": "现有 host-cancellation.mjs 的公共职责"
+      },
+      "source": [
+        {
+          "path": "src/host-cancellation.mjs"
+        }
+      ],
+      "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
+      "updated_at": "2026-10-03T09:45:23.950Z",
+      "fingerprint": "4374ca9a4e79eb7557ef2f4fb2769c49f3e6e03ac0c283e0fda6ee436f27444c",
+      "apis": [
+        {
+          "protocol": "rpc",
+          "path": "interruptionReason",
+          "description": {
+            "zh": "interruptionReason",
+            "en": "interruptionReason"
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "openHostCancellation",
+          "description": {
+            "zh": "openHostCancellation",
+            "en": "openHostCancellation"
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "withHostCancellation",
+          "description": {
+            "zh": "withHostCancellation",
+            "en": "withHostCancellation"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sol.managed-command",
+      "uid": "f8a3d671",
+      "parent": "sol",
+      "name": {
+        "zh": "managed-command",
+        "en": "managed-command"
+      },
+      "description": {
+        "zh": "现有 managed-command.mjs 的公共职责",
+        "en": "现有 managed-command.mjs 的公共职责"
+      },
+      "source": [
+        {
+          "path": "src/managed-command.mjs"
+        }
+      ],
+      "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
+      "updated_at": "2026-10-03T15:49:23.098Z",
+      "fingerprint": "0fb805f6dc07609e5a8e95de1efacf4175043b6ccc7a9ce9747f1c11876c0876",
+      "apis": [
+        {
+          "protocol": "rpc",
+          "path": "publicError",
+          "description": {
+            "zh": "publicError",
+            "en": "publicError"
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "runManagedCommand",
+          "description": {
+            "zh": "runManagedCommand",
+            "en": "runManagedCommand"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sol.native-hook",
+      "uid": "8d9303b9",
+      "parent": "sol",
+      "name": {
+        "zh": "native-hook",
+        "en": "native-hook"
+      },
+      "description": {
+        "zh": "现有 native-hook.mjs 的公共职责",
+        "en": "现有 native-hook.mjs 的公共职责"
+      },
+      "source": [
+        {
+          "path": "src/native-hook.mjs"
+        }
+      ],
+      "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
+      "updated_at": "2026-10-03T09:45:23.950Z",
+      "fingerprint": "6c0c3df0d4ed50aca461537908d8b80d778ac5bc304e27fe56551256205c6cf4",
+      "apis": [
+        {
+          "protocol": "rpc",
+          "path": "loadNativeConfig",
+          "description": {
+            "zh": "loadNativeConfig",
+            "en": "loadNativeConfig"
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "handleNativeHook",
+          "description": {
+            "zh": "handleNativeHook",
+            "en": "handleNativeHook"
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "runNativeRequest",
+          "description": {
+            "zh": "runNativeRequest",
+            "en": "runNativeRequest"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sol.pack",
+      "uid": "a8105ba4",
+      "parent": "sol",
+      "name": {
+        "zh": "pack",
+        "en": "pack"
+      },
+      "description": {
+        "zh": "现有 pack.mjs 的公共职责",
+        "en": "现有 pack.mjs 的公共职责"
+      },
+      "source": [
+        {
+          "path": "src/pack.mjs"
+        }
+      ],
+      "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
+      "updated_at": "2026-10-03T09:45:23.950Z",
+      "fingerprint": "6441645b0d9ba54a61f2217f10a7357ae07ef9c0a29198c563726f3caa865c98",
+      "apis": [
+        {
+          "protocol": "rpc",
+          "path": "storageErrorPack",
+          "description": {
+            "zh": "storageErrorPack",
+            "en": "storageErrorPack"
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "pack",
+          "description": {
+            "zh": "pack",
+            "en": "pack"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sol.patch",
+      "uid": "7b7e65d7",
+      "parent": "sol",
+      "name": {
+        "zh": "patch",
+        "en": "patch"
+      },
+      "description": {
+        "zh": "现有 patch.mjs 的公共职责",
+        "en": "现有 patch.mjs 的公共职责"
+      },
+      "source": [
+        {
+          "path": "src/patch.mjs"
+        }
+      ],
+      "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
+      "updated_at": "2026-10-03T15:49:23.099Z",
+      "fingerprint": "1e5151235ca75a6d2fcde9dd19ad14a0da6b1b9fc5be2cb4595d8836b064e243",
+      "apis": [
+        {
+          "protocol": "rpc",
+          "path": "patchPaths",
+          "description": {
+            "zh": "patchPaths",
+            "en": "patchPaths"
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "applyManagedPatch",
+          "description": {
+            "zh": "applyManagedPatch",
+            "en": "applyManagedPatch"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sol.plugin-launcher",
+      "uid": "cf135529",
+      "parent": "sol",
+      "name": {
+        "zh": "插件入口",
+        "en": "Plugin entry"
+      },
+      "description": {
+        "zh": "显式项目配置、共用启动程序和相同真实执行环境中的 MCP/Hook 适配",
+        "en": "Explicit project configuration, shared bootstrap and MCP/Hook adapters with matching actual execution conditions"
+      },
+      "source": [
+        {
+          "path": "src/plugin-bootstrap.cjs"
+        },
+        {
+          "path": "src/plugin-launcher.mjs"
+        }
+      ],
+      "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
+      "updated_at": "2026-10-04T08:13:22.164Z",
+      "fingerprint": "a4d59162c387a9c6341424b71781d5ccc8cfa438a03a00e29a269cc80ea6f9aa",
+      "apis": [
+        {
+          "protocol": "rpc",
+          "path": "resolvePluginProject",
+          "description": {
+            "zh": "resolvePluginProject",
+            "en": "resolvePluginProject"
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "handlePluginHook",
+          "description": {
+            "zh": "handlePluginHook",
+            "en": "handlePluginHook"
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "pluginExecutionEnvironment",
+          "description": {
+            "zh": "pluginExecutionEnvironment",
+            "en": "pluginExecutionEnvironment"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sol.process",
+      "uid": "dc326b6a",
+      "parent": "sol",
+      "name": {
+        "zh": "process",
+        "en": "process"
+      },
+      "description": {
+        "zh": "现有 process.mjs 的公共职责",
+        "en": "现有 process.mjs 的公共职责"
+      },
+      "source": [
+        {
+          "path": "src/process.mjs"
+        }
+      ],
+      "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
+      "updated_at": "2026-10-03T09:45:23.950Z",
+      "fingerprint": "4212bd58526614784edff25a5f0d3823d29c70020c618786ddf7f87c6d30c26c",
+      "apis": [
+        {
+          "protocol": "rpc",
+          "path": "runCapturedCommand",
+          "description": {
+            "zh": "runCapturedCommand",
+            "en": "runCapturedCommand"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sol.read",
+      "uid": "a4b6638c",
+      "parent": "sol",
+      "name": {
+        "zh": "read",
+        "en": "read"
+      },
+      "description": {
+        "zh": "现有 read.mjs 的公共职责",
+        "en": "现有 read.mjs 的公共职责"
+      },
+      "source": [
+        {
+          "path": "src/read.mjs"
+        }
+      ],
+      "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
+      "updated_at": "2026-10-03T09:45:23.950Z",
+      "fingerprint": "f47aad52eb66eb69cfb8b312c00b13bb6f914b834f124ed3f738e029997b8afb",
+      "apis": [
+        {
+          "protocol": "rpc",
+          "path": "readObservation",
+          "description": {
+            "zh": "readObservation",
+            "en": "readObservation"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sol.recall",
+      "uid": "59918ee2",
+      "parent": "sol",
+      "name": {
+        "zh": "recall",
+        "en": "recall"
+      },
+      "description": {
+        "zh": "现有 recall.mjs 的公共职责",
+        "en": "现有 recall.mjs 的公共职责"
+      },
+      "source": [
+        {
+          "path": "src/recall.mjs"
+        }
+      ],
+      "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
+      "updated_at": "2026-10-03T14:56:54.707Z",
+      "fingerprint": "d160cc778deec90579c6f20f451dd2a137fa66706a4a928b0e101d3a680c9c51",
+      "apis": [
+        {
+          "protocol": "rpc",
+          "path": "recall",
+          "description": {
+            "zh": "recall",
+            "en": "recall"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sol.schema",
+      "uid": "a07d75dc",
+      "parent": "sol",
+      "name": {
+        "zh": "schema",
+        "en": "schema"
+      },
+      "description": {
+        "zh": "现有 schema.mjs 的公共职责",
+        "en": "现有 schema.mjs 的公共职责"
+      },
+      "source": [
+        {
+          "path": "src/schema.mjs"
+        }
+      ],
+      "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
+      "updated_at": "2026-10-03T09:45:23.950Z",
+      "fingerprint": "24e017067ff3dc6c3720ce37849d2c73c291839dcf4663a7577048593b64f040",
+      "apis": [
+        {
+          "protocol": "rpc",
+          "path": "assertContract",
+          "description": {
+            "zh": "assertContract",
+            "en": "assertContract"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sol.server",
+      "uid": "41d4444c",
+      "parent": "sol",
+      "name": {
+        "zh": "server",
+        "en": "server"
+      },
+      "description": {
+        "zh": "现有 server.mjs 的公共职责",
+        "en": "现有 server.mjs 的公共职责"
+      },
+      "source": [
+        {
+          "path": "src/server.mjs"
+        }
+      ],
+      "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
+      "updated_at": "2026-10-04T04:59:55.581Z",
+      "fingerprint": "83b0b8ba15aad9d91bd63cbf695f0cd4407b39467d596826c99b30b4894dfa13",
+      "apis": [
+        {
+          "protocol": "rpc",
+          "path": "createSolServer",
+          "description": {
+            "zh": "createSolServer",
+            "en": "createSolServer"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sol.store",
+      "uid": "6e7786ea",
+      "parent": "sol",
+      "name": {
+        "zh": "store",
+        "en": "store"
+      },
+      "description": {
+        "zh": "现有 store.mjs 的公共职责",
+        "en": "现有 store.mjs 的公共职责"
+      },
+      "source": [
+        {
+          "path": "src/store.mjs"
+        }
+      ],
+      "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
+      "updated_at": "2026-10-03T09:45:23.950Z",
+      "fingerprint": "6a945b0c9a6d30a7f7a9dc5c39de1f0fd4d782aa116f23a99b51735089b854c2",
+      "apis": [
+        {
+          "protocol": "rpc",
+          "path": "SolFault",
+          "description": {
+            "zh": "SolFault",
+            "en": "SolFault"
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "interruptionFault",
+          "description": {
+            "zh": "interruptionFault",
+            "en": "interruptionFault"
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "ObservationStore",
+          "description": {
+            "zh": "ObservationStore",
+            "en": "ObservationStore"
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "createObservationStore",
+          "description": {
+            "zh": "createObservationStore",
+            "en": "createObservationStore"
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "readIndexOffset",
+          "description": {
+            "zh": "readIndexOffset",
+            "en": "readIndexOffset"
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "readRawSlice",
+          "description": {
+            "zh": "readRawSlice",
+            "en": "readRawSlice"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sol.validation",
+      "uid": "f194da0b",
+      "parent": "sol",
+      "name": {
+        "zh": "validation",
+        "en": "validation"
+      },
+      "description": {
+        "zh": "现有 validation.mjs 的公共职责",
+        "en": "现有 validation.mjs 的公共职责"
+      },
+      "source": [
+        {
+          "path": "src/validation.mjs"
+        }
+      ],
+      "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
+      "updated_at": "2026-10-04T05:06:52.982Z",
+      "fingerprint": "258fb695098abcecd84f84e3f5e8c6ee85c4890b72540a57da7ece0f053baff5",
+      "apis": [
+        {
+          "protocol": "rpc",
+          "path": "matchesGlob",
+          "description": {
+            "zh": "matchesGlob",
+            "en": "matchesGlob"
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "snapshotInputs",
+          "description": {
+            "zh": "按 glob 读取文件快照；可选 signal 取消，保持宿主故障码；不写入归档",
+            "en": "Read glob-selected input snapshots with optional cancellation, preserve host faults, and write no archive"
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "digestChangedPaths",
+          "description": {
+            "zh": "digestChangedPaths",
+            "en": "digestChangedPaths"
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "ValidationEngine",
+          "description": {
+            "zh": "真实修改验证及显式再验证；保存逐规则来源，核验计划、复用许可与当前有效性，沿用原回执、取消和 runner。",
+            "en": "Validates real changes and explicit revalidation; records rule provenance and verifies plans, permitted reuse and freshness with existing receipts, cancellation and runners."
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "receiptSummary",
+          "description": {
+            "zh": "receiptSummary",
+            "en": "receiptSummary"
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "isGeneratedPath",
+          "description": {
+            "zh": "匹配生成目标及被排除的祖先目录",
+            "en": "Match generated targets and excluded ancestor directories"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sol.workspace",
+      "uid": "3c015058",
+      "parent": "sol",
+      "name": {
+        "zh": "workspace",
+        "en": "workspace"
+      },
+      "description": {
+        "zh": "现有 workspace.mjs 的公共职责",
+        "en": "现有 workspace.mjs 的公共职责"
+      },
+      "source": [
+        {
+          "path": "src/workspace.mjs"
+        }
+      ],
+      "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
+      "updated_at": "2026-10-04T03:21:19.618Z",
+      "fingerprint": "3db7474e616468cae3105f1e75e5cb16c98ad004f3e8f5e9b80eb108f7456a94",
+      "apis": [
+        {
+          "protocol": "rpc",
+          "path": "workspaceFile",
+          "description": {
+            "zh": "workspaceFile",
+            "en": "workspaceFile"
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "fileState",
+          "description": {
+            "zh": "fileState",
+            "en": "fileState"
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "readWorkspaceBytes",
+          "description": {
+            "zh": "readWorkspaceBytes",
+            "en": "readWorkspaceBytes"
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "writeAtomicJSON",
+          "description": {
+            "zh": "先写入并同步同目录临时文件，再原子替换 JSON；可选 beforePublish 在 rename 前核验发布条件，失败清理本次临时文件。",
+            "en": "Writes and syncs a same-directory temporary JSON before atomic replacement; optional beforePublish guards rename and failure removes this temporary file."
+          }
+        }
+      ]
+    },
+    {
+      "id": "sol.workspace-lock",
+      "uid": "03265c52",
+      "parent": "sol",
+      "name": {
+        "zh": "workspace-lock",
+        "en": "workspace-lock"
+      },
+      "description": {
+        "zh": "现有 workspace-lock.mjs 的公共职责",
+        "en": "现有 workspace-lock.mjs 的公共职责"
+      },
+      "source": [
+        {
+          "path": "src/workspace-lock.mjs"
+        }
+      ],
+      "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
+      "updated_at": "2026-10-03T09:45:23.950Z",
+      "fingerprint": "ac61dfe210ba91c1b7a723e328cdad509c3d0935a8b9e8c2e497a4c920461520",
+      "apis": [
+        {
+          "protocol": "rpc",
+          "path": "withWorkspaceLock",
+          "description": {
+            "zh": "withWorkspaceLock",
+            "en": "withWorkspaceLock"
+          }
+        }
+      ]
+    }
+  ],
+  "policy": {
+    "schema_version": 1,
+    "updated_at": "2026-10-03T09:45:23.950Z",
+    "rules": [
+      {
+        "id": "no-cycles",
+        "type": "acyclic",
+        "severity": "error",
+        "includeCrossTree": true
+      }
+    ]
+  }
+}

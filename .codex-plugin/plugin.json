@@ -1,0 +1,11 @@
+{
+  "name": "codex-sol",
+  "version": "0.1.0",
+  "description": "Local responsibility context and explicit change workflows for Codex projects.",
+  "hooks": "./hooks/hooks.json",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Codex SoL",
+    "shortDescription": "Local Context and an explicit, evidence-backed change workflow."
+  }
+}

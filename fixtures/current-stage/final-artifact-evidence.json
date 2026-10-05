@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-10-04T02:05:28.614Z",
+  "complete_check": "fixtures/current-stage/check-evidence.json",
+  "tested_code_config_inputs_unchanged": true,
+  "documentation_changes_since_check": [
+    {
+      "path": "architecture-current.md",
+      "checked_sha256": "33dca3f28472e2eecbe65605b59ed19194eb072dc6ab24308a0d7e60600d2b27",
+      "current_sha256": "6da30df0b46d252bc24775489f0f73156b8478e4d38e7191bd2fc3500bda759b"
+    },
+    {
+      "path": "architecture.md",
+      "checked_sha256": "712ce7738c318ac864349ee9f091a16c5af5eb09693ac5f83dd05f86b1ab4f30",
+      "current_sha256": "78b53075d1563310b8eb16fb2b30ba9a252fbdefacade6d07c71f488fb8d6671"
+    },
+    {
+      "path": "README.md",
+      "checked_sha256": "3340a319826d6f053784308ec897f680431793a56274cdf3ffec3516617370da",
+      "current_sha256": "68d461eeff4a3105a87c37b849b5574bd9c491cf046e06157e1484794949eca3"
+    }
+  ],
+  "final_artifacts": [
+    {
+      "path": "README.md",
+      "sha256": "68d461eeff4a3105a87c37b849b5574bd9c491cf046e06157e1484794949eca3",
+      "bytes": 37010
+    },
+    {
+      "path": "architecture-current.md",
+      "sha256": "6da30df0b46d252bc24775489f0f73156b8478e4d38e7191bd2fc3500bda759b",
+      "bytes": 7460
+    },
+    {
+      "path": "architecture.md",
+      "sha256": "78b53075d1563310b8eb16fb2b30ba9a252fbdefacade6d07c71f488fb8d6671",
+      "bytes": 45316
+    },
+    {
+      "path": "acceptance.md",
+      "sha256": "2ff67bcd36a6a44bc40974d120bb7b2b7253a9f3b7cda4e538cc4112a7070ead",
+      "bytes": 29090
+    },
+    {
+      "path": "fixtures/manifest.md",
+      "sha256": "65260972946326a0ab09a63d707036110d0fbbde269d2814dae050c9125597dc",
+      "bytes": 26431
+    },
+    {
+      "path": "fixtures/current-stage/README.md",
+      "sha256": "375f5e8093a777c3d93f07df147c1598c5ca142e18f4601abdcc9f7339934ddd",
+      "bytes": 5100
+    },
+    {
+      "path": "fixtures/current-stage/mcp-call.mjs",
+      "sha256": "28afd9b446b015bf43433efda6be5c477d61793b15b88b16ee47a3676cc1cad8",
+      "bytes": 4934
+    },
+    {
+      "path": "fixtures/current-stage/index-evidence.json",
+      "sha256": "04244a3a1a47cac4fe841bb3f83d24fa45ee753bd3bfad6b12cb4131fcd4ada9",
+      "bytes": 1726
+    },
+    {
+      "path": "fixtures/current-stage/check-evidence.json",
+      "sha256": "deb1302b1bc3978c0b6995d3fa06a638c122d984d19990f458ecb79df0add3ad",
+      "bytes": 32399
+    },
+    {
+      "path": "fixtures/current-stage/scope-regression-evidence.json",
+      "sha256": "dcb74c0dd25403c54a3ac17a3397fcada2e909b0770400ade372d48dd29417d4",
+      "bytes": 8451
+    },
+    {
+      "path": "fixtures/current-stage/feature-evidence.json",
+      "sha256": "8324e2e80552c24465b87ed97ec8ae9ccf8cbdd7631012b36ca2a368e2635664",
+      "bytes": 9228
+    },
+    {
+      "path": "fixtures/current-stage/independent-acceptance.json",
+      "sha256": "ada9eba555631a33fcc275e77520c27c19bd0364aae690dbe63efabe0d1576ad",
+      "bytes": 2515
+    },
+    {
+      "path": "src/validation.mjs",
+      "sha256": "3bab1e7fc387516e0ab745ba66ad852b7e47647537bfb6af974fadb875a23121",
+      "bytes": 13222
+    },
+    {
+      "path": "src/architecture/change.mjs",
+      "sha256": "8798ef4d3c57f9d0c3cf4a734ce2dd102a640d3605a09570ed4c4ce65779a8c1",
+      "bytes": 19528
+    },
+    {
+      "path": "tests/change.test.mjs",
+      "sha256": "e336818e2237d58707b2e303717dcf67c9b66ecab82add91030f2bc4c3724030",
+      "bytes": 22403
+    },
+    {
+      "path": "architecture.example.json",
+      "sha256": "07d47d904d96bb5b60e8ff342af2f59da456b0afbca4bbf36d7af7b075976d63",
+      "bytes": 20955
+    }
+  ],
+  "diff_check": "git diff --check exit 0; existing CRLF warnings only",
+  "artifact_text_check": "No conflict markers or trailing whitespace in current-turn files",
+  "limits": "Original full-check input hashes retain the exact checked snapshot; later documentation changes are recorded separately."
+}

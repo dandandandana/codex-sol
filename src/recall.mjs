@@ -127,7 +127,7 @@ export async function recall(store, request) {
   const binding = { workspace: store.workspaceId, handle: meta.handle, sha256: meta.sha256, selector };
   const cursorPosition = request.cursor ? parseCursor(request.cursor, binding) : null;
   if (selector.kind === 'bytes') {
-    if (selector.start > selector.end || selector.end > buffer.length) fail('INVALID_RANGE', 'Byte range is outside the observation.');
+    if (selector.start > selector.end || selector.end > buffer.length) fail('INVALID_RANGE', `Byte range is outside the observation. Available byte offsets: 0..${buffer.length} (end exclusive).`);
     const start = cursorPosition ?? selector.start;
     if (start < selector.start || start >= selector.end && selector.start !== selector.end) fail('INVALID_CURSOR', 'Cursor is outside the requested range.');
     return pageBytes(buffer, meta, start, selector.end, binding);
@@ -137,7 +137,7 @@ export async function recall(store, request) {
   decodeText(buffer);
   let windows;
   if (selector.kind === 'lines') {
-    if (selector.start > selector.end || selector.end > spans.length) fail('INVALID_RANGE', 'Line range is outside the observation.');
+    if (selector.start > selector.end || selector.end > spans.length) fail('INVALID_RANGE', spans.length ? `Line range is outside the observation. Available lines: 1..${spans.length} (inclusive); follow next_cursor for additional pages.` : 'Line range is outside the observation. Available lines: 0; use bytes 0..0 for an empty observation.');
     windows = [[spans[selector.start - 1][0], spans[selector.end - 1][1]]];
   } else {
     windows = keywordWindows(buffer, selector.literal, selector.context_lines ?? 2).windows;

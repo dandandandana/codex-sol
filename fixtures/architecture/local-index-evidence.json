@@ -1,0 +1,901 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-03",
+  "engine": {
+    "name": "Normify",
+    "version": "0.5.4",
+    "commit": "ed404e5b8db0010ff57ec8486ec8749421072545",
+    "compiled": true
+  },
+  "vendor_hashes_verified": true,
+  "revision_verification": "declaration_only; Git revision not verified by adapter",
+  "counts": {
+    "modules": 19,
+    "capabilities": 38,
+    "static_imports": 58,
+    "uncovered": 69
+  },
+  "diagnostics": [
+    {
+      "code": "layout/missing",
+      "blocking": false,
+      "message": "容器模块缺少渲染数据（图谱将回退自动布局）",
+      "subject": {
+        "module": "sol"
+      }
+    },
+    {
+      "code": "evidence/root-no-source",
+      "blocking": false,
+      "message": "根模块无 source（纯文档根）",
+      "subject": {
+        "module": "sol"
+      }
+    }
+  ],
+  "example": {
+    "schema_version": 1,
+    "kind": "architecture_query",
+    "version": "c41f2ede1f1b41172fc1945fa084a63b19064def13110ad42dce06e79a6b4c87",
+    "status": "ready",
+    "engine": {
+      "name": "Normify",
+      "version": "0.5.4",
+      "commit": "ed404e5b8db0010ff57ec8486ec8749421072545",
+      "compiled": true
+    },
+    "owners": [],
+    "candidates": [
+      {
+        "module": "sol.workspace",
+        "uid": "3c015058",
+        "symbol": "readWorkspaceBytes",
+        "protocol": "rpc",
+        "description": {
+          "zh": "readWorkspaceBytes",
+          "en": "readWorkspaceBytes"
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/workspace.mjs",
+            "line": 52,
+            "sha256": "9471e7506dd9cd04b8eddbcf5eb439b04b28c51e6413521d11c204f790c3b2a3"
+          }
+        ]
+      }
+    ],
+    "impact": [
+      {
+        "from": "sol.managed-command",
+        "from_uid": "f8a3d671",
+        "to": "sol.workspace",
+        "to_uid": "3c015058",
+        "kind": "static_import",
+        "source": {
+          "path": "src/managed-command.mjs",
+          "line": 5,
+          "sha256": "260e22d2191c5c4c45aa87fa5077bda8a9a2cecb50c9b861f198645b45e7430c"
+        },
+        "target": "src/workspace.mjs",
+        "names": [
+          "fileState"
+        ]
+      },
+      {
+        "from": "sol.native-hook",
+        "from_uid": "8d9303b9",
+        "to": "sol.workspace",
+        "to_uid": "3c015058",
+        "kind": "static_import",
+        "source": {
+          "path": "src/native-hook.mjs",
+          "line": 9,
+          "sha256": "74d276f80ed6995fb1b70451fd980e510c8cff76c234c9075ce07cee069d5391"
+        },
+        "target": "src/workspace.mjs",
+        "names": [
+          "writeAtomicJSON"
+        ]
+      },
+      {
+        "from": "sol.patch",
+        "from_uid": "7b7e65d7",
+        "to": "sol.workspace",
+        "to_uid": "3c015058",
+        "kind": "static_import",
+        "source": {
+          "path": "src/patch.mjs",
+          "line": 4,
+          "sha256": "a34bad5c808c05c124b1744a493df1f1b6f2e9674adccbdb18df569df32b2d26"
+        },
+        "target": "src/workspace.mjs",
+        "names": [
+          "workspaceFile"
+        ]
+      },
+      {
+        "from": "sol.server",
+        "from_uid": "41d4444c",
+        "to": "sol.workspace",
+        "to_uid": "3c015058",
+        "kind": "static_import",
+        "source": {
+          "path": "src/server.mjs",
+          "line": 17,
+          "sha256": "0278217b836903667e148b205599c39a0391795ad159dafa17bd510c81cac0e5"
+        },
+        "target": "src/workspace.mjs",
+        "names": [
+          "workspaceFile",
+          "fileState"
+        ]
+      },
+      {
+        "from": "sol.architecture-context",
+        "from_uid": "7a0332d2",
+        "to": "sol.workspace",
+        "to_uid": "3c015058",
+        "kind": "static_import",
+        "source": {
+          "path": "src/architecture/context.mjs",
+          "line": 7,
+          "sha256": "dddd43c4266b7f7654aa0121fb866d632bdcbfd452dd0f91afc0d5957f58315b"
+        },
+        "target": "src/workspace.mjs",
+        "names": [
+          "readWorkspaceBytes",
+          "workspaceFile"
+        ]
+      },
+      {
+        "from": "sol.architecture-index",
+        "from_uid": "2b6c0979",
+        "to": "sol.workspace",
+        "to_uid": "3c015058",
+        "kind": "static_import",
+        "source": {
+          "path": "src/architecture/index.mjs",
+          "line": 11,
+          "sha256": "c9a8748b453286e5297e13d2bd94e2a860948fea3fd561352b59be7e98f1ce15"
+        },
+        "target": "src/workspace.mjs",
+        "names": [
+          "readWorkspaceBytes",
+          "workspaceFile"
+        ]
+      },
+      {
+        "from": "sol.architecture-session",
+        "from_uid": "572fa8c6",
+        "to": "sol.workspace",
+        "to_uid": "3c015058",
+        "kind": "static_import",
+        "source": {
+          "path": "src/architecture/session.mjs",
+          "line": 8,
+          "sha256": "5fa938428e7f70de55c299a2f5d8253e48397e168085de9377e1c5eefc20e6b3"
+        },
+        "target": "src/workspace.mjs",
+        "names": [
+          "writeAtomicJSON"
+        ]
+      }
+    ],
+    "declared_impact": [],
+    "diagnostics": [
+      {
+        "code": "layout/missing",
+        "blocking": false,
+        "message": "容器模块缺少渲染数据（图谱将回退自动布局）",
+        "subject": {
+          "module": "sol"
+        }
+      },
+      {
+        "code": "evidence/root-no-source",
+        "blocking": false,
+        "message": "根模块无 source（纯文档根）",
+        "subject": {
+          "module": "sol"
+        }
+      }
+    ],
+    "uncovered": [
+      {
+        "path": "src/context-hook.mjs",
+        "line": 1,
+        "specifier": "node:fs/promises",
+        "names": [
+          "realpath"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/context-hook.mjs",
+        "line": 2,
+        "specifier": "node:path",
+        "names": [
+          "resolve"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/context-hook.mjs",
+        "line": 3,
+        "specifier": "node:url",
+        "names": [
+          "fileURLToPath"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/host-cancellation.mjs",
+        "line": 1,
+        "specifier": "node:child_process",
+        "names": [
+          "spawn"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/host-cancellation.mjs",
+        "line": 2,
+        "specifier": "node:fs/promises",
+        "names": [
+          "open",
+          "realpath",
+          "stat"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/host-cancellation.mjs",
+        "line": 3,
+        "specifier": "node:path",
+        "names": [
+          "isAbsolute"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/host-cancellation.mjs",
+        "line": 4,
+        "specifier": "node:string_decoder",
+        "names": [
+          "StringDecoder"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/managed-command.mjs",
+        "line": 1,
+        "specifier": "node:crypto",
+        "names": [
+          "randomUUID"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/native-hook.mjs",
+        "line": 1,
+        "specifier": "node:fs/promises",
+        "names": [
+          "readFile",
+          "mkdir",
+          "open",
+          "lstat",
+          "realpath",
+          "unlink"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/native-hook.mjs",
+        "line": 2,
+        "specifier": "node:crypto",
+        "names": [
+          "createHash"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/native-hook.mjs",
+        "line": 3,
+        "specifier": "node:path",
+        "names": [
+          "dirname",
+          "isAbsolute",
+          "join",
+          "relative",
+          "resolve",
+          "sep"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/native-hook.mjs",
+        "line": 4,
+        "specifier": "node:url",
+        "names": [
+          "fileURLToPath"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/pack.mjs",
+        "line": 1,
+        "specifier": "node:util",
+        "names": [
+          "TextDecoder"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/patch.mjs",
+        "line": 1,
+        "specifier": "node:path",
+        "names": [
+          "isAbsolute"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/patch.mjs",
+        "line": 2,
+        "specifier": "node:fs/promises",
+        "names": [
+          "stat"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/process.mjs",
+        "line": 1,
+        "specifier": "node:crypto",
+        "names": [
+          "randomUUID"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/process.mjs",
+        "line": 2,
+        "specifier": "node:fs/promises",
+        "names": [
+          "realpath"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/process.mjs",
+        "line": 3,
+        "specifier": "node:path",
+        "names": [
+          "resolve",
+          "sep"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/process.mjs",
+        "line": 4,
+        "specifier": "node:child_process",
+        "names": [
+          "spawn"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/recall.mjs",
+        "line": 1,
+        "specifier": "node:crypto",
+        "names": [
+          "createHmac",
+          "randomBytes",
+          "timingSafeEqual"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/recall.mjs",
+        "line": 2,
+        "specifier": "node:util",
+        "names": [
+          "TextDecoder"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/schema.mjs",
+        "line": 1,
+        "specifier": "node:fs",
+        "names": [
+          "readFileSync"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/schema.mjs",
+        "line": 2,
+        "specifier": "node:url",
+        "names": [
+          "fileURLToPath"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/schema.mjs",
+        "line": 3,
+        "specifier": "ajv/dist/2020.js",
+        "names": [
+          "default"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/server.mjs",
+        "line": 1,
+        "specifier": "node:fs/promises",
+        "names": [
+          "readFile",
+          "mkdir",
+          "rename",
+          "unlink",
+          "writeFile"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/server.mjs",
+        "line": 2,
+        "specifier": "node:fs",
+        "names": [
+          "createReadStream"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/server.mjs",
+        "line": 3,
+        "specifier": "node:crypto",
+        "names": [
+          "randomUUID"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/server.mjs",
+        "line": 4,
+        "specifier": "node:path",
+        "names": [
+          "dirname",
+          "join",
+          "resolve"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/server.mjs",
+        "line": 5,
+        "specifier": "node:url",
+        "names": [
+          "fileURLToPath"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/server.mjs",
+        "line": 6,
+        "specifier": "@modelcontextprotocol/server",
+        "names": [
+          "McpServer"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/server.mjs",
+        "line": 7,
+        "specifier": "@modelcontextprotocol/server/stdio",
+        "names": [
+          "serveStdio"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/server.mjs",
+        "line": 8,
+        "specifier": "zod",
+        "names": [
+          "z"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/store.mjs",
+        "line": 1,
+        "specifier": "node:crypto",
+        "names": [
+          "createHash",
+          "randomBytes"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/store.mjs",
+        "line": 2,
+        "specifier": "node:fs",
+        "names": [
+          "constants"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/store.mjs",
+        "line": 3,
+        "specifier": "node:fs/promises",
+        "names": [
+          "lstat",
+          "mkdir",
+          "open",
+          "realpath",
+          "rename",
+          "statfs"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/store.mjs",
+        "line": 4,
+        "specifier": "node:path",
+        "names": [
+          "join",
+          "resolve"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/validation.mjs",
+        "line": 1,
+        "specifier": "node:crypto",
+        "names": [
+          "createHash",
+          "randomUUID"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/validation.mjs",
+        "line": 2,
+        "specifier": "node:fs",
+        "names": [
+          "constants"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/validation.mjs",
+        "line": 3,
+        "specifier": "node:fs/promises",
+        "names": [
+          "lstat",
+          "mkdir",
+          "open",
+          "readdir",
+          "readFile",
+          "rename",
+          "unlink"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/validation.mjs",
+        "line": 4,
+        "specifier": "node:path",
+        "names": [
+          "join",
+          "resolve",
+          "sep"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/workspace-lock.mjs",
+        "line": 1,
+        "specifier": "node:net",
+        "names": [
+          "createServer"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/workspace-lock.mjs",
+        "line": 2,
+        "specifier": "node:crypto",
+        "names": [
+          "randomUUID"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/workspace-lock.mjs",
+        "line": 3,
+        "specifier": "node:fs/promises",
+        "names": [
+          "lstat",
+          "mkdir",
+          "open",
+          "readFile",
+          "rename",
+          "rmdir",
+          "unlink"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/workspace-lock.mjs",
+        "line": 4,
+        "specifier": "node:path",
+        "names": [
+          "join"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/workspace-lock.mjs",
+        "line": 5,
+        "specifier": "node:timers/promises",
+        "names": [
+          "setTimeout"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/workspace.mjs",
+        "line": 1,
+        "specifier": "node:fs/promises",
+        "names": [
+          "lstat",
+          "readFile",
+          "open",
+          "rename",
+          "unlink"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/workspace.mjs",
+        "line": 2,
+        "specifier": "node:crypto",
+        "names": [
+          "createHash",
+          "randomUUID"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/workspace.mjs",
+        "line": 3,
+        "specifier": "node:path",
+        "names": [
+          "dirname",
+          "resolve",
+          "sep"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/workspace.mjs",
+        "line": 5,
+        "specifier": "node:fs",
+        "names": [
+          "constants"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/architecture/context.mjs",
+        "line": 1,
+        "specifier": "node:crypto",
+        "names": [
+          "createHash",
+          "randomUUID"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/architecture/context.mjs",
+        "line": 2,
+        "specifier": "node:fs/promises",
+        "names": [
+          "lstat",
+          "realpath"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/architecture/context.mjs",
+        "line": 3,
+        "specifier": "node:path",
+        "names": [
+          "isAbsolute",
+          "relative",
+          "resolve"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/architecture/context.mjs",
+        "line": 4,
+        "specifier": "ajv/dist/2020.js",
+        "names": [
+          "default"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/architecture/context.mjs",
+        "line": 5,
+        "specifier": "zod",
+        "names": [
+          "z"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/architecture/index.mjs",
+        "line": 1,
+        "specifier": "node:crypto",
+        "names": [
+          "createHash"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/architecture/index.mjs",
+        "line": 2,
+        "specifier": "node:fs/promises",
+        "names": [
+          "mkdtemp",
+          "readFile",
+          "rm"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/architecture/index.mjs",
+        "line": 3,
+        "specifier": "node:os",
+        "names": [
+          "tmpdir"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/architecture/index.mjs",
+        "line": 4,
+        "specifier": "node:path",
+        "names": [
+          "join",
+          "posix"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/architecture/index.mjs",
+        "line": 5,
+        "specifier": "acorn",
+        "names": [
+          "parse"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/architecture/index.mjs",
+        "line": 6,
+        "specifier": "zod",
+        "names": [
+          "z"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/architecture/index.mjs",
+        "line": 7,
+        "specifier": "../../vendor/normify/engine/frontmatter.js",
+        "names": [
+          "l1Validate"
+        ],
+        "target": "vendor/normify/engine/frontmatter.js",
+        "reason": "unregistered_import_target"
+      },
+      {
+        "path": "src/architecture/index.mjs",
+        "line": 8,
+        "specifier": "../../vendor/normify/engine/store.js",
+        "names": [
+          "writeModuleFile"
+        ],
+        "target": "vendor/normify/engine/store.js",
+        "reason": "unregistered_import_target"
+      },
+      {
+        "path": "src/architecture/index.mjs",
+        "line": 9,
+        "specifier": "../../vendor/normify/engine/policy.js",
+        "names": [
+          "evaluatePolicy",
+          "l1ValidatePolicy",
+          "writePolicyFile"
+        ],
+        "target": "vendor/normify/engine/policy.js",
+        "reason": "unregistered_import_target"
+      },
+      {
+        "path": "src/architecture/index.mjs",
+        "line": 10,
+        "specifier": "../../vendor/normify/engine/compile.js",
+        "names": [
+          "buildProject"
+        ],
+        "target": "vendor/normify/engine/compile.js",
+        "reason": "unregistered_import_target"
+      },
+      {
+        "path": "src/architecture/session.mjs",
+        "line": 1,
+        "specifier": "node:crypto",
+        "names": [
+          "createHash"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/architecture/session.mjs",
+        "line": 2,
+        "specifier": "node:fs",
+        "names": [
+          "constants"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/architecture/session.mjs",
+        "line": 3,
+        "specifier": "node:fs/promises",
+        "names": [
+          "mkdir",
+          "lstat",
+          "open"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/architecture/session.mjs",
+        "line": 4,
+        "specifier": "node:path",
+        "names": [
+          "join"
+        ],
+        "reason": "external_import"
+      },
+      {
+        "path": "src/architecture/session.mjs",
+        "line": 5,
+        "specifier": "zod",
+        "names": [
+          "z"
+        ],
+        "reason": "external_import"
+      }
+    ],
+    "coverage": "JavaScript ESM file imports/exports only; no full call graph or task completion evidence"
+  },
+  "checks": {
+    "command": "npm run check",
+    "tests": 112,
+    "passed": 112,
+    "audit_vulnerabilities": 0
+  }
+}

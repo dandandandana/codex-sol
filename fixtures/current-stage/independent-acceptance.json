@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "actor": "parent-independent-acceptance",
+  "started_at": "2026-10-04T01:57:07.633Z",
+  "ended_at": "2026-10-04T01:57:08.817Z",
+  "argv": [
+    "D:\\Node\\node.exe",
+    "slop/current-stage-acceptance/run-feature-acceptance.mjs",
+    "D:/codex-sol-expense-test-20261004"
+  ],
+  "exit_code": 0,
+  "signal": null,
+  "script_sha256": "f710646870e208ad2d18316cb5d1886cdce740af276f88555a5b556105bfdd01",
+  "report": {
+    "kind": "independent-feature-acceptance",
+    "synthetic": true,
+    "target_root": "D:\\codex-sol-expense-test-20261004",
+    "script_sha256": "f710646870e208ad2d18316cb5d1886cdce740af276f88555a5b556105bfdd01",
+    "total": 20,
+    "passed": 20,
+    "failed": 0,
+    "results": [
+      {
+        "id": "categories-unsorted-ties-refunds-negative-zero",
+        "status": "passed"
+      },
+      {
+        "id": "categories-signed-single-cents",
+        "status": "passed"
+      },
+      {
+        "id": "categories-empty",
+        "status": "passed"
+      },
+      {
+        "id": "categories-default-sample",
+        "status": "passed"
+      },
+      {
+        "id": "overview-default-command-baseline",
+        "status": "passed"
+      },
+      {
+        "id": "overview-default-sample-baseline",
+        "status": "passed"
+      },
+      {
+        "id": "overview-explicit-sample-baseline",
+        "status": "passed"
+      },
+      {
+        "id": "journal-default-sample-baseline",
+        "status": "passed"
+      },
+      {
+        "id": "journal-explicit-sample-baseline",
+        "status": "passed"
+      },
+      {
+        "id": "overview-empty-baseline",
+        "status": "passed"
+      },
+      {
+        "id": "journal-empty-baseline",
+        "status": "passed"
+      },
+      {
+        "id": "categories-invalid-data",
+        "status": "passed"
+      },
+      {
+        "id": "categories-malformed-json",
+        "status": "passed"
+      },
+      {
+        "id": "overview-invalid-data",
+        "status": "passed"
+      },
+      {
+        "id": "overview-malformed-json",
+        "status": "passed"
+      },
+      {
+        "id": "journal-invalid-data",
+        "status": "passed"
+      },
+      {
+        "id": "journal-malformed-json",
+        "status": "passed"
+      },
+      {
+        "id": "categories-unreadable-file",
+        "status": "passed"
+      },
+      {
+        "id": "unknown-command",
+        "status": "passed"
+      },
+      {
+        "id": "categories-extra-argument",
+        "status": "passed"
+      }
+    ]
+  },
+  "stderr": ""
+}

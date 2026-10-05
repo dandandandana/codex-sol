@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "stage": "host-gates-plugin",
+  "recorded_at": "2026-10-04T08:48:15.326Z",
+  "status": "passed",
+  "package": {
+    "path": "slop/host-m003/plugin-zMtJXp/package",
+    "format": "codex",
+    "version": "0.1.0",
+    "file_count": 1772,
+    "total_file_count_with_inventory": 1773,
+    "inventory": {
+      "path": "slop/host-m003/plugin-zMtJXp/package/package-inventory.json",
+      "bytes": 337087,
+      "sha256": "1f216132d731a2d79079d85fc76f4fac8498ac3aaaa36f7f10f0854d968e5680",
+      "distribution": "Ignored local acceptance artifact"
+    },
+    "all_inventory_hashes_verified": true,
+    "no_extra_files": true,
+    "packaged_source_match_count": 1771,
+    "current_sources_match": true,
+    "checked_runtime_inputs_match": true,
+    "guide_source": "PLUGIN.md",
+    "default_omits_portable_root_manifests": true,
+    "archive": {
+      "status": "passed",
+      "recorded_at": "2026-10-04T08:50:44.4986778Z",
+      "path": "slop/host-m003/delivery/codex-sol-local.zip",
+      "bytes": 4411335,
+      "sha256": "590d9d840b1173507e42e989b0bf8aeb44df2fe8f4d6cb4ea6119092a6aafb0e",
+      "verified_file_count": 1773,
+      "all_entry_hashes_match_inventory": true,
+      "no_extra_or_duplicate_entries": true,
+      "includes_hidden_manifest_directories": true
+    },
+    "archive_verification": {
+      "path": "slop/host-m003/delivery/zip-verification.json",
+      "sha256": "f8bec9510f31e1b5aaeb1256a01b1868a2cd5d903fd7cdd12e4519ae0420ebc7"
+    }
+  },
+  "host_load": {
+    "schema_version": 1,
+    "date": "2026-10-04T08:39:47.271Z",
+    "host": "codex-cli 0.160.0",
+    "status": "plugin_load_passed",
+    "model_requests": 0,
+    "isolated_codex_home": true,
+    "credentials_copied": false,
+    "global_config_changed": false,
+    "plugin_inventory_file_count": 1772,
+    "package_format": "codex",
+    "hook_trust_bypass": false,
+    "plugin": {
+      "id": "codex-sol@sol-local",
+      "installed": true,
+      "enabled": true,
+      "display_name": "Codex SoL",
+      "mcp_servers": [
+        "codex_sol"
+      ],
+      "hooks": [
+        {
+          "key": "codex-sol@sol-local:hooks/hooks.json:pre_tool_use:0:0",
+          "eventName": "preToolUse"
+        },
+        {
+          "key": "codex-sol@sol-local:hooks/hooks.json:session_start:0:0",
+          "eventName": "sessionStart"
+        },
+        {
+          "key": "codex-sol@sol-local:hooks/hooks.json:user_prompt_submit:0:0",
+          "eventName": "userPromptSubmit"
+        },
+        {
+          "key": "codex-sol@sol-local:hooks/hooks.json:stop:0:0",
+          "eventName": "stop"
+        }
+      ]
+    },
+    "explicit_project_launcher": true,
+    "mcp": {
+      "name": "codex_sol",
+      "plugin_id": "codex-sol@sol-local",
+      "runtime_status": "connected",
+      "tool_names": [
+        "sol_apply_changes",
+        "sol_apply_patch",
+        "sol_architecture_query",
+        "sol_change_abandon",
+        "sol_change_complete",
+        "sol_change_open",
+        "sol_change_resume",
+        "sol_change_review",
+        "sol_change_status",
+        "sol_context_prepare",
+        "sol_context_submit",
+        "sol_read_file",
+        "sol_recall"
+      ],
+      "tools_error": null
+    },
+    "limits": [
+      "Private app-server load in isolated CODEX_HOME, not Desktop GUI installation.",
+      "No model or interactive trust UI used.",
+      "Invocation-local reviewed hash trust tests discovery/load without altering normal user settings."
+    ],
+    "discovered_hooks": [
+      {
+        "event": "preToolUse",
+        "enabled": true,
+        "current_hash": "sha256:ae95a461228b9eaa58888f5092a29614e3e3f391daefd811bd14a31e6ebd36ae",
+        "command_shape": "node \"<installed-plugin>/src/plugin-launcher.mjs\" hook",
+        "command_sha256": "df8cfff9378a759e85123c7ffaec100176c86041cd1f25e47d5991bae9be357a"
+      },
+      {
+        "event": "sessionStart",
+        "enabled": true,
+        "current_hash": "sha256:5533cbae61ac8b127983d8f7ec92886ca80a6b49c66270326edb7e73ac34194f",
+        "command_shape": "node \"<installed-plugin>/src/plugin-launcher.mjs\" hook",
+        "command_sha256": "df8cfff9378a759e85123c7ffaec100176c86041cd1f25e47d5991bae9be357a"
+      },
+      {
+        "event": "userPromptSubmit",
+        "enabled": true,
+        "current_hash": "sha256:d46043a879e4027a9501f11de42845393a7ee5eb3a93f511e4e4a2d5de6bd708",
+        "command_shape": "node \"<installed-plugin>/src/plugin-launcher.mjs\" hook",
+        "command_sha256": "df8cfff9378a759e85123c7ffaec100176c86041cd1f25e47d5991bae9be357a"
+      },
+      {
+        "event": "stop",
+        "enabled": true,
+        "current_hash": "sha256:3a7f9028ac895f6369bb3be09d274ac86383cbbb3e80b19cdede7673b554bcf0",
+        "command_shape": "node \"<installed-plugin>/src/plugin-launcher.mjs\" hook",
+        "command_sha256": "df8cfff9378a759e85123c7ffaec100176c86041cd1f25e47d5991bae9be357a"
+      }
+    ]
+  },
+  "raw_host_load": {
+    "path": "slop/host-m003/plugin-zMtJXp/evidence.json",
+    "bytes": 3151,
+    "sha256": "e0085f6f28e5dabf14666f4144c2393f7209baf154e2ff1e60ed9e682fcb6c96",
+    "distribution": "Ignored local acceptance artifact"
+  },
+  "excluded": [
+    "Project .env and secrets",
+    "Project .codex/sol records",
+    "Git history",
+    "Chat logs",
+    "slop/",
+    "tests/",
+    "fixtures/",
+    "node_modules/.bin"
+  ],
+  "limits": [
+    "Private isolated app-server plugin load, not Desktop GUI installation.",
+    "Portable manifests are retained as source but are not accepted as a verified project installation path.",
+    "No global installation, public marketplace publication, commit, or push."
+  ]
+}

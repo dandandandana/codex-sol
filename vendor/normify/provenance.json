@@ -1,0 +1,24 @@
+{
+  "repository": "https://github.com/yan-mc/dsh-normify",
+  "version": "0.5.4",
+  "commit": "ed404e5b8db0010ff57ec8486ec8749421072545",
+  "license": "MIT",
+  "source": "lib/engine",
+  "unmodified": true,
+  "files": {
+    "changes.js": "5b333d5ce6ece29b820310e272ead26429da01862733940d9af48bac9fba5914",
+    "compile.js": "23d2392c9e9a6b3f71a3e2bc8b4ff1ef3ffd6adc4fc4fd41cc17f1fa3ccf14d9",
+    "diag.js": "b71cfd5f34423b806ae62213562ec31ccf0dc54bf24b710502224625cbda2a0c",
+    "frontmatter.js": "406fed9d12cfc14178b7beef967245703e90ae84864d38e9ef022df353cb9905",
+    "ids.js": "104a242cb339430913427bef1d8248d322e383c5d7db3b671ec1a4b84b7dfdb2",
+    "layout.js": "e650ac9b097533b8d03a7ce30c50ff0a597e942954a2b7932eb75311a21e619d",
+    "policy.js": "baf5a6fe054a37c228eb22739a36625c0f7532d13c87a0f87cd090e1024328d2",
+    "store.js": "52e4b6d7d1af22ef4f89b1ecc3546620d3afafc5af4646f45d74d1eb12e52c1d",
+    "types.js": "04c3215e4325c7b4e67cb5d25725943e64c6bf8d9735711e20ccdd413921870f",
+    "validate.js": "15062dc29377b4eaa5c66fcd07637139d567f93ff19a70d3d71094f14b413306"
+  },
+  "runtime_dependencies": {
+    "yaml": "2.8.3"
+  },
+  "excluded": "DSH bindings, mutation tools, rendering templates and source maps"
+}

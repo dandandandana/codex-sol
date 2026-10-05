@@ -1,0 +1,325 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "kind": "grader_calibration",
+  "not_a_model_eval": true,
+  "created_at": "2026-10-04T10:00:09.859Z",
+  "bundle_sha256": "b35807d19d5d00e58acdf0484c893575fd41ec0457569c37d20f3fa2e9cf1be0",
+  "runtime": {
+    "node": "v24.11.0",
+    "platform": "win32",
+    "architecture": "x64"
+  },
+  "reference_inputs": [
+    {
+      "path": "T01/components.json",
+      "sha256": "c2b5979f964aad0142869b78ac1b60d1d1b2fd5b95c049591b57e86e7239048e",
+      "bytes": 992
+    },
+    {
+      "path": "T01/src/features.mjs",
+      "sha256": "b6dbb4ee85a0e69286a5e3c72652dfb8ce9223fc0d13351c481a37d2ddb66d4c",
+      "bytes": 672
+    },
+    {
+      "path": "T02/components.json",
+      "sha256": "a046f3796235242eab02a6fd8bdf597c9f01ba5ef006fe29f87f755d23dfe5e4",
+      "bytes": 983
+    },
+    {
+      "path": "T02/src/features.mjs",
+      "sha256": "04ada6609c2b74d109915e14ec7bfe844d93da910639ce8792606a01b0eb1917",
+      "bytes": 436
+    },
+    {
+      "path": "T03/components.json",
+      "sha256": "a6a6bdde0e63fd9d586a549e308209094d1e1ec0da79802a2bdd9286619625b3",
+      "bytes": 984
+    },
+    {
+      "path": "T03/src/features.mjs",
+      "sha256": "0874c7e7d975f9b06c7e01d9e8ac51cc6f60130d46f1e8ca10e39832560a6ce3",
+      "bytes": 225
+    },
+    {
+      "path": "T04/components.json",
+      "sha256": "6c38c05a587c01951c8d045a04bc2505b2767dd8bd98b35bc820279fbe3388d0",
+      "bytes": 985
+    },
+    {
+      "path": "T04/src/features.mjs",
+      "sha256": "13652402297c18df4b31c1f858d1f52effdd7196191be4eac251eb20108c1327",
+      "bytes": 344
+    },
+    {
+      "path": "T05/components.json",
+      "sha256": "34ef64e18ad179622fb3a8af4344c2a6c0486e0b729803521df0a5b09380d83e",
+      "bytes": 911
+    },
+    {
+      "path": "T05/src/gateway.mjs",
+      "sha256": "9d924928fca483b9a1aff3332b831c1dd2463c24d2360cb99ae6ff40767b94e6",
+      "bytes": 602
+    },
+    {
+      "path": "T06/components.json",
+      "sha256": "a0a98900a2fa85cf8f63077323864423533ec6ea4547c86107246579ace8de00",
+      "bytes": 981
+    },
+    {
+      "path": "T06/src/features.mjs",
+      "sha256": "511f1d2f613286bd561e32767ecff32363591b8e7c8558eb6515f33ef0c77e06",
+      "bytes": 786
+    },
+    {
+      "path": "T07/components.json",
+      "sha256": "bbe835b25bdc9be27b63d064e02d0689f3421d0c58051168ffd7e25ae4fb143f",
+      "bytes": 985
+    },
+    {
+      "path": "T07/src/features.mjs",
+      "sha256": "8f04677b477e8f8fa445d823bfcdb54a5f2a5ebc435dbc60054fdb9f3185ee5b",
+      "bytes": 900
+    },
+    {
+      "path": "T08/components.json",
+      "sha256": "91cd54868dc4f660dfd44296def30e17b2f62b6fbd5080e5f9a80b178771cba7",
+      "bytes": 887
+    },
+    {
+      "path": "T08/src/consumer.mjs",
+      "sha256": "e069f0c29c123bf25ab5db0d6a7dc05a6053937fd8ff015d740cd1bf78779412",
+      "bytes": 139
+    },
+    {
+      "path": "T08/src/gateway.mjs",
+      "sha256": "6b7f71fd2880c0adbb67cbd0c3cd1fcc5df2a69f3430febfbdde0e36af36b72f",
+      "bytes": 477
+    }
+  ],
+  "positive": {
+    "task_success": {
+      "numerator": 8,
+      "denominator": 8,
+      "rate": 1
+    },
+    "behavior_pass": {
+      "numerator": 34,
+      "denominator": 34,
+      "rate": 1
+    },
+    "code_compliance": {
+      "numerator": 88,
+      "denominator": 88,
+      "rate": 1,
+      "unverified": 0
+    },
+    "effective_reuse": {
+      "numerator": 12,
+      "denominator": 12,
+      "rate": 1,
+      "unverified": 0
+    },
+    "observed_reuse": {
+      "numerator": 12,
+      "denominator": 12,
+      "rate": 1
+    }
+  },
+  "unsolved": {
+    "task_success": {
+      "numerator": 0,
+      "denominator": 8,
+      "rate": 0
+    },
+    "behavior_pass": {
+      "numerator": 2,
+      "denominator": 34,
+      "rate": 0.058823529411764705
+    },
+    "code_compliance": {
+      "numerator": 74,
+      "denominator": 88,
+      "rate": 0.8409090909090909,
+      "unverified": 0
+    },
+    "effective_reuse": {
+      "numerator": 0,
+      "denominator": 12,
+      "rate": 0,
+      "unverified": 10
+    },
+    "observed_reuse": {
+      "numerator": 1,
+      "denominator": 12,
+      "rate": 0.08333333333333333
+    }
+  },
+  "mutants": [
+    {
+      "name": "unused-import",
+      "status": "passed",
+      "metrics": {
+        "task_success": {
+          "numerator": 0,
+          "denominator": 1,
+          "rate": 0
+        },
+        "behavior_pass": {
+          "numerator": 1,
+          "denominator": 4,
+          "rate": 0.25
+        },
+        "code_compliance": {
+          "numerator": 11,
+          "denominator": 11,
+          "rate": 1,
+          "unverified": 0
+        },
+        "effective_reuse": {
+          "numerator": 0,
+          "denominator": 2,
+          "rate": 0,
+          "unverified": 0
+        },
+        "observed_reuse": {
+          "numerator": 0,
+          "denominator": 2,
+          "rate": 0
+        }
+      }
+    },
+    {
+      "name": "copied-component",
+      "status": "passed",
+      "metrics": {
+        "task_success": {
+          "numerator": 0,
+          "denominator": 1,
+          "rate": 0
+        },
+        "behavior_pass": {
+          "numerator": 4,
+          "denominator": 4,
+          "rate": 1
+        },
+        "code_compliance": {
+          "numerator": 10,
+          "denominator": 11,
+          "rate": 0.9090909090909091,
+          "unverified": 0
+        },
+        "effective_reuse": {
+          "numerator": 0,
+          "denominator": 2,
+          "rate": 0,
+          "unverified": 0
+        },
+        "observed_reuse": {
+          "numerator": 2,
+          "denominator": 2,
+          "rate": 1
+        }
+      }
+    },
+    {
+      "name": "protected-source",
+      "status": "passed",
+      "metrics": {
+        "task_success": {
+          "numerator": 0,
+          "denominator": 1,
+          "rate": 0
+        },
+        "behavior_pass": {
+          "numerator": 0,
+          "denominator": 4,
+          "rate": 0
+        },
+        "code_compliance": {
+          "numerator": 8,
+          "denominator": 11,
+          "rate": 0.7272727272727273,
+          "unverified": 0
+        },
+        "effective_reuse": {
+          "numerator": 0,
+          "denominator": 2,
+          "rate": 0,
+          "unverified": 2
+        },
+        "observed_reuse": {
+          "numerator": 0,
+          "denominator": 2,
+          "rate": 0
+        }
+      }
+    },
+    {
+      "name": "outside-scope",
+      "status": "passed",
+      "metrics": {
+        "task_success": {
+          "numerator": 0,
+          "denominator": 1,
+          "rate": 0
+        },
+        "behavior_pass": {
+          "numerator": 4,
+          "denominator": 4,
+          "rate": 1
+        },
+        "code_compliance": {
+          "numerator": 10,
+          "denominator": 11,
+          "rate": 0.9090909090909091,
+          "unverified": 0
+        },
+        "effective_reuse": {
+          "numerator": 0,
+          "denominator": 2,
+          "rate": 0,
+          "unverified": 0
+        },
+        "observed_reuse": {
+          "numerator": 2,
+          "denominator": 2,
+          "rate": 1
+        }
+      }
+    },
+    {
+      "name": "timeout",
+      "status": "passed",
+      "metrics": {
+        "task_success": {
+          "numerator": 0,
+          "denominator": 1,
+          "rate": 0
+        },
+        "behavior_pass": {
+          "numerator": 0,
+          "denominator": 4,
+          "rate": 0
+        },
+        "code_compliance": {
+          "numerator": 11,
+          "denominator": 11,
+          "rate": 1,
+          "unverified": 0
+        },
+        "effective_reuse": {
+          "numerator": 0,
+          "denominator": 2,
+          "rate": 0,
+          "unverified": 2
+        },
+        "observed_reuse": {
+          "numerator": 0,
+          "denominator": 2,
+          "rate": 0
+        }
+      }
+    }
+  ]
+}

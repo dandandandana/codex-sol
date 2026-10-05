@@ -1,0 +1,319 @@
+{
+  "schema_version": 1,
+  "stage": "architecture-review-completion",
+  "recorded_at": "2026-10-04T03:31:11.978Z",
+  "status": "passed",
+  "command": {
+    "argv": [
+      "npm",
+      "run",
+      "check"
+    ],
+    "cwd": "D:\\zzd\\codex-sol",
+    "expanded_script": "npm test && npm audit --audit-level=high --registry=https://registry.npmjs.org/",
+    "started_at": "2026-10-04T03:21:54.5422745Z",
+    "ended_at": "2026-10-04T03:22:57.5310304Z",
+    "exit_code": 0
+  },
+  "tests": {
+    "total": 180,
+    "passed": 180,
+    "failed": 0,
+    "skipped": 0,
+    "cancelled": 0,
+    "todo": 0
+  },
+  "audit": {
+    "status": "passed",
+    "vulnerabilities": 0,
+    "registry": "https://registry.npmjs.org/",
+    "audit_level": "high"
+  },
+  "runtime": {
+    "node": "v24.11.0",
+    "npm": "11.6.3",
+    "platform": "win32",
+    "architecture": "x64"
+  },
+  "process_environment_override": {
+    "name": "CODEX_SOL_PATCH_EXECUTABLE",
+    "value": "<USER_HOME>\\AppData\\Roaming\\npm\\node_modules\\@openai\\codex\\node_modules\\@openai\\codex-win32-x64\\vendor\\x86_64-pc-windows-msvc\\bin\\codex.exe",
+    "scope": "Check command and its children only; previous value restored",
+    "global_configuration_modified": false
+  },
+  "native_patch": {
+    "executable": "<USER_HOME>\\AppData\\Roaming\\npm\\node_modules\\@openai\\codex\\node_modules\\@openai\\codex-win32-x64\\vendor\\x86_64-pc-windows-msvc\\bin\\codex.exe",
+    "version": "codex-cli 0.158.0",
+    "sha256": "af02050cc0c95f5aeb714af2c1077e635c58e9896c13c89d75099cf5b96477be",
+    "actually_executed_by_tests": true
+  },
+  "raw_log": {
+    "path": "slop/closure-checks/full-check.log",
+    "bytes": 18232,
+    "sha256": "ddc09b7cfe9dc81d5ba80d3241e2f23d8bf020b65c0f344bc69d2165d7db5b34",
+    "distribution": "Ignored local file; historical failure output retained in this passing regression log"
+  },
+  "additional_checks": {
+    "node_syntax": {
+      "status": "passed",
+      "files": [
+        "src/server.mjs",
+        "src/architecture/change.mjs",
+        "src/architecture/index.mjs",
+        "src/validation.mjs",
+        "src/workspace.mjs",
+        "tests/closure.test.mjs",
+        "tests/architecture-maintenance.test.mjs",
+        "tests/validation-reuse.test.mjs"
+      ]
+    },
+    "diff_whitespace": "passed",
+    "lint": "not configured",
+    "format": "not configured",
+    "typecheck": "not configured"
+  },
+  "input_snapshot": {
+    "timing": "Collected after the passing check; runtime sources, tests, dependencies and architecture declaration were unchanged after the check started. Subsequent delivery edits were documentation/evidence only.",
+    "files": [
+      {
+        "path": "architecture.example.json",
+        "sha256": "c81a4715a80cb54d528fe78aac51250bdd4b78feafa24f1ee6f540f65ba4bd08"
+      },
+      {
+        "path": "context.example.json",
+        "sha256": "f5dc3936c5ce13c506994ac3aeae9ffa74151759c23c8395df1beeae4933adf3"
+      },
+      {
+        "path": "package-lock.json",
+        "sha256": "24cb62a9e9110d14784df19ffc2cba858bed2246665bfcc8f8337ebf8552c0ac"
+      },
+      {
+        "path": "package.json",
+        "sha256": "817403f3a30fce1d0fc59a3263f95fbb5071da819f8421693ba17a9d27b247cc"
+      },
+      {
+        "path": "rules.example.json",
+        "sha256": "0f258614fdf6fa4b9d287b0ed98164cf06203bda67bfe132160289b8b31221e6"
+      },
+      {
+        "path": "runtime.schema.json",
+        "sha256": "265562b018d1a959f28332d98f1af165ffff52a768a024ab6337eab7fa279a01"
+      },
+      {
+        "path": "src/architecture/change.mjs",
+        "sha256": "63473616df73db879890f9cdd248448c08d072af4faed72d5defae5fd35a34a7"
+      },
+      {
+        "path": "src/architecture/context.mjs",
+        "sha256": "b0396739380ac6e6654f4b60d573d20bab23d5c5059f91854d8bf39e669f040d"
+      },
+      {
+        "path": "src/architecture/index.mjs",
+        "sha256": "16a76d78831fb9fb503fc2674fb3d4dab58260be2b43ba5a5bb065f61675dc61"
+      },
+      {
+        "path": "src/architecture/session.mjs",
+        "sha256": "5fa938428e7f70de55c299a2f5d8253e48397e168085de9377e1c5eefc20e6b3"
+      },
+      {
+        "path": "src/context-hook.mjs",
+        "sha256": "51e816d1566a5d2993ae89575db1a0ff7d0435f6420dbf83584d7b0932c267ed"
+      },
+      {
+        "path": "src/host-cancellation.mjs",
+        "sha256": "dc963d0bcfc9779985a1b09e25c8eae228e3855467d988f44aa7d1dda2005b25"
+      },
+      {
+        "path": "src/managed-command.mjs",
+        "sha256": "bd4862e3dd1f58abd47b49ce3df5d149c96d9e0b996bb922dc7040e0612129aa"
+      },
+      {
+        "path": "src/native-hook.mjs",
+        "sha256": "74d276f80ed6995fb1b70451fd980e510c8cff76c234c9075ce07cee069d5391"
+      },
+      {
+        "path": "src/pack.mjs",
+        "sha256": "fc78082e0d8209a65e5250eec06acc03ce55852e38e74b1378e80cec466ac67e"
+      },
+      {
+        "path": "src/patch.mjs",
+        "sha256": "6ed5ca00af06dd5513bb97cc67d95b451f16b9d3fc1382eda75cea9b81723ac6"
+      },
+      {
+        "path": "src/process.mjs",
+        "sha256": "b8436a2e3e5c05a479b586af51c6c994c3fe80602140225d62c3fdd488d0aa11"
+      },
+      {
+        "path": "src/read.mjs",
+        "sha256": "1f229f01f65b13fbcfefa3cb5481a1f005e472a7052a221f4f22e66cdb0666d8"
+      },
+      {
+        "path": "src/recall.mjs",
+        "sha256": "7f01ce271603c70ebfd5bad806f733bc3776567e34665395946ea2d4784bc2a4"
+      },
+      {
+        "path": "src/schema.mjs",
+        "sha256": "d11b589b786f6627e2d0144564d0fc3842cf1718ae77d10cc926da8034b3db42"
+      },
+      {
+        "path": "src/server.mjs",
+        "sha256": "d07e5c638de34a3c9ba8583d395d16d1c0d7c6d92a18e3a77d780bf72a0cfc3f"
+      },
+      {
+        "path": "src/store.mjs",
+        "sha256": "1cbb648f67c3848777d11d9f9cafa5474bbfe994639799a57802f7cb45522383"
+      },
+      {
+        "path": "src/validation.mjs",
+        "sha256": "2524fb311d2c754280cfc5155a231feae93493eb1e323c438b3b0be36c076297"
+      },
+      {
+        "path": "src/workspace-lock.mjs",
+        "sha256": "33c630c82cc95064e7c66df7baa19a54e8bca2e6de6c3179cdb4a18e120b9a37"
+      },
+      {
+        "path": "src/workspace.mjs",
+        "sha256": "d886862ad5bd977d061d7b9bbc70ffb637429ebe85c87d0b5db92a270810dbf4"
+      },
+      {
+        "path": "tests/architecture-maintenance.test.mjs",
+        "sha256": "ec650a42218f3df6f17c2c25060559b2224841de96820f2eb4e5ce7d45fdb041"
+      },
+      {
+        "path": "tests/architecture.test.mjs",
+        "sha256": "3962fd50dd7676d495f6fb4ae4b638a19c8af1d3760771a2c8d6b9846a87eec7"
+      },
+      {
+        "path": "tests/capture-failure.test.mjs",
+        "sha256": "0c9f321aa07e542337ba2c957b3b1fa8d28f08039a5916c291d819958139a43c"
+      },
+      {
+        "path": "tests/change.test.mjs",
+        "sha256": "e336818e2237d58707b2e303717dcf67c9b66ecab82add91030f2bc4c3724030"
+      },
+      {
+        "path": "tests/closure.test.mjs",
+        "sha256": "505e56e74532befc2cad7fefd0893c17d34c616fc341470594f04ea19d34fd32"
+      },
+      {
+        "path": "tests/context-hook.test.mjs",
+        "sha256": "f96b6b18a265466aff6b458aa8c1b216b39f1f0bb4ae9318dddbdf8852dba119"
+      },
+      {
+        "path": "tests/context.test.mjs",
+        "sha256": "1e6a0e1c67bb2812db395f7701fbca6fc17aaf3b3aad7c73ac11852209df5043"
+      },
+      {
+        "path": "tests/failure-protocol.test.mjs",
+        "sha256": "8894b977310318075aabc47db0a0ac0af4a05ad8e5d40e8e059510f6d5e7c3d4"
+      },
+      {
+        "path": "tests/helpers/mcp-client.mjs",
+        "sha256": "89b3c3574cd6ffc2fd770ffee0b1b557a7271ef848211a80db7a6f9cc86bccb9"
+      },
+      {
+        "path": "tests/host-cancellation.test.mjs",
+        "sha256": "b2c495e5c072d612ea2c1d21287fefba7b784ec34fad0375778861de792d0bb1"
+      },
+      {
+        "path": "tests/mcp.test.mjs",
+        "sha256": "f8358f3ee0a1dc91a5abcfe891c2acf20444f918f79ad68e88d1ed6ef86624d2"
+      },
+      {
+        "path": "tests/native-hook.test.mjs",
+        "sha256": "e679d72040b54c28e1ee22d2c9bfcfb5407d26f908370ffd14b7d30a14f58a80"
+      },
+      {
+        "path": "tests/native-integration.test.mjs",
+        "sha256": "0913a06b36c409f8fc3d984b91b807aace972d4fd789150812fc1427b2ebd0ee"
+      },
+      {
+        "path": "tests/pack.test.mjs",
+        "sha256": "3cdc29fddc6330678aacbb7d4d7291a052d5743b7283efff53c23a0322c4e28d"
+      },
+      {
+        "path": "tests/store-recall.test.mjs",
+        "sha256": "969b47a7bbcdce8678b9e08897d1a5c37d2b5151954de189dec0188360744f8c"
+      },
+      {
+        "path": "tests/validation-failure.test.mjs",
+        "sha256": "e5379d563a543c933149cddd77c26469ef43bf0bbcb101cba9daac8e98e49bc0"
+      },
+      {
+        "path": "tests/validation-reuse.test.mjs",
+        "sha256": "bf69027669ddb4c8469784da57e61b0241b9d1e056ac8d87d5739d471c0ee6cc"
+      },
+      {
+        "path": "tests/validation.test.mjs",
+        "sha256": "5dd493ac20284bd37c4b6e6a37f4e9b6e0290816dd28adc3a327b09a4100d1e8"
+      },
+      {
+        "path": "tests/workspace-lock.test.mjs",
+        "sha256": "171cd5914faed4f8ee671b48c718430385e411d9ba1f73f0742ca7d84b85b57f"
+      },
+      {
+        "path": "vendor/normify/LICENSE",
+        "sha256": "683b7d8d0f730d4b3f3adf8b235a0f3e92e1e86e313f842f28ab6a94deaa03f4"
+      },
+      {
+        "path": "vendor/normify/README.md",
+        "sha256": "cb47a8ef801ba26ecdfa2ec62b39b2c5d428e9adb8be60096f3246f56bbbeaa3"
+      },
+      {
+        "path": "vendor/normify/engine/changes.js",
+        "sha256": "5b333d5ce6ece29b820310e272ead26429da01862733940d9af48bac9fba5914"
+      },
+      {
+        "path": "vendor/normify/engine/compile.js",
+        "sha256": "23d2392c9e9a6b3f71a3e2bc8b4ff1ef3ffd6adc4fc4fd41cc17f1fa3ccf14d9"
+      },
+      {
+        "path": "vendor/normify/engine/diag.js",
+        "sha256": "b71cfd5f34423b806ae62213562ec31ccf0dc54bf24b710502224625cbda2a0c"
+      },
+      {
+        "path": "vendor/normify/engine/frontmatter.js",
+        "sha256": "406fed9d12cfc14178b7beef967245703e90ae84864d38e9ef022df353cb9905"
+      },
+      {
+        "path": "vendor/normify/engine/ids.js",
+        "sha256": "104a242cb339430913427bef1d8248d322e383c5d7db3b671ec1a4b84b7dfdb2"
+      },
+      {
+        "path": "vendor/normify/engine/layout.js",
+        "sha256": "e650ac9b097533b8d03a7ce30c50ff0a597e942954a2b7932eb75311a21e619d"
+      },
+      {
+        "path": "vendor/normify/engine/policy.js",
+        "sha256": "baf5a6fe054a37c228eb22739a36625c0f7532d13c87a0f87cd090e1024328d2"
+      },
+      {
+        "path": "vendor/normify/engine/store.js",
+        "sha256": "52e4b6d7d1af22ef4f89b1ecc3546620d3afafc5af4646f45d74d1eb12e52c1d"
+      },
+      {
+        "path": "vendor/normify/engine/types.js",
+        "sha256": "04c3215e4325c7b4e67cb5d25725943e64c6bf8d9735711e20ccdd413921870f"
+      },
+      {
+        "path": "vendor/normify/engine/validate.js",
+        "sha256": "15062dc29377b4eaa5c66fcd07637139d567f93ff19a70d3d71094f14b413306"
+      },
+      {
+        "path": "vendor/normify/provenance.json",
+        "sha256": "5fe52f76b242fe5f2226053a7da69339f508b895a7649aeead5029a12daa6187"
+      }
+    ]
+  },
+  "boundaries": [
+    "Real MCP STDIO with deterministic review output, no new LLM model calls",
+    "Native patch and existing Windows interruption regressions executed",
+    "No new Desktop/TUI injection, Linux run, cost comparison or autonomous maintenance evidence",
+    "Old fixture history and initial-fact gaps preserved; no retroactive completion"
+  ],
+  "publication_redaction": {
+    "kind": "user_home_path",
+    "placeholder": "<USER_HOME>",
+    "scope": "Personal home-directory prefixes only; original test results and source hashes retained."
+  }
+}

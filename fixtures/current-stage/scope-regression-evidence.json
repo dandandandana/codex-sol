@@ -1,0 +1,231 @@
+{
+  "schema_version": 1,
+  "stage": "existing-change-scope-regression",
+  "recorded_at": "2026-10-04T01:45:58.504Z",
+  "status": "passed",
+  "tests_owned": "tests/change.test.mjs",
+  "source_fix_ownership": "parent agent: src/validation.mjs and src/architecture/change.mjs",
+  "regressions": [
+    {
+      "name": "generated directory exclusions reject a new managed target before registration",
+      "scenario": {
+        "generated": [
+          "cache*"
+        ],
+        "scope": [
+          {
+            "path": "cache-data/new.mjs",
+            "module_uid": "00000001"
+          }
+        ]
+      },
+      "expectations": [
+        "sol_change_open rejects with CHANGE_SCOPE",
+        "change status remains none",
+        "target source does not exist"
+      ],
+      "baseline_result": "failed: Missing expected rejection",
+      "status": "passed_after_parent_fix"
+    },
+    {
+      "name": "real STDIO creates a scoped new file and recovers its paths without updating architecture sources",
+      "expectations": [
+        "real STDIO writes missing.txt within registered scope",
+        "content validation passes",
+        "accumulated_paths and passing validation survive server restart",
+        "architecture query owners remains empty and architecture source declarations remain unchanged",
+        "task_complete remains false"
+      ],
+      "status": "passed_after_parent_fix"
+    }
+  ],
+  "before_fix": {
+    "command": "node --test --test-name-pattern='generated directory exclusions reject a new managed target before registration' tests/change.test.mjs",
+    "cwd": "D:\\zzd\\codex-sol",
+    "started_at": "2026-10-04T01:40:20.0936162Z",
+    "ended_at": "2026-10-04T01:40:20.8191414Z",
+    "exit_code": 1,
+    "before_inputs": [
+      {
+        "path": "src/validation.mjs",
+        "sha256": "8e16a0088f1a6f2e2ded8f3732ef83cd67aba08111e4e0d2335a85c180e928d9"
+      },
+      {
+        "path": "src/architecture/change.mjs",
+        "sha256": "798a81c3edd97cd0cb8784f224ea6aa63173a31c7df53af6deaf6c13d427a5be"
+      },
+      {
+        "path": "tests/change.test.mjs",
+        "sha256": "e336818e2237d58707b2e303717dcf67c9b66ecab82add91030f2bc4c3724030"
+      },
+      {
+        "path": "package.json",
+        "sha256": "817403f3a30fce1d0fc59a3263f95fbb5071da819f8421693ba17a9d27b247cc"
+      },
+      {
+        "path": "runtime.schema.json",
+        "sha256": "779bc45047ab26235d4fe592c8959c388b6c940d247d3cb2b38849277fd6de7a"
+      }
+    ],
+    "after_inputs": [
+      {
+        "path": "src/validation.mjs",
+        "sha256": "8e16a0088f1a6f2e2ded8f3732ef83cd67aba08111e4e0d2335a85c180e928d9"
+      },
+      {
+        "path": "src/architecture/change.mjs",
+        "sha256": "798a81c3edd97cd0cb8784f224ea6aa63173a31c7df53af6deaf6c13d427a5be"
+      },
+      {
+        "path": "tests/change.test.mjs",
+        "sha256": "e336818e2237d58707b2e303717dcf67c9b66ecab82add91030f2bc4c3724030"
+      },
+      {
+        "path": "package.json",
+        "sha256": "817403f3a30fce1d0fc59a3263f95fbb5071da819f8421693ba17a9d27b247cc"
+      },
+      {
+        "path": "runtime.schema.json",
+        "sha256": "779bc45047ab26235d4fe592c8959c388b6c940d247d3cb2b38849277fd6de7a"
+      }
+    ],
+    "input_state_stable": true,
+    "log": "D:\\zzd\\codex-sol\\slop\\current-stage-checks\\20261004T014020052Z-scope-before-fix.log",
+    "phase": "before_parent_fix",
+    "test_counts": {
+      "tests": 1,
+      "pass": 0,
+      "fail": 1,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "failure": {
+      "code": "ERR_ASSERTION",
+      "message": "Missing expected rejection.",
+      "test_location": "tests/change.test.mjs:243"
+    },
+    "raw_output_sha256": "0c8ee5d088e03c8a4f35f45d254761670d65546554fa4546781e2480c756143c",
+    "raw_output_bytes": 903
+  },
+  "limitation": "Registration of a new path is separate from adding it to architecture source declarations. This regression records the current declaration gap and does not implement automatic maintenance.",
+  "after_fix": {
+    "command": "node --test --test-name-pattern='generated directory exclusions reject|real STDIO creates a scoped new file' tests/change.test.mjs",
+    "cwd": "D:\\zzd\\codex-sol",
+    "started_at": "2026-10-04T01:42:41.4342418Z",
+    "ended_at": "2026-10-04T01:42:44.7676323Z",
+    "exit_code": 0,
+    "before_inputs": [
+      {
+        "path": "src/validation.mjs",
+        "sha256": "3bab1e7fc387516e0ab745ba66ad852b7e47647537bfb6af974fadb875a23121"
+      },
+      {
+        "path": "src/architecture/change.mjs",
+        "sha256": "8798ef4d3c57f9d0c3cf4a734ce2dd102a640d3605a09570ed4c4ce65779a8c1"
+      },
+      {
+        "path": "tests/change.test.mjs",
+        "sha256": "e336818e2237d58707b2e303717dcf67c9b66ecab82add91030f2bc4c3724030"
+      },
+      {
+        "path": "package.json",
+        "sha256": "817403f3a30fce1d0fc59a3263f95fbb5071da819f8421693ba17a9d27b247cc"
+      },
+      {
+        "path": "runtime.schema.json",
+        "sha256": "779bc45047ab26235d4fe592c8959c388b6c940d247d3cb2b38849277fd6de7a"
+      }
+    ],
+    "after_inputs": [
+      {
+        "path": "src/validation.mjs",
+        "sha256": "3bab1e7fc387516e0ab745ba66ad852b7e47647537bfb6af974fadb875a23121"
+      },
+      {
+        "path": "src/architecture/change.mjs",
+        "sha256": "8798ef4d3c57f9d0c3cf4a734ce2dd102a640d3605a09570ed4c4ce65779a8c1"
+      },
+      {
+        "path": "tests/change.test.mjs",
+        "sha256": "e336818e2237d58707b2e303717dcf67c9b66ecab82add91030f2bc4c3724030"
+      },
+      {
+        "path": "package.json",
+        "sha256": "817403f3a30fce1d0fc59a3263f95fbb5071da819f8421693ba17a9d27b247cc"
+      },
+      {
+        "path": "runtime.schema.json",
+        "sha256": "779bc45047ab26235d4fe592c8959c388b6c940d247d3cb2b38849277fd6de7a"
+      }
+    ],
+    "input_state_stable": true,
+    "log": "D:\\zzd\\codex-sol\\slop\\current-stage-checks\\20261004T014241398Z-scope-after-fix.log",
+    "phase": "after_parent_fix",
+    "test_counts": {
+      "tests": 2,
+      "pass": 2,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "raw_output_sha256": "72c921e720d249cfdf3c3a8e454585f1b4e990efdd2c2ba07e6f66e96c7da435",
+    "raw_output_bytes": 455
+  },
+  "observed_architecture_gap": {
+    "managed_scope_assignment": "missing.txt explicitly assigned to module_uid 00000001",
+    "written_source": "missing.txt created with real STDIO sol_apply_changes",
+    "accumulated_path_count_after_restart": 1,
+    "validation_status_after_restart": "passed",
+    "query_owners_after_write": [],
+    "architecture_source_declaration_changed": false,
+    "architecture_query_version_changed": false,
+    "task_complete": false,
+    "automatic_source_maintenance_verified": false
+  },
+  "final_complete_check": {
+    "evidence": "fixtures/current-stage/check-evidence.json",
+    "evidence_sha256": "deb1302b1bc3978c0b6995d3fa06a638c122d984d19990f458ecb79df0add3ad",
+    "command": {
+      "argv": [
+        "npm",
+        "run",
+        "check"
+      ],
+      "cwd": "D:\\zzd\\codex-sol",
+      "expanded_script": "npm test && npm audit --audit-level=high --registry=https://registry.npmjs.org/",
+      "started_at": "2026-10-04T01:43:59.1237872Z",
+      "ended_at": "2026-10-04T01:44:16.5211738Z",
+      "exit_code": 0
+    },
+    "test_result": {
+      "tests": 126,
+      "suites": 0,
+      "pass": 126,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0,
+      "duration_ms": 13465.0351
+    },
+    "audit": {
+      "command": "npm audit --audit-level=high --registry=https://registry.npmjs.org/",
+      "executed": true,
+      "exit_code": 0,
+      "reported_total_vulnerabilities": 0,
+      "raw_result": "found 0 vulnerabilities",
+      "source": "Second conjunct of npm run check after passing npm test"
+    },
+    "input_aggregate_sha256": "47e9e31f2046fe8e998a69e23259d76b39a589c8d1434ddca63fa8cd73176e21",
+    "input_state_stable": true,
+    "raw_output": {
+      "combined_stdout_stderr": "slop/current-stage-checks/20261004T014358480Z-final-check.log",
+      "sha256": "3ab204d0c43b134f8f3056f277e5e6380004d731a4ca8ab2bf1ebdf0cf4242e0",
+      "bytes": 12775,
+      "before_manifest": "slop/current-stage-checks/20261004T014358480Z-final-inputs-before.json",
+      "after_manifest": "slop/current-stage-checks/20261004T014358480Z-final-inputs-after.json",
+      "command_metadata": "slop/current-stage-checks/20261004T014358480Z-final-metadata.json"
+    }
+  }
+}

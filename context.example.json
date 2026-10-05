@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "roles": [
+    {
+      "id": "plan",
+      "goal": "定位现有能力，形成有依据的复用或扩展方案。",
+      "allowed_operations": ["read", "analyze", "plan"],
+      "sources": [{ "path": "README.md", "required": true }],
+      "require_targets": true,
+      "output_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "plan": { "type": "string", "minLength": 1, "maxLength": 4096 },
+          "constraints": { "type": "array", "items": { "type": "string", "maxLength": 256 }, "maxItems": 8 },
+          "unresolved": { "type": "array", "items": { "type": "string", "maxLength": 256 }, "maxItems": 8 },
+          "notes": { "type": "string", "maxLength": 4096 }
+        },
+        "required": ["plan", "constraints", "unresolved"]
+      },
+      "blocking_field": "unresolved",
+      "consumers": [{ "role": "implement", "fields": { "plan": "plan", "constraints": "constraints", "unresolved": "unresolved" } }]
+    },
+    {
+      "id": "implement",
+      "goal": "根据已接受方案和当前目标文件准备实现步骤；修改后的证据与收尾另由受管变更闭环处理。",
+      "allowed_operations": ["read", "prepare_implementation"],
+      "sources": [],
+      "require_targets": true,
+      "input": { "from_role": "plan", "required": true },
+      "output_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "steps": { "type": "array", "items": { "type": "string", "maxLength": 512 }, "minItems": 1, "maxItems": 16 },
+          "unresolved": { "type": "array", "items": { "type": "string", "maxLength": 256 }, "maxItems": 8 }
+        },
+        "required": ["steps", "unresolved"]
+      },
+      "blocking_field": "unresolved",
+      "consumers": []
+    }
+  ]
+}

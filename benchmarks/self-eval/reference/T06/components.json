@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "modules": [
+    {
+      "id": "records",
+      "path": "src/records.mjs",
+      "exports": [
+        "normalizeRecord"
+      ]
+    },
+    {
+      "id": "report",
+      "path": "src/report.mjs",
+      "exports": [
+        "summarizeRecords"
+      ]
+    },
+    {
+      "id": "html",
+      "path": "src/html.mjs",
+      "exports": [
+        "escapeHtml"
+      ]
+    },
+    {
+      "id": "loader",
+      "path": "src/loader.mjs",
+      "exports": [
+        "loadRecords"
+      ]
+    },
+    {
+      "id": "retry",
+      "path": "src/retry.mjs",
+      "exports": [
+        "withRetry"
+      ]
+    },
+    {
+      "id": "gateway",
+      "path": "src/gateway.mjs",
+      "exports": [
+        "listRecords"
+      ]
+    },
+    {
+      "id": "consumer",
+      "path": "src/consumer.mjs",
+      "exports": [
+        "readLabels"
+      ]
+    },
+    {
+      "id": "features",
+      "path": "src/features.mjs",
+      "exports": [
+        "paginate"
+      ]
+    }
+  ]
+}

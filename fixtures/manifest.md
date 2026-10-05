@@ -1,5 +1,7 @@
 # V0.1 fixture 清单
 
+既有阶段验收（2026-10-04）见 [current-stage/README.md](current-stage/README.md)：主项目 126/126、审计 0 漏洞；独立普通需求 27/27，外部黑盒 20/20。其后变更状态 Context 切片的最新记录见 [context-state/README.md](context-state/README.md)。前一目录保存回归失败/修复、检查输入、实际模型 STDIO 调用、源码与声明 SHA 和独立验收；D 盘功能项目保留为测试夹具，未发布。自动声明维护与宿主自动接入的边界分别报告。
+
 本清单把开工单和 Windows 原生接入要求映射到稳定的验收 ID。`tests/` 已覆盖核心行为；标为“待验收”的宿主路径仍需真实宿主证据，并按范围区分 CLI、TUI 和 Desktop。Codex 按 Git 工作区根发现项目 Hooks：嵌套验收目录要独立启用时需先 `git init`（无需提交），或者把配置放在实际 Git 根。宿主 transcript 单独标注来源与适用范围。
 
 ## 已有宿主证据
@@ -68,7 +70,32 @@
 | RC-04 | 无末尾换行 | 最后一段仍计作一行，范围和内容准确。 | `tests/store-recall.test.mjs` 已测 |
 | RC-05 | 二进制及无效 UTF-8 | bytes selector 返回 base64；lines/keyword 返回 `UNSUPPORTED_ENCODING`。 | `tests/store-recall.test.mjs` 已测 |
 
-## 工作区锁与进程恢复
+## Context 后续验收（2026-10-03）
+
+最新阶段状态：博客只作为 Hook 夹具，不继续标签产品开发。新增 context/blog-hook-closeout-evidence.json 保存四次真实宿主回调、包装器推理前停止、核心非阻塞、源码不变和配置/进程清理；可复跑 context/run-blog-hooks.mjs。生命周期 12 项及 Native Hook 5 项回归通过，已有模型注入证据保留。Hook 本阶段已收尾并转入 MCP：新增真实召回范围提示和单行 JSON 说明，实际 STDIO 校验已覆盖。当前完整 113/113、审计 0 漏洞；下文早期证据按当时范围保留，实际 compact 和 Desktop Context 未验收。
+
+| ID | 场景 | 结果与边界 |
+| --- | --- | --- |
+| CTX-01 | 真模型写前交接与召回 | CLI 0.158.0：plan / implement 产物均接受，消费者 ready，省略字段通过 recall 展开；notes 未映射，源码 SHA 不变，task_complete=false。两次 INVALID_RANGE 后纠正成功。证据：context/cli-evidence.json |
+| CTX-02 | 未解决策略 | 原 CLI 场景产物带未解决项，下游 blocked；不以接受替代完成。首次项目配置未加载 MCP 与召回审批失败记录也保留在新证据中。 |
+| CTX-03 | 按会话恢复 | context-hook.test.mjs 8/8：opt-in、会话隔离、来源重建、上游过期、坏引用、新任务并发、真实 STDIO 绑定、入口参数。使用实际 CLI 会话 ID 的合成 resume / compact 独立进程适配器验收通过。 |
+| CTX-04 | 宿主注入和信任 | 修复 literal 项目键与 PowerShell 命令后，CLI 0.158.0 三回合、五次实际 Hook 调用通过。精确定义哈希仅本次调用可信，无 trust bypass；模型回报精确恢复引用，源码各回合不变。证据：context/host-hooks-evidence.json；复跑：context/run-hooks.mjs。交互式信任界面、实际 compact 和 Desktop Context 未验收；原失败记录保留。 |
+| CTX-05 | UserPromptSubmit 按需提示 | 定向 Hook 测试 12/12；完整检查 104/104。无绑定/有效 ready 静默，过期或阻塞给短引用，不新增归档/绑定、不保存用户 prompt、不阻止发送。最新真实 CLI 收到 stale 后重新 prepare；恢复后静默。过期阶段省略 SessionStart 以单独验该路径。context/host-hooks-evidence.json 为最新实际证据，context/prompt-hook-evidence.json 保留早期尝试。 |
+
+
+## M-001 架构索引验收（2026-10-03）
+
+| ID | 场景 | 结果与边界 |
+| --- | --- | --- |
+| ARCH-01 | 固定上游独立复用 | Normify 0.5.4 十个原文件 SHA 核验一致；无 DSH 宿主依赖，独立编译真实仓库 19 模块 / 38 能力 / 58 静态导入，无阻塞。fixtures/architecture/local-index-evidence.json |
+| ARCH-02 | 归属、UID 与代码事实 | 8 项新测试包含 UID 改名、指纹漂移、重叠归属、缺失导出与真实禁止依赖，均有相应失败诊断；不是完整调用图。tests/architecture.test.mjs |
+| ARCH-03 | 职责与新鲜度 | 按角色 opt-in，包不超过 4096 字节、完整记录可 recall；目标外登记源码变化使 submit 和 prompt 过期。真实 STDIO 注册第七工具并返回固定来源。 |
+| ARCH-04 | 独立博客 TUI | 用户授权 D 盘新建项目，真实交互 TUI 创建；12 项检查、真实 Edge 列表/详情/返回/手机宽度通过。父 agent 修复测试 HTTP 随机端口传输，保留真实断言。 |
+| ARCH-05 | 真模型查询与交接 | TUI 31 次调用包含 7 次范围失败及纠正；查询发现 escapeHtml/readPosts 与归属/影响，首次下游因未补齐依据 blocked。补读后修订方案 accepted、无未解决项，随后额度耗尽；独立真实 STDIO 消费同一产物返回 ready，分别记录。fixtures/architecture/blog-tui-evidence.json |
+| ARCH-06 | 边界与检查 | 112/112、审计 0 漏洞；原失败/取消证据保留。源码 SHA 不变，task_complete=false；标签未实现，完整 TUI ready 回合未验收；当时 M-002 状态/门禁/收尾仍待实现。revision 未核验 Git，博客 40 零占位明确不是提交身份。 |
+
+
+## 工作区锁与进程恢复（既有证据）
 
 | ID | 页面要求的场景 | 机械断言 | 当前状态 |
 | --- | --- | --- | --- |
@@ -76,3 +103,43 @@
 | LK-02 | 主进程和 validator 整树退出后的恢复 | 当前 Windows 验收中 OS 释放 native lock；下一条新修改可运行，旧 running 验证不重放，原 `.running` 记录保留。 | `tests/failure-protocol.test.mjs` 4/4 通过；覆盖 Windows 上的整树退出和新修改恢复，Linux 与其他 Unix 未实测 |
 | LK-03 | 主进程退出但 runner 仍存活 | 已有 owner 记录指向独立存活 runner 时，新 MCP server 继续等待；取消等待不修改，runner 退出后新修改可运行。 | `tests/failure-protocol.test.mjs` 4/4 通过；覆盖 owner 状态恢复及真实 MCP server 等待；Windows Job 行为会随 parent 结束 child，未声称复现“单杀主进程、留下其子 runner” |
 | LK-04 | owner 损坏、启动停在 `starting` 或遗留旧 lock 目录 | 返回 `RECOVERY_REQUIRED`；不得自动删除 owner/旧 lock，需先确认相关进程退出再人工处理。其他 Unix 目录锁崩溃需人工恢复。 | `tests/workspace-lock.test.mjs` 5/5 通过；在 Windows 覆盖 dead idle、损坏 owner、未知 starting、legacy lock 和 operation error；Linux 与其他 Unix 未实测 |
+
+## M-002 首片夹具
+
+| ID | 场景 | 机械验证 |
+| --- | --- | --- |
+| CHANGE-01 | 登记与绑定 | tests/change.test.mjs：当前查询、归属、核验复用候选；真实 STDIO 越界/缺绑定拒绝、部分写入与旧版本拒绝；单一可写变更与并发串行 |
+| CHANGE-02 | 失效、取消与恢复 | 全工作区输入变化、显式扩围、取消、真实 server/validator 整树退出与重启；不重放、保留真实修改 |
+| CHANGE-03 | 发布与检查证据 | 坏指针拒绝、归档发布故障、生成排除、写前取消、原生 Codex patch 同租约只产生一次事件、失败回执及失效；始终 task_complete=false |
+
+未验证 IF-004 完成收尾、变更状态职责注入或新的宿主 Hook 门禁。原生 patch 案例需配置已有 CODEX_SOL_PATCH_EXECUTABLE；其余夹具不需要模型调用。
+
+CHANGE-01–03 本片完整检查 124/124、0 跳过，审计 0 漏洞；本机 Windows 原生 patch / 取消 / 整树退出实际运行。fixtures/architecture/change-index-evidence.json 保存当前 20 模块 / 41 能力 / 66 静态导入索引与实施边界。此处“未验证 IF-004 与 Context 注入”只描述首片交付当时的边界，后续证据见对应小节。
+
+## IF-004 维护、复核与完成夹具（2026-10-04）
+
+| ID | 场景 | 当前证据 |
+| --- | --- | --- |
+| CLOSE-01 | 前后架构事实、声明意图与维护建议 | tests/architecture-maintenance.test.mjs：14 项，删除/移动、旧/新使用方、未登记、未覆盖、UID 与声明/policy 改变 |
+| CLOSE-02 | 逐规则来源、计划、复用与再验证 | tests/validation-reuse.test.mjs：19 个计数测试；默认 never、显式 watched_inputs、条件/输入/规则改变、完整性、legacy、去重与失败/取消 |
+| CLOSE-03 | 当前版本语义复核及有效完成发布 | tests/closure.test.mjs：21 个计数测试；原文关联、完整 coverage、累计检查、零额外 runner、失败/中断/发布漂移、完成后失效、配置及 PATH 身份缺口 |
+| CLOSE-04 | 真实协议与 IF-004 阶段索引 | STDIO 完整工具路径含分页 recall；四/六/十三工具兼容；[索引](closure/index-evidence.json) 为 20/44/66，无阻塞 |
+
+完整检查 **180/180、0 跳过、审计 0 漏洞**；本机已有 CLI 原生 patch、Windows 受管写入取消与整树退出回归实际运行。输入 SHA、命令和日志摘要在 [检查记录](closure/check-evidence.json)，[详细边界](closure/README.md) 区分程序测试、模型使用与宿主注入。历史目录保留原结果；未新增付费模型回合或把旧 dirty 夹具改为 completed。
+
+## 变更状态进入 Context（2026-10-04）
+
+程序场景、Hook 参数和验收边界见 [context-state/README.md](context-state/README.md)。`sol_context_prepare` 可显式绑定当前变更，`change_state` 是共享协调器核验后的只读投影；会话恢复/提醒仅对应本会话明确绑定，不转绑，不新建状态归档或启动 runner。绑定 Hook 显式载入与 MCP 一致的验证规则及 generated 配置，并核验合成 SHA；无配置或不匹配时不可报告当前状态。
+
+本 Context slice `npm run check` **199/199、0 跳过、依赖审计 0 漏洞**；59 个运行/检查输入前后 SHA 一致，见 [context-state/check-evidence.json](context-state/check-evidence.json)。当时索引 ready：20 模块 / 44 能力 / 70 静态导入，见 [context-state/index-evidence.json](context-state/index-evidence.json)。历史 IF-004 **180/180** 与 66 条索引保留于前一小节；后续 Host 事件和插件验收见下一节。
+
+## 宿主门禁与本地插件（2026-10-04）
+
+本轮实际宿主、package 和运行输入证据集中在 [Host 验收说明](host/README.md)：
+
+- `host-evidence.json`：0.160 app-server 的 SessionStart 恢复、UserPromptSubmit 提醒及实际 compact；fresh PreToolUse 原生 `apply_patch` deny、MCP 越界拒绝和合法写+marker check；Stop false actionable block / true `{}`；independent reviewer complete 后 thread/resume 恢复当前 `task_complete=true`。TUI 0.158 初始 Hook 通过但同 session 两次 resume 以 `code=-32603` discovery timeout 失败并保留；随后已安装 bundled CLI 0.160 的同 session 真实 PTY resume、ready 状态、Hook 与正常 hash 校验通过，源码 SHA 不变。较早失败回合仍保留，模型不被描述为独立 reviewer。
+- `package-evidence.json`：隔离 `CODEX_HOME` local marketplace read/install/restart 后四个 Hook 与十三个架构工具可用；最终隔离加载 passed，package 包含 1772 个文件。Hook 定义按本次调用精确 hash 审阅，没有使用 trust bypass。当前包使用嵌入 `src/plugin-bootstrap.cjs` 的 legacy MCP args、显式 `plugin_launcher`，不是公开发布或自动安装。
+- `index-evidence.json`：最新索引 **ready 21/47/77**，3 条非阻塞 warning；CommonJS bootstrap 为 `non_javascript_source`，不声称静态分析得出不存在的 exports。
+- `check-evidence.json`：标准 `npm run check` 在 Node **v24.11.0** / npm 元数据 **11.6.1** 下通过 **229/229、0 失败、0 跳过，npm audit 0 漏洞**；75 个运行/检查输入前后 SHA 一致。保留此前一次新 fixture argv 过长失败及修正记录，另一次默认 24 并行下 native timeout timing 失败；后一单测独立复跑通过，未修改 `core.killTree`。标准检查的 Node test concurrency 设为 4，全部断言和跨进程、取消、后代终止覆盖保留；这不代表高负载硬实时保证。
+
+Host 边界见 [合同 §15](../contracts.md#15-宿主写门禁与本地插件接入)：Hook 只覆盖已注册并受信任的事件/匹配工具，不覆盖普通 Shell、Desktop GUI 或所有原生写路径。TUI 0.158 初始 `/hooks` 审阅、Context prepare、Stop `{}` 和源码 SHA 不变通过；同 session 两次 resume 因 account/read workspace discovery timeout（`code=-32603`）失败并保留。随后已安装 bundled CLI 0.160 的同 session真实 PTY resume 与四条 Hook 正常 hash 校验通过；Desktop GUI、稳定自主连续任务、固定 A/B token/费用和公开发布均未验收。

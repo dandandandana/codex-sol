@@ -49,6 +49,22 @@
         { "$ref": "#/$defs/WorkspacePath" }
       ]
     },
+    "PluginProjectConfig": {
+      "description": "Explicit local plugin opt-in at the nearest Git root, or exact cwd without Git. Paths reference the existing runtime configuration.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "validation_rules"],
+      "properties": {
+        "schema_version": { "$ref": "#/$defs/SchemaVersion" },
+        "validation_rules": { "$ref": "#/$defs/WorkspacePath" },
+        "context_rules": { "$ref": "#/$defs/WorkspacePath" },
+        "plugin_launcher": { "description": "For legacy plugin MCP bootstrap: explicit absolute installed launcher path, shared with Hooks.", "type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^[^\\r\\n]+$" },
+        "execution_path": { "description": "Optional explicit stable PATH for the actual plugin runtime and checks. Omission preserves inherited OS PATH and its freshness consequences.", "type": "string", "minLength": 1, "maxLength": 16384, "pattern": "^[^\\r\\n]+$" },
+        "generated_paths": { "type": "array", "maxItems": 128, "uniqueItems": true, "items": { "$ref": "#/$defs/WorkspaceGlob" } },
+        "patch_executable": { "type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^[^\\r\\n]+$" },
+        "host_executable": { "type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^[^\\r\\n]+$" }
+      }
+    },
     "UtcTimestamp": {
       "type": "string",
       "format": "date-time",
@@ -124,6 +140,10 @@
           "minItems": 1,
           "uniqueItems": true,
           "items": { "$ref": "#/$defs/WorkspaceGlob" }
+        },
+        "reuse": {
+          "enum": ["watched_inputs", "never"],
+          "description": "Defaults to never. watched_inputs explicitly declares that watch_paths cover important file inputs and no untracked external state is required."
         },
         "commands": {
           "type": "array",

@@ -1,11 +1,12 @@
-import { readFile, mkdir, open, rename, lstat, realpath, unlink } from 'node:fs/promises';
-import { createHash, randomUUID } from 'node:crypto';
+import { readFile, mkdir, open, lstat, realpath, unlink } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createObservationStore, SolFault } from './store.mjs';
 import { ValidationEngine } from './validation.mjs';
 import { runManagedCommand, publicError } from './managed-command.mjs';
 import { assertContract } from './schema.mjs';
+import { writeAtomicJSON } from './workspace.mjs';
 
 const ENTRY = fileURLToPath(import.meta.url);
 const quotePS = (value) => `'${value.replaceAll("'", "''")}'`;
@@ -34,14 +35,6 @@ export async function loadNativeConfig(path) {
   await mkdir(spool, { recursive: true });
   if ((await lstat(spool)).isSymbolicLink()) throw new SolFault('PATH_ERROR', 'Native request directory must not be a link.');
   return { config, store, validator, spool };
-}
-
-async function atomicJSON(path, value) {
-  const temp = `${path}.${randomUUID()}.tmp`;
-  const file = await open(temp, 'wx', 0o600);
-  try { await file.writeFile(JSON.stringify(value)); await file.sync(); }
-  finally { await file.close(); }
-  await rename(temp, path);
 }
 
 function keyFor(event) {
@@ -116,7 +109,7 @@ export async function runNativeRequest(requestPath, { signal } = {}) {
   if (!config.load_profile) argv.push('-NoProfile');
   argv.push('-NonInteractive', '-EncodedCommand', Buffer.from(request.command, 'utf16le').toString('base64'));
   const result = await runManagedCommand(store, validator, { argv, cwd: cwd.split(sep).join('/') || '.', timeout_ms: config.timeout_ms }, { tool: 'Bash', generated: config.generated, signal, callId: request.call_id });
-  await atomicJSON(resultPath, result);
+  await writeAtomicJSON(resultPath, result);
   await unlink(join(spool, `${request.call_id}.running`));
   return result;
 }

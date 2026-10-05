@@ -13,7 +13,7 @@ export function publicError(error) {
 }
 
 /** Executes configured argv once; actual changes and validation share the workspace lease. */
-export async function runManagedCommand(store, validator, command, { tool = 'shell', paths, generated = [], signal, callId = randomUUID() } = {}) {
+export async function runManagedCommand(store, validator, command, { tool = 'shell', paths, generated = [], signal, callId = randomUUID(), lease: workspaceLease } = {}) {
   let changed = [];
   let validation = null;
   let execution = null;
@@ -39,7 +39,7 @@ export async function runManagedCommand(store, validator, command, { tool = 'she
     return envelope;
   };
   try {
-    return await withWorkspaceLock(store, async (lease) => {
+    const operation = async (lease) => {
       const snapshot = async () => paths
         ? fileState(store.workspaceRoot, paths)
         : new Map((await snapshotInputs(store.workspaceRoot, ['**/*'], generated)).items.map((item) => [item.path, item.sha256]));
@@ -70,7 +70,8 @@ export async function runManagedCommand(store, validator, command, { tool = 'she
       const envelope = base();
       if (validationError) { envelope.tool_status = 'error'; envelope.validation_error = validationError; }
       return finish(envelope);
-    }, { signal });
+    };
+    return await (workspaceLease ? operation(workspaceLease) : withWorkspaceLock(store, operation, { signal }));
   } catch (error) {
     // No retry: the command may already have changed files before an I/O error.
     try { return await finish({ ...base(), tool_status: 'error', error: publicError(error) }); }
