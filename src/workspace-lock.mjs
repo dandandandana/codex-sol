@@ -1,5 +1,7 @@
 import { createServer } from 'node:net';
+import { spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
+import { constants } from 'node:fs';
 import { lstat, mkdir, open, readFile, rename, rmdir, unlink } from 'node:fs/promises';
 import { join } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
@@ -50,8 +52,66 @@ async function writeOwner(path, value) {
 
 function endpoint(workspaceId) {
   if (process.platform === 'win32') return `\\\\.\\pipe\\codex-sol-${workspaceId}`;
-  if (process.platform === 'linux') return `\0codex-sol-${workspaceId}`;
   return null;
+}
+
+// util-linux's descriptor form locks the open file description shared with
+// this process, so its exit does not release our fd's lock. Do not use a shell,
+// a command wrapper, or PATH (project execution_path may intentionally differ).
+// 200 is distinct from flock's sysexits error codes.
+async function flockDescriptor(file, signal, deadline) {
+  for (const executable of ['/usr/bin/flock', '/bin/flock']) {
+    interrupted(signal);
+    const result = await new Promise((resolve) => {
+      let error, timedOut = false;
+      const child = spawn(executable, ['--exclusive', '--nonblock', '--conflict-exit-code', '200', '3'], {
+        shell: false, stdio: ['ignore', 'ignore', 'ignore', file.fd], windowsHide: true,
+      });
+      const stop = () => child.kill('SIGKILL');
+      const timer = setTimeout(() => { timedOut = true; stop(); }, Math.max(1, Math.min(5000, deadline - Date.now())));
+      child.once('error', (cause) => { error = cause; });
+      child.once('close', (code) => {
+        clearTimeout(timer);
+        signal?.removeEventListener('abort', stop);
+        resolve({ code, error, timedOut });
+      });
+      signal?.addEventListener('abort', stop, { once: true });
+      if (signal?.aborted) stop();
+    });
+    // Wait for close, even after cancellation, before closing the shared fd.
+    interrupted(signal);
+    if (result.timedOut && Date.now() >= deadline)
+      throw new SolFault('WORKSPACE_BUSY', 'Workspace lock acquisition exceeded its deadline.', true);
+    if (result.error?.code === 'ENOENT') continue;
+    if (result.timedOut || result.error || ![0, 200].includes(result.code))
+      throw new SolFault('LOCK_ERROR', `Linux flock failed (${result.timedOut ? 'TIMEOUT' : result.error?.code ?? result.code ?? 'SIGNAL'}); no workspace mutation was started.`);
+    return result.code === 0;
+  }
+  throw new SolFault('LOCK_ERROR', 'Linux locking requires util-linux flock at /usr/bin/flock or /bin/flock; no workspace mutation was started.');
+}
+
+async function tryLinuxLock(path, signal, deadline) {
+  let file, held = false;
+  try {
+    // O_NONBLOCK avoids hanging on an unexpected FIFO. O_NOFOLLOW prevents
+    // opening another file through a symlink; fstat also rejects special files.
+    file = await open(path, constants.O_CREAT | constants.O_RDWR | constants.O_NOFOLLOW | constants.O_NONBLOCK, 0o600);
+    const opened = await file.stat();
+    if (!opened.isFile() || opened.nlink !== 1) throw new SolFault('LOCK_ERROR', 'The Linux workspace lock must be a regular file without hard links.');
+    if (!await flockDescriptor(file, signal, deadline)) return null;
+    const current = await lstat(path);
+    if (!current.isFile() || current.isSymbolicLink() || current.dev !== opened.dev || current.ino !== opened.ino)
+      throw new SolFault('LOCK_ERROR', 'The Linux workspace lock changed during acquisition; inspect the workspace before retrying.');
+    held = true;
+    // Never unlink this file, including after crashes. Waiters may have opened
+    // the same inode already; unlink/recreate would create two independent locks.
+    return () => file.close();
+  } catch (error) {
+    if (error instanceof SolFault) throw error;
+    throw new SolFault('LOCK_ERROR', `Could not acquire the Linux workspace file lock (${error.code ?? 'IO_ERROR'}).`);
+  } finally {
+    if (file && !held) await file.close();
+  }
 }
 
 async function tryNativeLock(path) {
@@ -85,18 +145,21 @@ async function tryDirectoryLock(path) {
  */
 export async function withWorkspaceLock(store, operation, { signal, timeoutMs = 30000 } = {}) {
   const native = endpoint(store.workspaceId);
+  const linux = process.platform === 'linux';
+  const recoverable = native || linux;
   const legacy = join(store.solRoot, 'managed-modification.lock');
-  const ownerPath = native ? join(store.solRoot, 'managed-modification.owner.json') : join(legacy, 'owner.json');
+  const ownerPath = recoverable ? join(store.solRoot, 'managed-modification.owner.json') : join(legacy, 'owner.json');
   const deadline = Date.now() + timeoutMs;
   while (true) {
     interrupted(signal);
-    if (native) {
+    if (recoverable) {
       try {
         await lstat(legacy);
         throw new SolFault('RECOVERY_REQUIRED', 'A lock from the previous implementation remains. Stop its processes and inspect it before removing that legacy lock directory.');
       } catch (error) { if (error.code !== 'ENOENT') throw error; }
     }
-    const release = native ? await tryNativeLock(native) : await tryDirectoryLock(legacy);
+    const release = linux ? await tryLinuxLock(join(store.solRoot, 'managed-modification.flock'), signal, deadline)
+      : native ? await tryNativeLock(native) : await tryDirectoryLock(legacy);
     if (release) {
       let owned = false;
       let record;

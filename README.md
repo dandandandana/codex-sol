@@ -90,6 +90,8 @@ Shell 命令仍由宿主 Shell 工具发起；Hook 在该命令中启动本地 r
 
 使用 Linux 自身的 Node.js 20.8+、npm 和 Codex；WSL 下将检查工作区放在 Linux 文件系统中。先按 [PLUGIN.md](PLUGIN.md) 从 `codex/linux-adaptation` 分支接入插件；已有该分支工作区可直接安装依赖并打包，无需重新克隆。
 
+Linux 工作区锁要求系统 `/usr/bin/flock` 或 `/bin/flock`（util-linux）及支持 `flock(2)` 的本地文件系统，不再要求创建 Unix socket。升级前停止该工作区的所有旧版 SoL 进程和检查子进程；不得混跑旧 socket 版与新文件锁版。锁文件必须保留，不要把它当作陈旧锁删除。恢复与平台边界见 [Linux 工作区锁](fixtures/linux/README.md#linux-工作区锁)。
+
 需要包装普通 Bash 操作时，另将 [native.linux.example.json](native.linux.example.json) 复制为项目 `.codex/native.json` 并填入实际路径。Linux 的 Node/Bash 路径支持符号链接，并核验执行权限；`load_profile=false` 使用 `--noprofile --norc -c`，`true` 使用 `--login -c`。非交互 Bash 仍会读取继承的 `BASH_ENV`。
 
 插件已有四项 Hook；额外 Bash 包装只合并 `^Bash$` 的 PreToolUse/PostToolUse，保留插件的 SessionStart、写入门禁和 Stop。完整配置、真实原生 Codex 文件的选择、复跑命令与验收边界见 [Linux 使用与验收](fixtures/linux/README.md)。Linux 已验证 Bash 非零退出、路径与权限、原生 patch、锁、超时和 SIGTERM 后恢复，以及真实 Codex app-server 的插件安装/重启装载。TUI 的交互审阅、Esc 中断和 Linux 宿主取消桥接仍需单独验收。
