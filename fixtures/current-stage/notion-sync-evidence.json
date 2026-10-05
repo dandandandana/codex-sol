@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "page_id": "3e831ddb-7233-8111-ada4-dffbdd87713b",
+  "page_url": "https://app.notion.com/p/3e831ddb72338111ada4dffbdd87713b",
+  "page_last_edited_at": "2026-10-04T02:04:42.250Z",
+  "heading": "既有阶段验收与当前架构｜2026-10-04",
+  "heading_occurrences": 1,
+  "current_architecture_counts_and_limits_verified": true,
+  "checks_126_27_20_verified": true,
+  "manual_declaration_boundary_verified": true,
+  "local_artifact_names_preserved_as_code": true,
+  "existing_page_content_preserved": true,
+  "operation": "append current-stage update, correct only local-filename formatting, fetch and verify"
+}

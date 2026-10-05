@@ -29,10 +29,10 @@ export function patchPaths(patch) {
   return [...paths].sort();
 }
 
-export async function applyManagedPatch(store, validator, patch, { executable, generated = [], signal } = {}) {
+export async function applyManagedPatch(store, validator, patch, { executable, generated = [], signal, lease } = {}) {
   const paths = patchPaths(patch);
   if (!executable || !isAbsolute(executable) || !(await stat(executable)).isFile()) throw new SolFault('CONFIG_ERROR', 'Configure CODEX_SOL_PATCH_EXECUTABLE with the installed Codex executable path.');
   // Validation is also repeated under the lease by fileState in runManagedCommand.
   for (const path of paths) await workspaceFile(store.workspaceRoot, path, { allowMissing: true });
-  return runManagedCommand(store, validator, { argv: [executable, '--codex-run-as-apply-patch', patch], cwd: '.', timeout_ms: 30000 }, { tool: 'sol_apply_patch', paths, generated, signal });
+  return runManagedCommand(store, validator, { argv: [executable, '--codex-run-as-apply-patch', patch], cwd: '.', timeout_ms: 30000 }, { tool: 'sol_apply_patch', paths, generated, signal, lease });
 }

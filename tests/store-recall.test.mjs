@@ -382,3 +382,16 @@ test('a keyword with no matches returns an empty complete result', async (t) => 
   assert.equal(result.handle, ref.handle);
   assert.equal(result.sha256, ref.sha256);
 });
+
+test('out-of-range recall reports exact usable bounds and preserves rejection', async (t) => {
+  const { store } = await makeStore(t);
+  const one = await capture(store, Buffer.from('{"schema_version":1,"text":"中文"}'));
+  await assert.rejects(recall(store, { schema_version: 1, handle: one.handle, selector: { kind: 'lines', start: 1, end: 50 } }), error => error.code === 'INVALID_RANGE' && error.message.includes('Available lines: 1..1'));
+  await assert.rejects(recall(store, { schema_version: 1, handle: one.handle, selector: { kind: 'bytes', start: 0, end: one.bytes + 1 } }), error => error.code === 'INVALID_RANGE' && error.message.includes(`0..${one.bytes} (end exclusive)`));
+  const page = await recall(store, { schema_version: 1, handle: one.handle, selector: { kind: 'lines', start: 1, end: 1 } });
+  assert.equal(page.chunks[0].text, '{"schema_version":1,"text":"中文"}');
+  const empty = await capture(store, Buffer.alloc(0));
+  await assert.rejects(recall(store, { schema_version: 1, handle: empty.handle, selector: { kind: 'lines', start: 1, end: 1 } }), error => error.code === 'INVALID_RANGE' && error.message.includes('Available lines: 0'));
+  const zero = await recall(store, { schema_version: 1, handle: empty.handle, selector: { kind: 'bytes', start: 0, end: 0 } });
+  assert.deepEqual(zero.chunks, []);
+});

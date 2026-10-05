@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-10-04T01:43:03.247Z",
+  "stage": "existing-stage regression fix",
+  "version": "70a7a5a0091e1a169e03c99fa031e7cd161d464d5c411d89f975067a1a494e64",
+  "status": "ready",
+  "engine": {
+    "name": "Normify",
+    "version": "0.5.4",
+    "commit": "ed404e5b8db0010ff57ec8486ec8749421072545",
+    "compiled": true
+  },
+  "counts": {
+    "modules": 20,
+    "capabilities": 42,
+    "static_imports": 66,
+    "uncovered": 74
+  },
+  "diagnostics": [
+    {
+      "code": "layout/missing",
+      "blocking": false,
+      "message": "容器模块缺少渲染数据（图谱将回退自动布局）",
+      "subject": {
+        "module": "sol"
+      }
+    },
+    {
+      "code": "evidence/root-no-source",
+      "blocking": false,
+      "message": "根模块无 source（纯文档根）",
+      "subject": {
+        "module": "sol"
+      }
+    }
+  ],
+  "coverage": "JavaScript ESM file imports/exports only; no full call graph or task completion evidence",
+  "revision_verification": "declaration metadata only; Git revision not verified",
+  "task_complete": false,
+  "changed_declarations": [
+    "sol.validation",
+    "sol.architecture-change"
+  ],
+  "shared_rule": {
+    "module": "sol.validation",
+    "uid": "f194da0b",
+    "symbol": "isGeneratedPath",
+    "protocol": "rpc",
+    "description": {
+      "zh": "匹配生成目标及被排除的祖先目录",
+      "en": "Match generated targets and excluded ancestor directories"
+    },
+    "state": "active",
+    "verification": "static_export",
+    "locations": [
+      {
+        "path": "src/validation.mjs",
+        "line": 29,
+        "sha256": "3bab1e7fc387516e0ab745ba66ad852b7e47647537bfb6af974fadb875a23121"
+      }
+    ]
+  }
+}

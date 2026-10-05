@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "stage": "M-002 registration and binding only",
+  "captured_at": "2026-10-03T15:49:23.498Z",
+  "version": "e8d62ca0a4e98553cb2d776c571828b8f4d1712cbac88780d3ca5fd09cf10c1b",
+  "status": "ready",
+  "engine": {
+    "name": "Normify",
+    "version": "0.5.4",
+    "commit": "ed404e5b8db0010ff57ec8486ec8749421072545",
+    "compiled": true
+  },
+  "counts": {
+    "modules": 20,
+    "capabilities": 41,
+    "static_imports": 66,
+    "uncovered": 74
+  },
+  "diagnostics": [
+    {
+      "code": "layout/missing",
+      "blocking": false,
+      "message": "容器模块缺少渲染数据（图谱将回退自动布局）",
+      "subject": {
+        "module": "sol"
+      }
+    },
+    {
+      "code": "evidence/root-no-source",
+      "blocking": false,
+      "message": "根模块无 source（纯文档根）",
+      "subject": {
+        "module": "sol"
+      }
+    }
+  ],
+  "coverage": "JavaScript ESM file imports/exports only; no full call graph or task completion evidence",
+  "task_complete": false,
+  "change_module": {
+    "id": "sol.architecture-change",
+    "uid": "1ce8b582",
+    "parent": "sol",
+    "name": {
+      "zh": "变更协调",
+      "en": "Change coordination"
+    },
+    "description": {
+      "zh": "需求登记、范围绑定、失效与显式恢复；不标记任务完成",
+      "en": "Requirement registration, scope binding, invalidation and explicit recovery; no completion transition"
+    },
+    "state": "active",
+    "source": [
+      {
+        "path": "src/architecture/change.mjs"
+      }
+    ]
+  },
+  "deferred": [
+    "IF-004 review and completion",
+    "change state in responsibility Context",
+    "PreToolUse/Stop gates"
+  ],
+  "revision_verification": "declaration metadata only; Git revision not verified by adapter"
+}

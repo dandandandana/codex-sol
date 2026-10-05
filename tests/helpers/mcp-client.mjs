@@ -36,8 +36,8 @@ async function terminateTree(child, waitForClose) {
   return waitForClose;
 }
 
-export function startMcpServer({ workspace, rulesPath, serverPath = fileURLToPath(new URL('../../src/server.mjs', import.meta.url)), env = {} }) {
-  const child = spawn(process.execPath, [serverPath], {
+export function startMcpServer({ workspace, rulesPath, serverPath = fileURLToPath(new URL('../../src/server.mjs', import.meta.url)), serverArgs = [], env = {} }) {
+  const child = spawn(process.execPath, [serverPath, ...serverArgs], {
     cwd: workspace,
     env: { ...process.env, CODEX_SOL_WORKSPACE: workspace, CODEX_SOL_RULES: rulesPath, ...env },
     stdio: ['pipe', 'pipe', 'pipe'],

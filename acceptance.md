@@ -1,5 +1,17 @@
 # V0.1 T1 机械验收
 
+2026-10-04 既有阶段验收完成：先保存 [当前架构](architecture-current.md)，使用三个 `gpt-6.1-sol` / high 直接子代理、无孙代理。原 124 项通过；生成目录通配符范围漏洞先复现后修复，补新文件受管创建/重启回归，最终 **126/126、0 跳过、审计 0 漏洞**。普通分类汇总需求由模型通过真实 STDIO 测试桥实际复用组件并受管写入，项目测试 **27/27**，父代理独立黑盒 **20/20**。声明由模型手工维护，未实现自动架构延续；最终 dirty、task_complete=false，归属调整后 latest_validation 清空，历史回执及最终测试分别保留。完整结果与现有宿主边界见 [本轮验收](fixtures/current-stage/README.md)。下文保留历史阶段记录。
+
+2026-10-03 当前阶段收尾：博客仅为 Hook 夹具，取消博客标签开发方向。四次博客实际宿主 Hook 回调（入口、无绑定静默、ready 静默、stale 提醒）通过，临时配置还原、自建进程退出、源码 SHA 未变；包装器在推理前停止，核心仍非阻塞。证据：[blog-hook-closeout-evidence.json](fixtures/context/blog-hook-closeout-evidence.json)，复跑：[run-blog-hooks.mjs](fixtures/context/run-blog-hooks.mjs)。Context Hook 12 项和 Native Hook 5 项回归通过；历史五次真实 CLI 注入及模型确认保留。当前已进入 MCP，修正单行召回说明和真实越界范围；真实 STDIO 验证拒绝与修正召回，完整 **113/113、审计 0 漏洞**。此段记录当时状态；实际 compact / Desktop Context 未验收，变更状态与对应 PreToolUse/Stop 门禁尚待接入。
+
+2026-10-03 CLI Hook 故障修复后的最新状态：真实 CLI 0.158.0、无 Hook trust bypass，使用本次调用的精确项目路径与已审阅定义哈希，三个模型回合通过五次 Hook 调用。覆盖 startup 入口、未绑定静默、来源过期提示、resume 恢复、恢复后静默。模型确认 stale，并在无工具调用的恢复回合回报精确注入引用；源码各回合 SHA 不变。夹具修复了 literal 项目键和 PowerShell 命令调用，Context 核心无需修改。完整 **npm run check 104/104、审计 0 漏洞**；新夹具 node --check 通过。见 [实际 Hook 证据](fixtures/context/host-hooks-evidence.json) 与可复跑的 [run-hooks.mjs](fixtures/context/run-hooks.mjs)。交互式信任界面、Desktop Context、真实 compact 与 M-002 尚未验收；下文前期失败记录作为历史保留。
+
+2026-10-03 新增 UserPromptSubmit 按需提示：完整 `npm run check` **104/104，依赖审计 0 漏洞**，生命周期 Hook 定向测试 12/12。新增四项覆盖未绑定/有效材料静默、过期提示与无归档/绑定副作用、配置/上游/可选来源/删除变化、阻塞与坏引用。真实 CLI 0.158.0 exec / resume 的 inline Hook 尝试未捕获事件，仅验证模型通过 MCP 重新 prepare，不计 Hook 注入通过。独立 Hook 入口用该 CLI session_id 的合成 UserPromptSubmit 检测过期并返回正确事件格式。见 [提示 Hook 证据](fixtures/context/prompt-hook-evidence.json)。前期状态按下段保留，实际宿主注入/信任、Desktop、compact 仍未验收。
+
+2026-10-03 后续 Context 会话绑定和恢复 Hook 验收：完整 `npm run check` **100/100，依赖审计 0 漏洞**，其中 Context 11 项、恢复 8 项。CLI 0.158.0 实际模型完成只读 plan → submit → implement → recall → submit，两份接受回执均 task_complete=false，notes 未交接，源码 SHA 不变。保留策略未明确时的阻塞、读取工具缺少注解导致的审批失败，以及最终两次 INVALID_RANGE 后纠正成功的召回。修复注解后完整交接通过。真实 CLI 元数据自动绑定和合成 resume / compact 事件通过；CLI exec Hook 尝试未记录到 SessionStart，常规信任、真实 compact 和 Desktop Context 尚未验收。见 [新证据](fixtures/context/cli-evidence.json)、[contracts.md §10](contracts.md#10-context-会话绑定与恢复)。下段保留首轮历史状态；本次不替代 T5 和完整变更状态闭环。
+
+2026-10-03 新增 Context 写前交接切片的程序验收：`node --test tests/context.test.mjs` **11/11**，完整 `npm run check` **92/92、依赖审计 0 漏洞**。代码与边界见 [contracts.md §9](contracts.md#9-可选-context写前职责交接)、[architecture.md §4.5](architecture.md#45-首个-context-切片交付记录)。真实 STDIO 已验证启用后六工具、未启用四工具、plan → submit → implement 字段交接与跨服务重启恢复；并覆盖 schema/任务/版本/引用拒绝、UTF-8 预算与原文召回、阻塞与不完整证据、锁等待取消和归档期间外部编辑。未验证自动模型使用效果、新工具的 Desktop / CLI 会话、compact Hook、独立上下文或 token 收益；不替代原 T5 与历史宿主验收。下文保留既有 V0.1 证据。
+
 本页验收内部合同、Windows 原生接入和已取得的宿主证据。CLI 0.158.0 与 Codex Desktop 的既有正常冒烟覆盖旧三工具；Windows CLI 异常记录见 [fixtures/t3/cli-native-evidence.json](fixtures/t3/cli-native-evidence.json)。这四次 CLI 调用都带单次 `--dangerously-bypass-hook-trust` 标志，所以只证明这些调用中的行为，不证明常规项目 Hook 信任流程。独立 TUI 无 bypass 完成三个 Hook 的审阅；重启后原生 patch 路由、MCP patch 成功、旧输出 recall 与失败 Shell block 四步均实测通过。历史 TUI Esc 测试中两次 `sol_apply_patch` 校验仍运行并最终 `timeout`；第二次 wire 记录直到完整 response 前都未见 `notifications/cancelled`。旧 Desktop 无桥接 GUI Stop 测试也未终止后台 runner，约 90 秒后 `timeout`。这些是对应版本与配置下的原生宿主取消失败，仍作为历史证据保留。
 
 后续在 Windows Desktop `OpenAI.Codex 26.928.2636.0` / host core 0.159.2 上，独立配置 `CODEX_SOL_HOST_EXECUTABLE` 的显式事件桥接通过一次 MCP patch Stop 场景：收到目标 `turn_aborted` 后约 0.7 秒返回，回执为 `error/interrupted`，runner 已退出且 owner 已清理。同一版本随后在 recovery chat `01a0f569-b285-7b71-b4eb-52dbd55ae6e4` / turn `01a0f569-b5e0-7ed2-a993-f0b1ac5baa03` 完成三项 MCP recovery：追加 patch 并验证 passed；精确召回旧 stdout 的 45 bytes；按 keyword 精确召回 936-byte `error/interrupted` receipt。旧 stdout 的 `complete=false`；receipt archive 本身 `complete=true`，其中 `checks.output.complete=false`，不应混为一谈。正式证据状态为 `desktop_tui_bridge_passed`。TUI 0.159.2 后续 Esc 桥接验收通过：04:01:59.451Z 校验启动，04:01:59.484Z 发送 Esc，04:01:59.516Z 记录目标 `turn_aborted`，04:02:00.054Z 返回；停止到响应 571 ms，回执 `error/interrupted`，validator 和 owner 已清理。中断后的 patch 通过；首次两项 recall 因参数名错误被拒，纠正为合同的 `kind` / `literal` 后，45-byte stdout 与 934-byte receipt 均精确召回，未重放修改。此结果只证明当前桌面/CLI 版本组合的 bridge 与 recovery 路径；没有收到 MCP `notifications/cancelled`，也不代表历史 TUI/native Shell 路径通过或 Windows 整体验收完成。独立 patch exe 为 0.158.0；未改全局设置、安装或升级组件，也未重启 Desktop。细节见 [fixtures/t3/cancellation-compat-evidence.json](fixtures/t3/cancellation-compat-evidence.json)。较早 Desktop `OpenAI.Codex 26.928.1915.0`（host core 0.159.0；独立 CLI/patch exe 0.158.0）的普通 Shell、大输出打包与 recall、native patch 路由和 MCP 验证/回执 recall、Shell exit 7 stderr 反馈及停止后恢复记录见 [fixtures/t3/desktop-native-evidence.json](fixtures/t3/desktop-native-evidence.json)。三项 Hook 定义沿用了先前在 TUI 的信任，本次隔离项目另行逐项核对；具体宿主 UI 证据不能由 Node 定向测试或 CLI 证据替代。`runtime.schema.json` 只描述内部数据，不代表 Codex Hook/API schema。
@@ -59,11 +71,24 @@ python -c 'import json; from pathlib import Path; from jsonschema import Draft20
 
 `fixtures/t0/cli-evidence.json` 记录早期 CLI Hook 探针；`fixtures/t3/cli-native-evidence.json` 记录四次 Windows CLI 原生异常运行的 event item、RawRef、SHA-256、召回片段和清理状态。T3 日志和 `.codex/sol` 归档存于被忽略的本机 `slop/` 路径，不是运行时依赖；四次运行使用单次 trust bypass，不能作为常规 Hook 审阅的证据。TUI 原生终端记录和取消 receipt 位于忽略路径 `D:/zzd/slop/codex-sol-host-runs/tui-acceptance/`；第一次 Esc 后的 receipt `63be2c33-6a7e-4774-b60f-f5fe209d07b6` 为 `timeout`，30,307 ms、`complete=false`。第二次 wire 记录 `esc-wire-immediate.json` 与 `esc-with-proxy.receipt.json` 显示，直到 09:30:57.001Z 的完整 response 才结束，event `7911482e-1340-4b6d-8379-42cbdfa169b7`、receipt `9ea39067-8369-436e-b40d-ac2f48e91e9a` 为 `timeout`、30,273 ms；此前没有发出 `notifications/cancelled`。这些运行都不算宿主取消通过。重启后的 TUI 已验证 native patch deny→MCP patch passed（event d3cf5a03-a763-4716-92dc-b4169b552a38）、旧输出精确 recall，以及 intentional Shell exit 7 的 Post block；正式结构化结果见 [t3/tui-evidence.json](fixtures/t3/tui-evidence.json)。直接 capture/lock 与 Node stdio 取消测试不代替宿主按键取消。故障归档和锁恢复夹具见 `tests/capture-failure.test.mjs`、`tests/validation-failure.test.mjs`、`tests/workspace-lock.test.mjs` 与 `tests/failure-protocol.test.mjs`。桌面版旧三工具冒烟的句柄和归档位于忽略 Git 的 `slop/codex-sol-desktop-smoke/`，清理该目录后无法从本地归档再次召回；Desktop 新聊天的普通 Shell、大输出 recall、patch 路由/验证/回执 recall、Shell exit 7 与 Stop 后恢复验收见 [fixtures/t3/desktop-native-evidence.json](fixtures/t3/desktop-native-evidence.json)；Stop 未终止 runner，故停止验收失败。Linux 原生 Hook 本轮不在范围内。
 
+
+## M-001 架构索引验收（2026-10-03）
+
+| ID | 场景 | 结果与边界 |
+| --- | --- | --- |
+| ARCH-01 | 固定上游独立复用 | Normify 0.5.4 十个原文件 SHA 核验一致；无 DSH 宿主依赖，独立编译真实仓库 19 模块 / 38 能力 / 58 静态导入，无阻塞。fixtures/architecture/local-index-evidence.json |
+| ARCH-02 | 归属、UID 与代码事实 | 8 项新测试包含 UID 改名、指纹漂移、重叠归属、缺失导出与真实禁止依赖，均有相应失败诊断；不是完整调用图。tests/architecture.test.mjs |
+| ARCH-03 | 职责与新鲜度 | 按角色 opt-in，包不超过 4096 字节、完整记录可 recall；目标外登记源码变化使 submit 和 prompt 过期。真实 STDIO 注册第七工具并返回固定来源。 |
+| ARCH-04 | 独立博客 TUI | 用户授权 D 盘新建项目，真实交互 TUI 创建；12 项检查、真实 Edge 列表/详情/返回/手机宽度通过。父 agent 修复测试 HTTP 随机端口传输，保留真实断言。 |
+| ARCH-05 | 真模型查询与交接 | TUI 31 次调用包含 7 次范围失败及纠正；查询发现 escapeHtml/readPosts 与归属/影响，首次下游因未补齐依据 blocked。补读后修订方案 accepted、无未解决项，随后额度耗尽；独立真实 STDIO 消费同一产物返回 ready，分别记录。fixtures/architecture/blog-tui-evidence.json |
+| ARCH-06 | 边界与检查 | 112/112、审计 0 漏洞；原失败/取消证据保留。源码 SHA 不变，task_complete=false；标签未实现，完整 TUI ready 回合未验收；当时 M-002 状态/门禁/收尾仍待实现。revision 未核验 Git，博客 40 零占位明确不是提交身份。 |
+
+
 ## 2026-10-01 最终检查
 
 | 检查 | 环境 / 命令 | 结果 |
 | --- | --- | --- |
-| 运行环境 | Windows、Node.js 24.11.0、npm 11.6.3 | 当前检查环境 |
+| 运行环境 | Windows、Node.js 24.11.0、npm 11.6.3 | 2026-10-01 历史阶段的检查环境；本轮 Host 实测环境见下文 |
 | 完整检查 | `npm run check`（显式事件桥接实现） | 退出码 0；81/81 测试通过、0 skipped；官方 npm registry audit 发现 0 vulnerabilities |
 | Native 定向测试 | `tests/native-integration.test.mjs` | 10/10 通过；覆盖 Windows 原生 patch 与 managed shell 回归，包括 UTF-8 字节上限；不覆盖 Hook 注册、trust 或真实客户端 UI |
 | Native Hook 定向测试 | `tests/native-hook.test.mjs` | 5/5 通过；校验 Hook adapter 行为，不代替宿主 UI 验收 |
@@ -77,3 +102,40 @@ python -c 'import json; from pathlib import Path; from jsonschema import Draft20
 | NativeConfig 样例 | `assertContract('NativeConfig', native.example.json)` | 通过；完整最终检查另由 `npm run check` 确认 81/81 |
 | lint / format / typecheck | 项目配置 | 未配置 |
 | 宿主异常验收范围 | 旧三工具正常冒烟、T3 CLI 夹具及 TUI/Desktop Hook 实测 | T3 CLI 使用单次 trust bypass；TUI 正常路由和失败反馈通过；历史无桥接 Esc / GUI Stop 失败记录保留。Desktop 与 TUI 显式事件桥接和恢复检查通过；原生 Shell Stop、受限 sandbox 与 ask 尚未验证，Linux 按本轮范围推后。 |
+
+## M-002 首片：变更登记与写入绑定
+
+验收范围是 IF-002 登记/调整与 IF-003 显式绑定，不是 IF-004 完成收尾。`tests/change.test.mjs` 覆盖：当前查询与核验候选、归属/路径/重复范围拒绝；真实 STDIO 中缺失绑定、越界写入与移动目标拒绝；部分写入保留、旧版本拒绝、无变化去重和重启读取；跨协调器单一变更与同版本写入串行；外部变化失效和明确扩围；真实 MCP 取消与 server/validator 整树退出后的显式恢复；坏指针拒绝、未发布归档不覆盖当前记录、最终归档失败保留 pending；生成排除与写前取消；真实 Codex patch 复用同一租约、验证只产生一个事件；失败回执保留及后续变动失效。
+
+首片当时这些操作始终 task_complete=false。语义复核、声明更新入口、累计影响对应的全部必需检查、最终完成发布、变更状态职责注入及 PreToolUse/Stop 门禁当时尚未验收；IF-004 后续结果见下节。首片默认四工具、纯 Context 六工具、架构十一工具，写入要求 change 绑定；未调用模型或继续开发博客。
+
+本片最终完整检查：`npm run check` 124/124、0 跳过，审计 0 漏洞。原生 patch 案例使用本机已有 CLI 实际通过，真实 STDIO 取消和 Windows 整树退出恢复通过；未声称其他平台或新的 Desktop/TUI 模型回合验收。当前仓库声明树 20 模块、41 能力、66 静态导入，无阻塞，见 fixtures/architecture/change-index-evidence.json。
+
+## 2026-10-04 IF-004：维护、复核与完成
+
+IF-004 阶段完整 `npm run check` **180/180、0 跳过、审计 0 漏洞**，已有 Codex CLI 原生 patch 实际运行。检查命令、运行条件和输入 SHA 见 [本轮检查记录](fixtures/closure/check-evidence.json)，场景与限制见 [闭环验收](fixtures/closure/README.md)。该阶段仓库声明树为 **20 模块 / 44 能力 / 66 静态导入**，无阻塞。
+
+新增索引维护 14 项、闭环 21 个计数测试、验证来源/复用 19 个计数测试（计入子测试）。覆盖初始/当前源码事实、累计反向影响、旧/新路径、未登记来源；逐模块/验收/未覆盖项复核及证据关联；规则并集、允许的部分复用、显式补跑而不造事件；指纹不代替复核；版本/验收调整失效；规则文件变化、PATH 命令身份缺口；归档失败、取消及最终归档期间源码变化不发布完成；完成后源码、外部执行文件或归档损坏失效，status 不启动 runner。
+
+真实 STDIO 执行 query/open/两次绑定修改/review prepare/分页 recall/submit/complete/status，返回 task_complete=true，工具集合为十三；默认四工具、纯 Context 六工具兼容回归同时通过。复核输入由测试构造，程序验收不证明新的 LLM 自主使用、独立语义审查或宿主注入。旧阶段的 task_complete=false 和失败证据保留，未回写为本轮完成。
+
+本轮 IF-004 不新增依赖、Hook 或 Skill；格式化、lint、typecheck 未配置。其后变更状态职责 Context 注入已实施；PreToolUse/Stop 新门禁、插件打包、稳定自主架构维护与成本对照仍未验收。
+
+## 2026-10-04 变更状态进入 Context（合同 §14）
+
+`sol_context_prepare` 已支持可选 `change:{id,version}`。绑定要求当前工作区持久变更版本与 `task.id` / `goal` 匹配；`targets` 只用于读取材料，不扩大写入 scope。绑定后工具与归档使用 `change_state` 只读核验投影；`latest_validation` 标为 `historical_only`，仅当前核验通过的 completed 状态允许 `task_complete=true`。
+
+`SessionStart` 和 `UserPromptSubmit` 仅使用本会话先前显式绑定的同一变更、任务和目标；目标或身份不匹配不转绑。恢复遇到旧 producer stale 时返回 stale 状态、原材料 ref 和独立当前状态，不 bind、不称材料 ready。SessionStart 可 prepare 新 Context 并以 `expectedHandle` 更新会话绑定；UserPromptSubmit 仅在状态变化、阻塞或错误时提醒，正常返回 `{}`，且不新建归档或改两类指针。两类核验都不运行检查、不发布变更状态。漂移先通过 `sol_change_status` 刷新真实持久绑定。
+
+绑定 Hook 必须显式读取与 MCP 一致的验证规则和 generated 排除配置，并核对其合成 SHA 与变更记录的 `rules_sha`；缺少配置或不匹配时 `CHANGE_UNAVAILABLE` fail closed。独立 Hook 不继承 MCP 环境；未绑定的旧 Context 恢复不新增验证配置依赖。Context 状态 slice 的索引为 ready：20 模块 / 44 能力 / 70 静态导入，见 [该阶段索引证据](fixtures/context-state/index-evidence.json)。本片 `npm run check` **199/199、0 跳过、依赖审计 0 漏洞**，59 个运行/检查输入前后 SHA 一致，见 [完整记录](fixtures/context-state/check-evidence.json)；历史 IF-004 **180/180** 与 66 条索引保留于 [闭环记录](fixtures/closure/check-evidence.json)。这些是当时的 Context 阶段范围；后续宿主门禁、插件和 compact 验收见下节。
+
+## 2026-10-04 宿主门禁与本地插件验收
+
+最新实测及失败路径见 [Host 验收记录](fixtures/host/README.md)。本节保留之前 Context/IF-004 的检查数字，不合并为 Host 本轮总数；Host 完整检查和输入 SHA 以 [host check evidence](fixtures/host/check-evidence.json) 为准。
+
+- **PreToolUse 与 MCP 写入**：fresh 0.160 run 实际观察到原生 `apply_patch` 被拒绝并指引 MCP；MCP 越界写返回 `CHANGE_OUTSIDE_SCOPE`，合法写入后 marker check 真实运行并通过。preflight 依赖当前 session binding、同一 task/change version 和完整目标路径。Hook 检查不创建归档、改指针或运行 runner；所有写入最终仍由 MCP run guard 核验。
+- **Stop 与 closeout**：`stop_hook_active:false` 且有 actionable 步骤时，Host 实际阻止一次；下次 `true` 返回 `{}`。fresh run 由模型 prepare review 并报告 unfinished，独立 reviewer 提交合法 refs、complete 后，新的 0.160 thread/resume 只读回合恢复 `task_complete=true`、`completion.current` 和精确 handle，文件 source 未再改动；Stop false 随后返回 `{}`。这是明确分工下的受控闭环，不代表模型自主完成 review。
+- **真实 Hook 与插件加载**：0.160 private app-server 的 SessionStart 恢复、UserPromptSubmit 提醒及真实 compact 通过。隔离 `CODEX_HOME` 中从 local marketplace 读取/安装 package、重启后四个 Hook 与十三个架构工具可用；最终隔离 package 加载为 passed，包含 1772 个文件。Hook 定义按本次调用精确 hash 审阅，没有使用 trust bypass；未复制认证、改全局配置或公开发布。包边界和真实安装凭据见 [package evidence](fixtures/host/package-evidence.json)。
+- **当前索引与完整检查**：ready 为 **21 模块 / 47 能力 / 77 静态导入**，3 条 warning 均不阻塞；CommonJS bootstrap 被标为 `non_javascript_source`，没有臆造导出。标准 `npm run check` 已通过 **229/229、0 失败、0 跳过，npm audit 0 漏洞**；实测 Node **v24.11.0**、npm 元数据 **11.6.1**，75 个运行/检查输入前后 SHA 一致。详见 [Host 索引](fixtures/host/index-evidence.json) 和 [Host check](fixtures/host/check-evidence.json)。
+- **TUI 宿主路径**：0.158 初始 `/hooks` 审阅、`sol_context_prepare`、Stop `{}` 与源码 SHA 不变通过；同 session 两次 0.158 resume 均因 account/read workspace discovery timeout（`code=-32603`）失败，保留失败记录。随后用已安装的 bundled CLI 0.160（未升级或另行安装）在同 session 的真实 PTY resume 通过：SessionStart `source=resume` 返回 `context_restore=ready`，task 为 `tui-readonly` / role `plan`，`context_handle` 与 session pointer 精确匹配；UserPromptSubmit 与 Stop 实际执行并返回 `{}`，源码 SHA 不变，`hooks/list` 四条定义正常 hash 匹配，无 bypass。
+- **检查重跑与未覆盖项**：一次完整检查因新增 fixture 的 argv 过长失败，随后已修正 fixture 参数；另一次在默认 24 并行下出现 native timeout timing 失败，独立单测复现通过，`core.killTree` 未改。标准 `npm run check` 现在设 `--test-concurrency=4`，保留全部断言及跨进程、取消和后代终止测试；这是检查调度限制，不代表 Windows 高负载下的硬实时 deadline 保证。最终 229/229 通过结果和输入 SHA 见 [Host check evidence](fixtures/host/check-evidence.json)。Desktop GUI、本轮以外的 sandbox/ask、稳定自主连续任务和固定 A/B token/费用效果未验证。`mcp.json` portable 路径未在真实项目安装流程验收，也不应据此宣称插件公开发布。

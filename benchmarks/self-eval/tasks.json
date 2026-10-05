@@ -1,0 +1,198 @@
+{
+  "schema_version": 1,
+  "benchmark_id": "sol-self-eval-v1",
+  "cases": [
+    {
+      "id": "T01",
+      "title": "按分类汇总记录",
+      "prompt": "在 src/features.mjs 导出 summarizeByCategory(rows)。rows 必须是数组；每一项都要按项目既有记录规范校验和规范化。按规范化后的 category 分组，返回按 category.localeCompare 排序的数组，每项形如 { category, count, total }，分别表示该分类的记录数和金额合计，并保留负数金额。非法输入时直接失败，不返回部分或伪造结果。",
+      "entry": "src/features.mjs",
+      "export_name": "summarizeByCategory",
+      "allowed_paths": ["src/features.mjs", "components.json"],
+      "reuse": [
+        {
+          "id": "records",
+          "path": "src/records.mjs",
+          "export_name": "normalizeRecord",
+          "min_calls": 1
+        },
+        {
+          "id": "report",
+          "path": "src/report.mjs",
+          "export_name": "summarizeRecords",
+          "min_calls": 1
+        }
+      ],
+      "api": {
+        "module_id": "features",
+        "path": "src/features.mjs",
+        "exports": ["summarizeByCategory"]
+      }
+    },
+    {
+      "id": "T02",
+      "title": "安全渲染记录列表",
+      "prompt": "在 src/features.mjs 导出 renderRows(rows)。rows 必须是数组；逐项按项目既有记录规范校验并规范化，再分别对规范化后的 category 和 name 做 HTML 转义，至少将 &、<、>、双引号和单引号分别转成 &amp;、&lt;、&gt;、&quot; 和 &#39;。精确返回一个字符串：以 <ul> 开始、以 </ul> 结束；每项格式为 <li data-category=\"转义后的分类\">转义后的名称</li>，顺序与输入一致，条目之间不加换行或其他空白。非法输入时直接传播错误。",
+      "entry": "src/features.mjs",
+      "export_name": "renderRows",
+      "allowed_paths": ["src/features.mjs", "components.json"],
+      "reuse": [
+        {
+          "id": "records",
+          "path": "src/records.mjs",
+          "export_name": "normalizeRecord",
+          "min_calls": 1
+        },
+        {
+          "id": "html",
+          "path": "src/html.mjs",
+          "export_name": "escapeHtml",
+          "min_calls": 1
+        }
+      ],
+      "api": {
+        "module_id": "features",
+        "path": "src/features.mjs",
+        "exports": ["renderRows"]
+      }
+    },
+    {
+      "id": "T03",
+      "title": "读取并汇总记录",
+      "prompt": "在 src/features.mjs 导出 async function loadSummary(readText)。readText 必须是函数，否则抛 TypeError；只调用并等待 reader 一次，将其文本解析为 JSON 数组，再按项目既有记录规范校验和规范化每一项，返回 { count, total }，分别表示记录数和金额合计。reader 错误、JSON 解析错误、非数组输入及记录校验错误都应传播或按对应输入类型抛错；不得把坏输入转换成空结果或成功结果。",
+      "entry": "src/features.mjs",
+      "export_name": "loadSummary",
+      "allowed_paths": ["src/features.mjs", "components.json"],
+      "reuse": [
+        {
+          "id": "loader",
+          "path": "src/loader.mjs",
+          "export_name": "loadRecords",
+          "min_calls": 1
+        },
+        {
+          "id": "report",
+          "path": "src/report.mjs",
+          "export_name": "summarizeRecords",
+          "min_calls": 1
+        }
+      ],
+      "api": {
+        "module_id": "features",
+        "path": "src/features.mjs",
+        "exports": ["loadSummary"]
+      }
+    },
+    {
+      "id": "T04",
+      "title": "有限重试后读取并汇总",
+      "prompt": "在 src/features.mjs 导出 async function fetchSummary(fetchText, options = {})。fetchText 必须是函数，否则抛 TypeError。仅对读取文本的操作重试，最多尝试 attempts 次，默认 3 次；attempts 必须是 1 到 5（含）之间的整数，否则抛 RangeError。读取成功后把文本解析为 JSON 数组，按项目既有记录规范校验和规范化每一项，并返回 { count, total }。JSON 解析、记录校验或汇总失败时不得再次读取文本。signal 已中止时不再启动读取操作，并抛出 signal.reason；reason 未提供时抛 AbortError。保留读取失败耗尽重试时的原错误。",
+      "entry": "src/features.mjs",
+      "export_name": "fetchSummary",
+      "allowed_paths": ["src/features.mjs", "components.json"],
+      "reuse": [
+        {
+          "id": "retry",
+          "path": "src/retry.mjs",
+          "export_name": "withRetry",
+          "min_calls": 1
+        },
+        {
+          "id": "loader",
+          "path": "src/loader.mjs",
+          "export_name": "loadRecords",
+          "min_calls": 1
+        },
+        {
+          "id": "report",
+          "path": "src/report.mjs",
+          "export_name": "summarizeRecords",
+          "min_calls": 1
+        }
+      ],
+      "api": {
+        "module_id": "features",
+        "path": "src/features.mjs",
+        "exports": ["fetchSummary"]
+      }
+    },
+    {
+      "id": "T05",
+      "title": "为记录列表增加分类筛选",
+      "prompt": "扩展 src/gateway.mjs 中现有的 listRecords(rows)，签名为 listRecords(rows, options = {})。rows 仍必须是数组；options 自身没有 category 属性时保持原有行为，返回按原顺序排列的规范化记录名称数组。若 options 自身包含 category 属性且其值不是 string，抛出 TypeError；若它是 string，先 trim，trim 后的空字符串按 'unknown' 处理，然后只返回规范化 category 与该值相同的记录名称。每条记录仍须按项目既有记录规范校验。仅修改 src/gateway.mjs 和 components.json；组件登记需把 gateway.options 更新为 ['category']，导出仍为 listRecords。",
+      "entry": "src/gateway.mjs",
+      "export_name": "listRecords",
+      "allowed_paths": ["src/gateway.mjs", "components.json"],
+      "reuse": [
+        {
+          "id": "records",
+          "path": "src/records.mjs",
+          "export_name": "normalizeRecord",
+          "min_calls": 1
+        }
+      ],
+      "api": {
+        "module_id": "gateway",
+        "path": "src/gateway.mjs",
+        "exports": ["listRecords"],
+        "options": ["category"]
+      }
+    },
+    {
+      "id": "T06",
+      "title": "分页数组",
+      "prompt": "在 src/features.mjs 导出 paginate(items, { offset = 0, limit = 20 } = {})。items 必须是数组；offset 和 limit 必须是整数，否则抛 TypeError。offset 必须在 0 到 items.length（含）之间，limit 必须在 1 到 100（含）之间；整数超出范围时抛 RangeError。返回 { items: 本页切片, nextOffset, total }，total 为原数组长度；有剩余项时 nextOffset 等于 offset 加本页实际长度，否则为 null。不得修改原数组，空页也须遵守 nextOffset 规则。",
+      "entry": "src/features.mjs",
+      "export_name": "paginate",
+      "allowed_paths": ["src/features.mjs", "components.json"],
+      "reuse": [],
+      "api": {
+        "module_id": "features",
+        "path": "src/features.mjs",
+        "exports": ["paginate"]
+      }
+    },
+    {
+      "id": "T07",
+      "title": "可恢复的异步批处理",
+      "prompt": "在 src/features.mjs 导出 async function processBatch(rows, { start = 0, signal, onRecord } = {})。rows 必须是数组，否则抛 TypeError；start 必须是整数，否则抛 TypeError，整数 start 必须在 0 到 rows.length（含）之间，否则抛 RangeError；onRecord 必须是函数，否则抛 TypeError。按原顺序从 start 处理。每条记录开始前先检查 signal.aborted；若已中止，返回 { status: 'interrupted', nextIndex: 当前尚未提交项的索引, processed: 本次已提交的规范化记录 }。否则按项目既有记录规范校验和规范化当前项，并 await onRecord(record, index)；只有回调成功后才将此记录计入 processed 并推进索引。回调失败时直接抛出原错误，不重试。到达末尾返回 { status: 'completed', nextIndex: rows.length, processed }。恢复由调用方将 nextIndex 作为下次 start 传入，本函数不得自动重放之前的记录。",
+      "entry": "src/features.mjs",
+      "export_name": "processBatch",
+      "allowed_paths": ["src/features.mjs", "components.json"],
+      "reuse": [
+        {
+          "id": "records",
+          "path": "src/records.mjs",
+          "export_name": "normalizeRecord",
+          "min_calls": 1
+        }
+      ],
+      "api": {
+        "module_id": "features",
+        "path": "src/features.mjs",
+        "exports": ["processBatch"]
+      }
+    },
+    {
+      "id": "T08",
+      "title": "扩展网关条目并更新消费者",
+      "prompt": "只修改 src/gateway.mjs、src/consumer.mjs 和 components.json。为 gateway 增加 listEntries(rows)，返回 [{ label: 规范化名称, category: 规范化分类 }]，输入必须是数组并按项目既有记录规范校验和规范化每条记录。保留现有 listRecords(rows) 行为和名称数组返回格式。修改 consumer.readLabels(rows)，让它调用 gateway.listEntries 并映射每项的 label，结果继续与旧 readLabels 一样。更新组件登记：gateway exports 为 ['listRecords', 'listEntries']，consumer exports 仍为 ['readLabels']。错误应传播，不改变项目既有记录规范。",
+      "entry": "src/gateway.mjs",
+      "export_name": "listEntries",
+      "allowed_paths": ["src/gateway.mjs", "src/consumer.mjs", "components.json"],
+      "reuse": [
+        {
+          "id": "records",
+          "path": "src/records.mjs",
+          "export_name": "normalizeRecord",
+          "min_calls": 1
+        }
+      ],
+      "api": {
+        "module_id": "gateway",
+        "path": "src/gateway.mjs",
+        "exports": ["listRecords", "listEntries"]
+      }
+    }
+  ]
+}

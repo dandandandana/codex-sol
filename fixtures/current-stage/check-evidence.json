@@ -1,0 +1,876 @@
+{
+  "schema_version": 1,
+  "stage": "current-existing-capabilities-after-scope-regression-fix",
+  "recorded_at": "2026-10-04T01:45:58.501Z",
+  "status": "passed",
+  "command": {
+    "argv": [
+      "npm",
+      "run",
+      "check"
+    ],
+    "cwd": "D:\\zzd\\codex-sol",
+    "expanded_script": "npm test && npm audit --audit-level=high --registry=https://registry.npmjs.org/",
+    "started_at": "2026-10-04T01:43:59.1237872Z",
+    "ended_at": "2026-10-04T01:44:16.5211738Z",
+    "exit_code": 0
+  },
+  "runtime": {
+    "platform": "win32",
+    "architecture": "x64",
+    "node": "v24.11.0",
+    "npm": "11.6.3"
+  },
+  "process_environment_override": {
+    "name": "CODEX_SOL_PATCH_EXECUTABLE",
+    "value": "<USER_HOME>\\AppData\\Roaming\\npm\\node_modules\\@openai\\codex\\node_modules\\@openai\\codex-win32-x64\\vendor\\x86_64-pc-windows-msvc\\bin\\codex.exe",
+    "scope": "This command process and its check children only; original value restored",
+    "global_configuration_modified": false
+  },
+  "native_patch": {
+    "executable_exists": true,
+    "version_command": [
+      "<USER_HOME>\\AppData\\Roaming\\npm\\node_modules\\@openai\\codex\\node_modules\\@openai\\codex-win32-x64\\vendor\\x86_64-pc-windows-msvc\\bin\\codex.exe",
+      "--version"
+    ],
+    "version_exit_code": 0,
+    "version": "codex-cli 0.158.0",
+    "executable_sha256": "af02050cc0c95f5aeb714af2c1077e635c58e9896c13c89d75099cf5b96477be",
+    "model_calls": 0,
+    "checks": [
+      {
+        "name": "real Codex patch runs under the bound workspace lease and returns exactly one change event",
+        "status": "passed",
+        "raw_log_line": "✔ real Codex patch runs under the bound workspace lease and returns exactly one change event (1031.0785ms)"
+      },
+      {
+        "name": "real Codex patch engine applies a valid patch and runs validation",
+        "status": "passed",
+        "raw_log_line": "✔ real Codex patch engine applies a valid patch and runs validation (467.2553ms)"
+      },
+      {
+        "name": "real Codex patch engine reports a context failure without changing the workspace",
+        "status": "passed",
+        "raw_log_line": "✔ real Codex patch engine reports a context failure without changing the workspace (154.4881ms)"
+      },
+      {
+        "name": "managed patch refuses to write through a directory junction",
+        "status": "passed",
+        "raw_log_line": "✔ managed patch refuses to write through a directory junction (20.5804ms)"
+      }
+    ]
+  },
+  "test_result": {
+    "tests": 126,
+    "suites": 0,
+    "pass": 126,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0,
+    "duration_ms": 13465.0351
+  },
+  "baseline_comparison": {
+    "historical_tests": 124,
+    "verified_before_fix_tests": 124,
+    "historical_skipped": 0,
+    "executed_test_delta": 2,
+    "added_behavior_regressions": 2,
+    "newly_skipped_tests": 0
+  },
+  "audit": {
+    "command": "npm audit --audit-level=high --registry=https://registry.npmjs.org/",
+    "executed": true,
+    "exit_code": 0,
+    "reported_total_vulnerabilities": 0,
+    "raw_result": "found 0 vulnerabilities",
+    "source": "Second conjunct of npm run check after passing npm test"
+  },
+  "input_state": {
+    "stable_during_check": true,
+    "unchanged_at_evidence_creation": true,
+    "changed_since_after_snapshot": [],
+    "before": {
+      "captured_at": "2026-10-04T01:43:58.6458069Z",
+      "aggregate_algorithm": "SHA256 of UTF-8 newline-joined path:sha256:bytes records in stored manifest order sorted by PowerShell Sort-Object -Unique absolute paths; no trailing newline",
+      "aggregate_sha256": "47e9e31f2046fe8e998a69e23259d76b39a589c8d1434ddca63fa8cd73176e21",
+      "file_count": 68,
+      "files": [
+        {
+          "path": ".env.example",
+          "sha256": "afb9920e000a9fec0348b713e048242062c13a6a14ecf526793698176342d937",
+          "bytes": 826
+        },
+        {
+          "path": "architecture-current.md",
+          "sha256": "33dca3f28472e2eecbe65605b59ed19194eb072dc6ab24308a0d7e60600d2b27",
+          "bytes": 7082
+        },
+        {
+          "path": "architecture.example.json",
+          "sha256": "07d47d904d96bb5b60e8ff342af2f59da456b0afbca4bbf36d7af7b075976d63",
+          "bytes": 20955
+        },
+        {
+          "path": "architecture.md",
+          "sha256": "712ce7738c318ac864349ee9f091a16c5af5eb09693ac5f83dd05f86b1ab4f30",
+          "bytes": 45125
+        },
+        {
+          "path": "context.example.json",
+          "sha256": "f5dc3936c5ce13c506994ac3aeae9ffa74151759c23c8395df1beeae4933adf3",
+          "bytes": 1842
+        },
+        {
+          "path": "contracts.md",
+          "sha256": "5091bfe8de86b9f7469a1318ed8d7666c020ab3aaac772be4e908e5d94114170",
+          "bytes": 36162
+        },
+        {
+          "path": "fixtures/architecture/blog-tui-evidence.json",
+          "sha256": "337070750da92bfdd4e42ac8c6ec3cbf72eac2473e9b0529f244324c475563b7",
+          "bytes": 71321
+        },
+        {
+          "path": "fixtures/architecture/change-index-evidence.json",
+          "sha256": "094a0b079a4dede7874cde3ce52d5ea2c39ba3a2ee682cbe7eecd3dfe6ea22b0",
+          "bytes": 1781
+        },
+        {
+          "path": "fixtures/architecture/local-index-evidence.json",
+          "sha256": "add7d6cb04a621786a1123a70921ad28420dfdc7d512f641e8db30cfc330c4f9",
+          "bytes": 21212
+        },
+        {
+          "path": "fixtures/context/blog-hook-closeout-evidence.json",
+          "sha256": "aa969352be1b1f8770fdf1a5f29cf69e4a594d1e750d36a0b42e23b8e42e6ba5",
+          "bytes": 4648
+        },
+        {
+          "path": "fixtures/context/cli-evidence.json",
+          "sha256": "ea9f2e1ad03b34f72274194edad1fb526d0b6c7a5fab11ffadcf19471149a6e8",
+          "bytes": 33040
+        },
+        {
+          "path": "fixtures/context/host-hooks-evidence.json",
+          "sha256": "79686f0dd0cf6e789a6ce174771e9bcbf03aa96ea6fda6719a5ce72921a4170b",
+          "bytes": 13314
+        },
+        {
+          "path": "fixtures/context/prompt-hook-evidence.json",
+          "sha256": "c986331e87642d967450540b2367daccbeb8c305f3ea71db66c93af79d664f06",
+          "bytes": 10677
+        },
+        {
+          "path": "fixtures/context/run-blog-hooks.mjs",
+          "sha256": "8a0e3dce1abd3599c74c4cb0b550450fbb76ddd7c8adbc63e06aeff3afbb950b",
+          "bytes": 9119
+        },
+        {
+          "path": "fixtures/context/run-hooks.mjs",
+          "sha256": "bc4c82271e59a34b9e2b0c83578cf21e1be21e4e01b1c5221b80fb9d3bff1dad",
+          "bytes": 12544
+        },
+        {
+          "path": "node_modules/.package-lock.json",
+          "sha256": "2b5ca1e26617ba3f9d212fb17c42eb578cbfc0adab8fc9d5c6549cd3cebe5b6c",
+          "bytes": 4324
+        },
+        {
+          "path": "package-lock.json",
+          "sha256": "24cb62a9e9110d14784df19ffc2cba858bed2246665bfcc8f8337ebf8552c0ac",
+          "bytes": 4628
+        },
+        {
+          "path": "package.json",
+          "sha256": "817403f3a30fce1d0fc59a3263f95fbb5071da819f8421693ba17a9d27b247cc",
+          "bytes": 435
+        },
+        {
+          "path": "README.md",
+          "sha256": "3340a319826d6f053784308ec897f680431793a56274cdf3ffec3516617370da",
+          "bytes": 36383
+        },
+        {
+          "path": "runtime.schema.json",
+          "sha256": "779bc45047ab26235d4fe592c8959c388b6c940d247d3cb2b38849277fd6de7a",
+          "bytes": 16046
+        },
+        {
+          "path": "src/architecture/change.mjs",
+          "sha256": "8798ef4d3c57f9d0c3cf4a734ce2dd102a640d3605a09570ed4c4ce65779a8c1",
+          "bytes": 19528
+        },
+        {
+          "path": "src/architecture/context.mjs",
+          "sha256": "b0396739380ac6e6654f4b60d573d20bab23d5c5059f91854d8bf39e669f040d",
+          "bytes": 23737
+        },
+        {
+          "path": "src/architecture/index.mjs",
+          "sha256": "c9a8748b453286e5297e13d2bd94e2a860948fea3fd561352b59be7e98f1ce15",
+          "bytes": 14116
+        },
+        {
+          "path": "src/architecture/session.mjs",
+          "sha256": "5fa938428e7f70de55c299a2f5d8253e48397e168085de9377e1c5eefc20e6b3",
+          "bytes": 8220
+        },
+        {
+          "path": "src/context-hook.mjs",
+          "sha256": "51e816d1566a5d2993ae89575db1a0ff7d0435f6420dbf83584d7b0932c267ed",
+          "bytes": 3650
+        },
+        {
+          "path": "src/host-cancellation.mjs",
+          "sha256": "dc963d0bcfc9779985a1b09e25c8eae228e3855467d988f44aa7d1dda2005b25",
+          "bytes": 8573
+        },
+        {
+          "path": "src/managed-command.mjs",
+          "sha256": "bd4862e3dd1f58abd47b49ce3df5d149c96d9e0b996bb922dc7040e0612129aa",
+          "bytes": 5256
+        },
+        {
+          "path": "src/native-hook.mjs",
+          "sha256": "74d276f80ed6995fb1b70451fd980e510c8cff76c234c9075ce07cee069d5391",
+          "bytes": 9540
+        },
+        {
+          "path": "src/pack.mjs",
+          "sha256": "fc78082e0d8209a65e5250eec06acc03ce55852e38e74b1378e80cec466ac67e",
+          "bytes": 11418
+        },
+        {
+          "path": "src/patch.mjs",
+          "sha256": "6ed5ca00af06dd5513bb97cc67d95b451f16b9d3fc1382eda75cea9b81723ac6",
+          "bytes": 2757
+        },
+        {
+          "path": "src/process.mjs",
+          "sha256": "b8436a2e3e5c05a479b586af51c6c994c3fe80602140225d62c3fdd488d0aa11",
+          "bytes": 4508
+        },
+        {
+          "path": "src/read.mjs",
+          "sha256": "1f229f01f65b13fbcfefa3cb5481a1f005e472a7052a221f4f22e66cdb0666d8",
+          "bytes": 3422
+        },
+        {
+          "path": "src/recall.mjs",
+          "sha256": "7f01ce271603c70ebfd5bad806f733bc3776567e34665395946ea2d4784bc2a4",
+          "bytes": 8106
+        },
+        {
+          "path": "src/schema.mjs",
+          "sha256": "d11b589b786f6627e2d0144564d0fc3842cf1718ae77d10cc926da8034b3db42",
+          "bytes": 874
+        },
+        {
+          "path": "src/server.mjs",
+          "sha256": "2cbdf3a3fac72420beb8258b8ba9b5e2151a366afa8642315a1c7f521ce5626f",
+          "bytes": 18107
+        },
+        {
+          "path": "src/store.mjs",
+          "sha256": "1cbb648f67c3848777d11d9f9cafa5474bbfe994639799a57802f7cb45522383",
+          "bytes": 11452
+        },
+        {
+          "path": "src/validation.mjs",
+          "sha256": "3bab1e7fc387516e0ab745ba66ad852b7e47647537bfb6af974fadb875a23121",
+          "bytes": 13222
+        },
+        {
+          "path": "src/workspace-lock.mjs",
+          "sha256": "33c630c82cc95064e7c66df7baa19a54e8bca2e6de6c3179cdb4a18e120b9a37",
+          "bytes": 5845
+        },
+        {
+          "path": "src/workspace.mjs",
+          "sha256": "9471e7506dd9cd04b8eddbcf5eb439b04b28c51e6413521d11c204f790c3b2a3",
+          "bytes": 4061
+        },
+        {
+          "path": "tests/architecture.test.mjs",
+          "sha256": "00e62fa170fc25239347bff1d7933791ed33c7c867e1958fbfc1063dafd6a57e",
+          "bytes": 10898
+        },
+        {
+          "path": "tests/capture-failure.test.mjs",
+          "sha256": "0c9f321aa07e542337ba2c957b3b1fa8d28f08039a5916c291d819958139a43c",
+          "bytes": 10099
+        },
+        {
+          "path": "tests/change.test.mjs",
+          "sha256": "e336818e2237d58707b2e303717dcf67c9b66ecab82add91030f2bc4c3724030",
+          "bytes": 22403
+        },
+        {
+          "path": "tests/context-hook.test.mjs",
+          "sha256": "f96b6b18a265466aff6b458aa8c1b216b39f1f0bb4ae9318dddbdf8852dba119",
+          "bytes": 13659
+        },
+        {
+          "path": "tests/context.test.mjs",
+          "sha256": "1e6a0e1c67bb2812db395f7701fbca6fc17aaf3b3aad7c73ac11852209df5043",
+          "bytes": 19504
+        },
+        {
+          "path": "tests/failure-protocol.test.mjs",
+          "sha256": "8894b977310318075aabc47db0a0ac0af4a05ad8e5d40e8e059510f6d5e7c3d4",
+          "bytes": 19200
+        },
+        {
+          "path": "tests/helpers/mcp-client.mjs",
+          "sha256": "89b3c3574cd6ffc2fd770ffee0b1b557a7271ef848211a80db7a6f9cc86bccb9",
+          "bytes": 6059
+        },
+        {
+          "path": "tests/host-cancellation.test.mjs",
+          "sha256": "b2c495e5c072d612ea2c1d21287fefba7b784ec34fad0375778861de792d0bb1",
+          "bytes": 12085
+        },
+        {
+          "path": "tests/mcp.test.mjs",
+          "sha256": "f8358f3ee0a1dc91a5abcfe891c2acf20444f918f79ad68e88d1ed6ef86624d2",
+          "bytes": 5704
+        },
+        {
+          "path": "tests/native-hook.test.mjs",
+          "sha256": "e679d72040b54c28e1ee22d2c9bfcfb5407d26f908370ffd14b7d30a14f58a80",
+          "bytes": 11762
+        },
+        {
+          "path": "tests/native-integration.test.mjs",
+          "sha256": "0913a06b36c409f8fc3d984b91b807aace972d4fd789150812fc1427b2ebd0ee",
+          "bytes": 13517
+        },
+        {
+          "path": "tests/pack.test.mjs",
+          "sha256": "3cdc29fddc6330678aacbb7d4d7291a052d5743b7283efff53c23a0322c4e28d",
+          "bytes": 3657
+        },
+        {
+          "path": "tests/store-recall.test.mjs",
+          "sha256": "969b47a7bbcdce8678b9e08897d1a5c37d2b5151954de189dec0188360744f8c",
+          "bytes": 14509
+        },
+        {
+          "path": "tests/validation-failure.test.mjs",
+          "sha256": "e5379d563a543c933149cddd77c26469ef43bf0bbcb101cba9daac8e98e49bc0",
+          "bytes": 11602
+        },
+        {
+          "path": "tests/validation.test.mjs",
+          "sha256": "5dd493ac20284bd37c4b6e6a37f4e9b6e0290816dd28adc3a327b09a4100d1e8",
+          "bytes": 7628
+        },
+        {
+          "path": "tests/workspace-lock.test.mjs",
+          "sha256": "171cd5914faed4f8ee671b48c718430385e411d9ba1f73f0742ca7d84b85b57f",
+          "bytes": 3723
+        },
+        {
+          "path": "vendor/normify/engine/changes.js",
+          "sha256": "5b333d5ce6ece29b820310e272ead26429da01862733940d9af48bac9fba5914",
+          "bytes": 12354
+        },
+        {
+          "path": "vendor/normify/engine/compile.js",
+          "sha256": "23d2392c9e9a6b3f71a3e2bc8b4ff1ef3ffd6adc4fc4fd41cc17f1fa3ccf14d9",
+          "bytes": 10325
+        },
+        {
+          "path": "vendor/normify/engine/diag.js",
+          "sha256": "b71cfd5f34423b806ae62213562ec31ccf0dc54bf24b710502224625cbda2a0c",
+          "bytes": 1130
+        },
+        {
+          "path": "vendor/normify/engine/frontmatter.js",
+          "sha256": "406fed9d12cfc14178b7beef967245703e90ae84864d38e9ef022df353cb9905",
+          "bytes": 22363
+        },
+        {
+          "path": "vendor/normify/engine/ids.js",
+          "sha256": "104a242cb339430913427bef1d8248d322e383c5d7db3b671ec1a4b84b7dfdb2",
+          "bytes": 2982
+        },
+        {
+          "path": "vendor/normify/engine/layout.js",
+          "sha256": "e650ac9b097533b8d03a7ce30c50ff0a597e942954a2b7932eb75311a21e619d",
+          "bytes": 20116
+        },
+        {
+          "path": "vendor/normify/engine/policy.js",
+          "sha256": "baf5a6fe054a37c228eb22739a36625c0f7532d13c87a0f87cd090e1024328d2",
+          "bytes": 22835
+        },
+        {
+          "path": "vendor/normify/engine/store.js",
+          "sha256": "52e4b6d7d1af22ef4f89b1ecc3546620d3afafc5af4646f45d74d1eb12e52c1d",
+          "bytes": 14921
+        },
+        {
+          "path": "vendor/normify/engine/types.js",
+          "sha256": "04c3215e4325c7b4e67cb5d25725943e64c6bf8d9735711e20ccdd413921870f",
+          "bytes": 1034
+        },
+        {
+          "path": "vendor/normify/engine/validate.js",
+          "sha256": "15062dc29377b4eaa5c66fcd07637139d567f93ff19a70d3d71094f14b413306",
+          "bytes": 18168
+        },
+        {
+          "path": "vendor/normify/LICENSE",
+          "sha256": "683b7d8d0f730d4b3f3adf8b235a0f3e92e1e86e313f842f28ab6a94deaa03f4",
+          "bytes": 1084
+        },
+        {
+          "path": "vendor/normify/provenance.json",
+          "sha256": "5fe52f76b242fe5f2226053a7da69339f508b895a7649aeead5029a12daa6187",
+          "bytes": 1211
+        },
+        {
+          "path": "vendor/normify/README.md",
+          "sha256": "cb47a8ef801ba26ecdfa2ec62b39b2c5d428e9adb8be60096f3246f56bbbeaa3",
+          "bytes": 931
+        }
+      ]
+    },
+    "after": {
+      "captured_at": "2026-10-04T01:44:16.5793524Z",
+      "aggregate_algorithm": "SHA256 of UTF-8 newline-joined path:sha256:bytes records in stored manifest order sorted by PowerShell Sort-Object -Unique absolute paths; no trailing newline",
+      "aggregate_sha256": "47e9e31f2046fe8e998a69e23259d76b39a589c8d1434ddca63fa8cd73176e21",
+      "file_count": 68,
+      "files": [
+        {
+          "path": ".env.example",
+          "sha256": "afb9920e000a9fec0348b713e048242062c13a6a14ecf526793698176342d937",
+          "bytes": 826
+        },
+        {
+          "path": "architecture-current.md",
+          "sha256": "33dca3f28472e2eecbe65605b59ed19194eb072dc6ab24308a0d7e60600d2b27",
+          "bytes": 7082
+        },
+        {
+          "path": "architecture.example.json",
+          "sha256": "07d47d904d96bb5b60e8ff342af2f59da456b0afbca4bbf36d7af7b075976d63",
+          "bytes": 20955
+        },
+        {
+          "path": "architecture.md",
+          "sha256": "712ce7738c318ac864349ee9f091a16c5af5eb09693ac5f83dd05f86b1ab4f30",
+          "bytes": 45125
+        },
+        {
+          "path": "context.example.json",
+          "sha256": "f5dc3936c5ce13c506994ac3aeae9ffa74151759c23c8395df1beeae4933adf3",
+          "bytes": 1842
+        },
+        {
+          "path": "contracts.md",
+          "sha256": "5091bfe8de86b9f7469a1318ed8d7666c020ab3aaac772be4e908e5d94114170",
+          "bytes": 36162
+        },
+        {
+          "path": "fixtures/architecture/blog-tui-evidence.json",
+          "sha256": "337070750da92bfdd4e42ac8c6ec3cbf72eac2473e9b0529f244324c475563b7",
+          "bytes": 71321
+        },
+        {
+          "path": "fixtures/architecture/change-index-evidence.json",
+          "sha256": "094a0b079a4dede7874cde3ce52d5ea2c39ba3a2ee682cbe7eecd3dfe6ea22b0",
+          "bytes": 1781
+        },
+        {
+          "path": "fixtures/architecture/local-index-evidence.json",
+          "sha256": "add7d6cb04a621786a1123a70921ad28420dfdc7d512f641e8db30cfc330c4f9",
+          "bytes": 21212
+        },
+        {
+          "path": "fixtures/context/blog-hook-closeout-evidence.json",
+          "sha256": "aa969352be1b1f8770fdf1a5f29cf69e4a594d1e750d36a0b42e23b8e42e6ba5",
+          "bytes": 4648
+        },
+        {
+          "path": "fixtures/context/cli-evidence.json",
+          "sha256": "ea9f2e1ad03b34f72274194edad1fb526d0b6c7a5fab11ffadcf19471149a6e8",
+          "bytes": 33040
+        },
+        {
+          "path": "fixtures/context/host-hooks-evidence.json",
+          "sha256": "79686f0dd0cf6e789a6ce174771e9bcbf03aa96ea6fda6719a5ce72921a4170b",
+          "bytes": 13314
+        },
+        {
+          "path": "fixtures/context/prompt-hook-evidence.json",
+          "sha256": "c986331e87642d967450540b2367daccbeb8c305f3ea71db66c93af79d664f06",
+          "bytes": 10677
+        },
+        {
+          "path": "fixtures/context/run-blog-hooks.mjs",
+          "sha256": "8a0e3dce1abd3599c74c4cb0b550450fbb76ddd7c8adbc63e06aeff3afbb950b",
+          "bytes": 9119
+        },
+        {
+          "path": "fixtures/context/run-hooks.mjs",
+          "sha256": "bc4c82271e59a34b9e2b0c83578cf21e1be21e4e01b1c5221b80fb9d3bff1dad",
+          "bytes": 12544
+        },
+        {
+          "path": "node_modules/.package-lock.json",
+          "sha256": "2b5ca1e26617ba3f9d212fb17c42eb578cbfc0adab8fc9d5c6549cd3cebe5b6c",
+          "bytes": 4324
+        },
+        {
+          "path": "package-lock.json",
+          "sha256": "24cb62a9e9110d14784df19ffc2cba858bed2246665bfcc8f8337ebf8552c0ac",
+          "bytes": 4628
+        },
+        {
+          "path": "package.json",
+          "sha256": "817403f3a30fce1d0fc59a3263f95fbb5071da819f8421693ba17a9d27b247cc",
+          "bytes": 435
+        },
+        {
+          "path": "README.md",
+          "sha256": "3340a319826d6f053784308ec897f680431793a56274cdf3ffec3516617370da",
+          "bytes": 36383
+        },
+        {
+          "path": "runtime.schema.json",
+          "sha256": "779bc45047ab26235d4fe592c8959c388b6c940d247d3cb2b38849277fd6de7a",
+          "bytes": 16046
+        },
+        {
+          "path": "src/architecture/change.mjs",
+          "sha256": "8798ef4d3c57f9d0c3cf4a734ce2dd102a640d3605a09570ed4c4ce65779a8c1",
+          "bytes": 19528
+        },
+        {
+          "path": "src/architecture/context.mjs",
+          "sha256": "b0396739380ac6e6654f4b60d573d20bab23d5c5059f91854d8bf39e669f040d",
+          "bytes": 23737
+        },
+        {
+          "path": "src/architecture/index.mjs",
+          "sha256": "c9a8748b453286e5297e13d2bd94e2a860948fea3fd561352b59be7e98f1ce15",
+          "bytes": 14116
+        },
+        {
+          "path": "src/architecture/session.mjs",
+          "sha256": "5fa938428e7f70de55c299a2f5d8253e48397e168085de9377e1c5eefc20e6b3",
+          "bytes": 8220
+        },
+        {
+          "path": "src/context-hook.mjs",
+          "sha256": "51e816d1566a5d2993ae89575db1a0ff7d0435f6420dbf83584d7b0932c267ed",
+          "bytes": 3650
+        },
+        {
+          "path": "src/host-cancellation.mjs",
+          "sha256": "dc963d0bcfc9779985a1b09e25c8eae228e3855467d988f44aa7d1dda2005b25",
+          "bytes": 8573
+        },
+        {
+          "path": "src/managed-command.mjs",
+          "sha256": "bd4862e3dd1f58abd47b49ce3df5d149c96d9e0b996bb922dc7040e0612129aa",
+          "bytes": 5256
+        },
+        {
+          "path": "src/native-hook.mjs",
+          "sha256": "74d276f80ed6995fb1b70451fd980e510c8cff76c234c9075ce07cee069d5391",
+          "bytes": 9540
+        },
+        {
+          "path": "src/pack.mjs",
+          "sha256": "fc78082e0d8209a65e5250eec06acc03ce55852e38e74b1378e80cec466ac67e",
+          "bytes": 11418
+        },
+        {
+          "path": "src/patch.mjs",
+          "sha256": "6ed5ca00af06dd5513bb97cc67d95b451f16b9d3fc1382eda75cea9b81723ac6",
+          "bytes": 2757
+        },
+        {
+          "path": "src/process.mjs",
+          "sha256": "b8436a2e3e5c05a479b586af51c6c994c3fe80602140225d62c3fdd488d0aa11",
+          "bytes": 4508
+        },
+        {
+          "path": "src/read.mjs",
+          "sha256": "1f229f01f65b13fbcfefa3cb5481a1f005e472a7052a221f4f22e66cdb0666d8",
+          "bytes": 3422
+        },
+        {
+          "path": "src/recall.mjs",
+          "sha256": "7f01ce271603c70ebfd5bad806f733bc3776567e34665395946ea2d4784bc2a4",
+          "bytes": 8106
+        },
+        {
+          "path": "src/schema.mjs",
+          "sha256": "d11b589b786f6627e2d0144564d0fc3842cf1718ae77d10cc926da8034b3db42",
+          "bytes": 874
+        },
+        {
+          "path": "src/server.mjs",
+          "sha256": "2cbdf3a3fac72420beb8258b8ba9b5e2151a366afa8642315a1c7f521ce5626f",
+          "bytes": 18107
+        },
+        {
+          "path": "src/store.mjs",
+          "sha256": "1cbb648f67c3848777d11d9f9cafa5474bbfe994639799a57802f7cb45522383",
+          "bytes": 11452
+        },
+        {
+          "path": "src/validation.mjs",
+          "sha256": "3bab1e7fc387516e0ab745ba66ad852b7e47647537bfb6af974fadb875a23121",
+          "bytes": 13222
+        },
+        {
+          "path": "src/workspace-lock.mjs",
+          "sha256": "33c630c82cc95064e7c66df7baa19a54e8bca2e6de6c3179cdb4a18e120b9a37",
+          "bytes": 5845
+        },
+        {
+          "path": "src/workspace.mjs",
+          "sha256": "9471e7506dd9cd04b8eddbcf5eb439b04b28c51e6413521d11c204f790c3b2a3",
+          "bytes": 4061
+        },
+        {
+          "path": "tests/architecture.test.mjs",
+          "sha256": "00e62fa170fc25239347bff1d7933791ed33c7c867e1958fbfc1063dafd6a57e",
+          "bytes": 10898
+        },
+        {
+          "path": "tests/capture-failure.test.mjs",
+          "sha256": "0c9f321aa07e542337ba2c957b3b1fa8d28f08039a5916c291d819958139a43c",
+          "bytes": 10099
+        },
+        {
+          "path": "tests/change.test.mjs",
+          "sha256": "e336818e2237d58707b2e303717dcf67c9b66ecab82add91030f2bc4c3724030",
+          "bytes": 22403
+        },
+        {
+          "path": "tests/context-hook.test.mjs",
+          "sha256": "f96b6b18a265466aff6b458aa8c1b216b39f1f0bb4ae9318dddbdf8852dba119",
+          "bytes": 13659
+        },
+        {
+          "path": "tests/context.test.mjs",
+          "sha256": "1e6a0e1c67bb2812db395f7701fbca6fc17aaf3b3aad7c73ac11852209df5043",
+          "bytes": 19504
+        },
+        {
+          "path": "tests/failure-protocol.test.mjs",
+          "sha256": "8894b977310318075aabc47db0a0ac0af4a05ad8e5d40e8e059510f6d5e7c3d4",
+          "bytes": 19200
+        },
+        {
+          "path": "tests/helpers/mcp-client.mjs",
+          "sha256": "89b3c3574cd6ffc2fd770ffee0b1b557a7271ef848211a80db7a6f9cc86bccb9",
+          "bytes": 6059
+        },
+        {
+          "path": "tests/host-cancellation.test.mjs",
+          "sha256": "b2c495e5c072d612ea2c1d21287fefba7b784ec34fad0375778861de792d0bb1",
+          "bytes": 12085
+        },
+        {
+          "path": "tests/mcp.test.mjs",
+          "sha256": "f8358f3ee0a1dc91a5abcfe891c2acf20444f918f79ad68e88d1ed6ef86624d2",
+          "bytes": 5704
+        },
+        {
+          "path": "tests/native-hook.test.mjs",
+          "sha256": "e679d72040b54c28e1ee22d2c9bfcfb5407d26f908370ffd14b7d30a14f58a80",
+          "bytes": 11762
+        },
+        {
+          "path": "tests/native-integration.test.mjs",
+          "sha256": "0913a06b36c409f8fc3d984b91b807aace972d4fd789150812fc1427b2ebd0ee",
+          "bytes": 13517
+        },
+        {
+          "path": "tests/pack.test.mjs",
+          "sha256": "3cdc29fddc6330678aacbb7d4d7291a052d5743b7283efff53c23a0322c4e28d",
+          "bytes": 3657
+        },
+        {
+          "path": "tests/store-recall.test.mjs",
+          "sha256": "969b47a7bbcdce8678b9e08897d1a5c37d2b5151954de189dec0188360744f8c",
+          "bytes": 14509
+        },
+        {
+          "path": "tests/validation-failure.test.mjs",
+          "sha256": "e5379d563a543c933149cddd77c26469ef43bf0bbcb101cba9daac8e98e49bc0",
+          "bytes": 11602
+        },
+        {
+          "path": "tests/validation.test.mjs",
+          "sha256": "5dd493ac20284bd37c4b6e6a37f4e9b6e0290816dd28adc3a327b09a4100d1e8",
+          "bytes": 7628
+        },
+        {
+          "path": "tests/workspace-lock.test.mjs",
+          "sha256": "171cd5914faed4f8ee671b48c718430385e411d9ba1f73f0742ca7d84b85b57f",
+          "bytes": 3723
+        },
+        {
+          "path": "vendor/normify/engine/changes.js",
+          "sha256": "5b333d5ce6ece29b820310e272ead26429da01862733940d9af48bac9fba5914",
+          "bytes": 12354
+        },
+        {
+          "path": "vendor/normify/engine/compile.js",
+          "sha256": "23d2392c9e9a6b3f71a3e2bc8b4ff1ef3ffd6adc4fc4fd41cc17f1fa3ccf14d9",
+          "bytes": 10325
+        },
+        {
+          "path": "vendor/normify/engine/diag.js",
+          "sha256": "b71cfd5f34423b806ae62213562ec31ccf0dc54bf24b710502224625cbda2a0c",
+          "bytes": 1130
+        },
+        {
+          "path": "vendor/normify/engine/frontmatter.js",
+          "sha256": "406fed9d12cfc14178b7beef967245703e90ae84864d38e9ef022df353cb9905",
+          "bytes": 22363
+        },
+        {
+          "path": "vendor/normify/engine/ids.js",
+          "sha256": "104a242cb339430913427bef1d8248d322e383c5d7db3b671ec1a4b84b7dfdb2",
+          "bytes": 2982
+        },
+        {
+          "path": "vendor/normify/engine/layout.js",
+          "sha256": "e650ac9b097533b8d03a7ce30c50ff0a597e942954a2b7932eb75311a21e619d",
+          "bytes": 20116
+        },
+        {
+          "path": "vendor/normify/engine/policy.js",
+          "sha256": "baf5a6fe054a37c228eb22739a36625c0f7532d13c87a0f87cd090e1024328d2",
+          "bytes": 22835
+        },
+        {
+          "path": "vendor/normify/engine/store.js",
+          "sha256": "52e4b6d7d1af22ef4f89b1ecc3546620d3afafc5af4646f45d74d1eb12e52c1d",
+          "bytes": 14921
+        },
+        {
+          "path": "vendor/normify/engine/types.js",
+          "sha256": "04c3215e4325c7b4e67cb5d25725943e64c6bf8d9735711e20ccdd413921870f",
+          "bytes": 1034
+        },
+        {
+          "path": "vendor/normify/engine/validate.js",
+          "sha256": "15062dc29377b4eaa5c66fcd07637139d567f93ff19a70d3d71094f14b413306",
+          "bytes": 18168
+        },
+        {
+          "path": "vendor/normify/LICENSE",
+          "sha256": "683b7d8d0f730d4b3f3adf8b235a0f3e92e1e86e313f842f28ab6a94deaa03f4",
+          "bytes": 1084
+        },
+        {
+          "path": "vendor/normify/provenance.json",
+          "sha256": "5fe52f76b242fe5f2226053a7da69339f508b895a7649aeead5029a12daa6187",
+          "bytes": 1211
+        },
+        {
+          "path": "vendor/normify/README.md",
+          "sha256": "cb47a8ef801ba26ecdfa2ec62b39b2c5d428e9adb8be60096f3246f56bbbeaa3",
+          "bytes": 931
+        }
+      ]
+    }
+  },
+  "logs": {
+    "combined_stdout_stderr": "slop/current-stage-checks/20261004T014358480Z-final-check.log",
+    "sha256": "3ab204d0c43b134f8f3056f277e5e6380004d731a4ca8ab2bf1ebdf0cf4242e0",
+    "bytes": 12775,
+    "before_manifest": "slop/current-stage-checks/20261004T014358480Z-final-inputs-before.json",
+    "after_manifest": "slop/current-stage-checks/20261004T014358480Z-final-inputs-after.json",
+    "command_metadata": "slop/current-stage-checks/20261004T014358480Z-final-metadata.json"
+  },
+  "supplemental_checks": [
+    {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "result": "No whitespace/conflict-marker errors after the regression tests and source fix; existing CRLF normalization warnings only"
+    }
+  ],
+  "unconfigured_checks": [
+    {
+      "name": "lint",
+      "status": "not_configured",
+      "reason": "No package.json script or existing configured check entry"
+    },
+    {
+      "name": "format",
+      "status": "not_configured",
+      "reason": "No package.json script or existing configured check entry"
+    },
+    {
+      "name": "typecheck",
+      "status": "not_configured",
+      "reason": "No package.json script or existing configured check entry"
+    }
+  ],
+  "limitations": [
+    "Checks prove existing program behavior on this Windows environment, including actual native patch invocation. They do not verify model usage, automatic architecture maintenance, plugin installation, or host hook injection.",
+    "Input manifests cover src, tests, vendor, existing architecture/context fixtures, package manifests, runtime schema, architecture/context examples, contracts and selected documentation. node_modules content is represented by the installed dependency lock manifest rather than hashing every dependency file."
+  ],
+  "previous_successful_check": {
+    "command": {
+      "argv": [
+        "npm",
+        "run",
+        "check"
+      ],
+      "cwd": "D:\\zzd\\codex-sol",
+      "expanded_script": "npm test && npm audit --audit-level=high --registry=https://registry.npmjs.org/",
+      "started_at": "2026-10-04T01:36:06.7176734Z",
+      "ended_at": "2026-10-04T01:36:34.4155193Z",
+      "exit_code": 0
+    },
+    "test_result": {
+      "tests": 124,
+      "suites": 0,
+      "pass": 124,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0,
+      "duration_ms": 13607.8463
+    },
+    "audit": {
+      "command": "npm audit --audit-level=high --registry=https://registry.npmjs.org/",
+      "executed": true,
+      "exit_code": 0,
+      "reported_total_vulnerabilities": 0,
+      "raw_result": "found 0 vulnerabilities",
+      "source": "Second conjunct of npm run check after passing npm test"
+    },
+    "input_aggregate_sha256": "aa777edd859b1f6735d629af4cae08f172f93ca3edd4ec569664c75f3b9d8d9d",
+    "input_file_count": 68,
+    "logs": {
+      "combined_stdout_stderr": "slop/current-stage-checks/20261004T013605643Z-check.log",
+      "sha256": "21456aba9cd05349b75191e469fe1c3387a08c6e5a6892299fa3235cebd180ca",
+      "bytes": 12431,
+      "before_manifest": "slop/current-stage-checks/20261004T013605643Z-inputs-before.json",
+      "after_manifest": "slop/current-stage-checks/20261004T013605643Z-inputs-after.json",
+      "command_metadata": "slop/current-stage-checks/20261004T013605643Z-metadata.json"
+    },
+    "full_evidence_archive": "slop/current-stage-checks/20261004T013605643Z-baseline-evidence.json",
+    "full_evidence_sha256": "9bceea548af80779d2e3696f8ed90161a4b4be214953be1760e59e257d0c97de"
+  },
+  "scope_regression_evidence": "fixtures/current-stage/scope-regression-evidence.json",
+  "publication_redaction": {
+    "kind": "user_home_path",
+    "placeholder": "<USER_HOME>",
+    "scope": "Personal home-directory prefixes only; original test results and source hashes retained."
+  }
+}

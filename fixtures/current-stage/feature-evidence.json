@@ -1,0 +1,288 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-10-04T02:00:11.621Z",
+  "stage": "existing-capabilities ordinary-feature verification",
+  "status": "passed_with_declared_limits",
+  "fixture": {
+    "root": "D:\\codex-sol-expense-test-20261004",
+    "synthetic": true,
+    "baseline_sha256": "c1e84d134f4ac1a6d62190663c9ff4bee3a76a594a84bea1080f6bd296d2ccb0",
+    "manifest": {
+      "path": "D:\\codex-sol-expense-test-20261004\\fixture-manifest.json",
+      "sha256": "85b83e3d2fb66a052d624019c9838d74114d270a261b095922349dc257438dcc",
+      "bytes": 20260
+    }
+  },
+  "delegation": {
+    "direct_agents": 3,
+    "model": "gpt-6.1-sol",
+    "reasoning_effort": "high",
+    "grandchildren": false
+  },
+  "execution": {
+    "mode": "guided model execution; actual STDIO test bridge",
+    "parent_tool_calls": 0,
+    "parent_initialize_responses": 1,
+    "feature_model_tool_calls": 37,
+    "tool_counts": {
+      "sol_architecture_query": 3,
+      "sol_recall": 25,
+      "sol_context_prepare": 2,
+      "sol_context_submit": 2,
+      "sol_change_open": 2,
+      "sol_apply_changes": 2,
+      "sol_change_status": 1
+    },
+    "rpc_log": {
+      "path": "D:\\codex-sol-expense-test-20261004\\.codex\\sol\\ordinary-feature-rpc.jsonl",
+      "sha256": "fa461316794853244bacc8709d23b7173da4fb0b4b94af0c84c484d448a2e29c",
+      "bytes": 350676
+    },
+    "model_report": {
+      "path": "D:\\codex-sol-expense-test-20261004\\slop\\feature-model-result.json",
+      "sha256": "be46205358093f89ba84ca50e99acc9021608035e52d75e07e7da41e2cb0debc",
+      "bytes": 7641
+    },
+    "bridge": {
+      "path": "fixtures/current-stage/mcp-call.mjs",
+      "sha256": "28afd9b446b015bf43433efda6be5c477d61793b15b88b16ee47a3676cc1cad8",
+      "bytes": 4934
+    },
+    "errors": [
+      {
+        "tool": "sol_recall",
+        "invocation_id": "3e069755-f392-4a18-a2d4-a07ff8ed6cc6",
+        "error": {
+          "schema_version": 1,
+          "code": "INVALID_CURSOR",
+          "message": "Cursor is invalid.",
+          "retryable": false
+        }
+      }
+    ]
+  },
+  "checks": {
+    "model_npm_test": {
+      "exit_code": 0,
+      "tests": 27,
+      "passed": 27,
+      "failed": 0,
+      "skipped": 0,
+      "stdout": "feature-npm-test.stdout.txt",
+      "stderr": "feature-npm-test.stderr.txt"
+    },
+    "independent_cli": {
+      "report": "fixtures/current-stage/independent-acceptance.json",
+      "exit_code": 0,
+      "total": 20,
+      "passed": 20,
+      "failed": 0
+    }
+  },
+  "reuse": {
+    "actual_imports_and_calls": {
+      "src/categories.mjs": [
+        "groupBy",
+        "sumAmountsCents"
+      ],
+      "src/presentation.mjs": [
+        "formatMoney"
+      ],
+      "src/cli.mjs": [
+        "readLedger"
+      ]
+    },
+    "unchanged_shared_files": [
+      {
+        "path": "src/shared/collection.mjs",
+        "sha256": "e908b6eee39d5e257df63c66eb6c2771812d02877380849197e8bebc7d795f6f",
+        "bytes": 553,
+        "baseline_sha256": "e908b6eee39d5e257df63c66eb6c2771812d02877380849197e8bebc7d795f6f"
+      },
+      {
+        "path": "src/shared/money.mjs",
+        "sha256": "ea3c8e451edb18d799097f01b97ba7c391c60fba89538e8ea03b7a9535f8f3e7",
+        "bytes": 912,
+        "baseline_sha256": "ea3c8e451edb18d799097f01b97ba7c391c60fba89538e8ea03b7a9535f8f3e7"
+      }
+    ],
+    "unchanged_input_reader": {
+      "path": "src/ledger.mjs",
+      "sha256": "f7847a227359c2700f0217f73409b9be52c744ae3dd9a08504ab5bbec1efa457",
+      "bytes": 1581,
+      "baseline_sha256": "f7847a227359c2700f0217f73409b9be52c744ae3dd9a08504ab5bbec1efa457"
+    },
+    "all_changed_file_contents_match_recorded_managed_writes": true
+  },
+  "changed_files": [
+    {
+      "path": "README.md",
+      "sha256": "d1e329605f5fd27acdb3a8775fed5cc61177b8d761ec5c163931554f3deb7157",
+      "bytes": 2771,
+      "baseline_sha256": "df0269dc81485379fd428ca225be836fdb262979f5550a563993ddd5daefce5a"
+    },
+    {
+      "path": "architecture.json",
+      "sha256": "cc5c76338ef0d11e0e94cb1e7630f398c901c6035c6c414e89154a3945ffd592",
+      "bytes": 14772,
+      "baseline_sha256": "50a90aedd83028c812da5500c536541142cc9243a770a8e3ccef21fe289b2c41"
+    },
+    {
+      "path": "src/cli.mjs",
+      "sha256": "3f5485d8ddbd8886d151b74ee290c8a1b754080936dee6975bd393e30ee1df0b",
+      "bytes": 1038,
+      "baseline_sha256": "1a994b2dd4c9c1bb8cd5e02ac5e8a5de0938bde9ef32ffeaad3c99b442cfa548"
+    },
+    {
+      "path": "src/presentation.mjs",
+      "sha256": "c59a56da457c1f8e72ab5baee46d7465e3e12835c14124ac3c6dafa97787b9d7",
+      "bytes": 1325,
+      "baseline_sha256": "c655ede3b5eaea28c96e446f1e229ece37c445e7a1cce24128dc7f22429505c3"
+    },
+    {
+      "path": "tests/cli.test.mjs",
+      "sha256": "410e80ff2ef8c88458a0e208389d091e523fd081556efc3a9e1c3bbfbaab1a79",
+      "bytes": 5997,
+      "baseline_sha256": "8e9d3d9d9728661a82152d340931d84c095d00b894e23e06e43e1682d2885356"
+    },
+    {
+      "path": "tests/reports.test.mjs",
+      "sha256": "89f9033759379a21ff545c2991b3212d83fa9ec3f8765fdd65ac024d5df294a6",
+      "bytes": 4115,
+      "baseline_sha256": "19ec922c47c47d6c274e14264e83cc76093c9f8f8c966338081b9707a7b79351"
+    },
+    {
+      "path": "src/categories.mjs",
+      "sha256": "dae22c169ba282376fce9a0cb2f3cd44f262326ebde85136cbc8bb088762e02f",
+      "bytes": 537,
+      "baseline_sha256": null
+    }
+  ],
+  "unchanged_baseline_files": [
+    ".gitignore",
+    "AGENTS.md",
+    "TASK.md",
+    "baseline-evidence.json",
+    "context.json",
+    "data/empty.json",
+    "data/sample.json",
+    "operator.json",
+    "package.json",
+    "rules.json",
+    "src/journal.mjs",
+    "src/ledger.mjs",
+    "src/overview.mjs",
+    "src/shared/collection.mjs",
+    "src/shared/money.mjs",
+    "tests/ledger.test.mjs",
+    "tests/shared.test.mjs"
+  ],
+  "architecture": {
+    "maintained_by": "execution model manual bound write",
+    "automatic_maintenance": false,
+    "status": "ready",
+    "version": "a2a3c281483f8d0db5607e0464d8a5950ae314d1d4e470403698ebf65b1d21bb",
+    "counts": {
+      "modules": 19,
+      "capabilities": 11,
+      "static_imports": 19
+    },
+    "new_module": {
+      "id": "expense.categories",
+      "uid": "cb099d5d",
+      "parent": "expense",
+      "name": {
+        "zh": "分类汇总",
+        "en": "Category summary"
+      },
+      "description": {
+        "zh": "按分类计算带退款的净额并稳定排序",
+        "en": "Compute signed category net totals and sort the report"
+      },
+      "state": "active",
+      "source": [
+        {
+          "path": "src/categories.mjs"
+        }
+      ]
+    },
+    "candidate": {
+      "module": "expense.categories",
+      "uid": "cb099d5d",
+      "symbol": "buildCategories",
+      "protocol": "rpc",
+      "description": {
+        "zh": "分类净额降序、同额名称升序；保留空与退款",
+        "en": "Build descending category net totals with ascending names for ties"
+      },
+      "state": "active",
+      "verification": "static_export",
+      "locations": [
+        {
+          "path": "src/categories.mjs",
+          "line": 7,
+          "sha256": "dae22c169ba282376fce9a0cb2f3cd44f262326ebde85136cbc8bb088762e02f"
+        }
+      ]
+    },
+    "direct_users": [
+      {
+        "from": "expense.cli",
+        "from_uid": "1772d4d2",
+        "to": "expense.categories",
+        "to_uid": "cb099d5d",
+        "kind": "static_import",
+        "source": {
+          "path": "src/cli.mjs",
+          "line": 4,
+          "sha256": "3f5485d8ddbd8886d151b74ee290c8a1b754080936dee6975bd393e30ee1df0b"
+        },
+        "target": "src/categories.mjs",
+        "names": [
+          "buildCategories"
+        ]
+      },
+      {
+        "from": "expense.tests.reports",
+        "from_uid": "162f1a0d",
+        "to": "expense.categories",
+        "to_uid": "cb099d5d",
+        "kind": "static_import",
+        "source": {
+          "path": "tests/reports.test.mjs",
+          "line": 5,
+          "sha256": "89f9033759379a21ff545c2991b3212d83fa9ec3f8765fdd65ac024d5df294a6"
+        },
+        "target": "src/categories.mjs",
+        "names": [
+          "buildCategories"
+        ]
+      }
+    ]
+  },
+  "final_change": {
+    "state": "dirty",
+    "id": "23f0704f-d0fe-47ef-a5d6-cdb86bdfb104",
+    "version": "ef7bcd3b9b9a2cf3c74c3f10b619096a03cff51ece4ed1e213cdf7d8eecb29b2",
+    "accumulated_paths": [
+      "README.md",
+      "architecture.json",
+      "src/categories.mjs",
+      "src/cli.mjs",
+      "src/presentation.mjs",
+      "tests/cli.test.mjs",
+      "tests/reports.test.mjs"
+    ],
+    "blockers": [],
+    "latest_validation": null,
+    "task_complete": false,
+    "note": "Final scope/ownership adjustment clears latest validation under current contract. Both prior managed writes passed; final model npm test and independent acceptance passed for current bytes."
+  },
+  "limits": [
+    "Single guided ordinary-feature case, not stable autonomous discovery evidence.",
+    "Test bridge, not native Desktop/CLI hook/plugin automatic integration.",
+    "Bridge restarts per call: cross-call cursor rejected; bounded byte recalls succeeded.",
+    "Automatic declarations, IF-004 completion, change-state Context injection and new architecture Hook gates remain unimplemented.",
+    "No task token/cost A/B or effect-size claim."
+  ]
+}
