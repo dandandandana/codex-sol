@@ -73,7 +73,7 @@ test('standard reporter returns nonzero for a real assertion failure and an unkn
   assert.match(empty.stderr, /explicit test file list/);
 });
 
-test('programmatic scheduling never exceeds four simultaneous test files', async (t) => {
+test('scheduling never exceeds four simultaneous test files', async (t) => {
   const testsDir = await testDirectory(t);
   const events = path.join(testsDir, 'events.jsonl');
   const files = [];
@@ -97,7 +97,8 @@ await setTimeout(100); appendFileSync(${JSON.stringify(events)}, JSON.stringify(
   assert.equal(completed.size, 8);
 });
 
-test('SIGTERM aborts the runner, exits nonzero and closes its real test child', { skip: process.platform === 'win32' && 'POSIX signal delivery; Windows CI forwards cancellation through taskkill /T.', timeout: 15000 }, async (t) => {
+for (const [signal, exitCode] of [['SIGTERM', 143], ['SIGINT', 130]]) {
+test(`${signal} aborts the runner, exits nonzero and closes its real test child`, { skip: process.platform === 'win32' && 'POSIX signal delivery; Windows CI forwards cancellation through taskkill /T.', timeout: 15000 }, async (t) => {
   const testsDir = await testDirectory(t);
   const marker = path.join(testsDir, 'child-pid');
   const waiting = path.join(testsDir, 'waiting.test.mjs');
@@ -110,6 +111,7 @@ setInterval(() => {}, 1000); test('waiting', () => new Promise(() => {}));`);
   const completion = new Promise((done, fail) => { child.once('error', fail); child.once('close', (code, signal) => done({ code, signal })); });
   t.after(() => { if (child.exitCode === null && child.signalCode === null && child.pid) { try { process.kill(-child.pid, 'SIGKILL'); } catch (error) { if (error.code !== 'ESRCH') throw error; } } });
   let testPid;
+  t.after(() => { if (testPid) { try { process.kill(testPid, 'SIGKILL'); } catch (error) { if (error.code !== 'ESRCH') throw error; } } });
   const deadline = Date.now() + 5000;
   while (!testPid) {
     try { testPid = Number(await readFile(marker, 'utf8')); }
@@ -117,7 +119,79 @@ setInterval(() => {}, 1000); test('waiting', () => new Promise(() => {}));`);
     if (Date.now() >= deadline) assert.fail('Test child did not become ready.');
     if (!testPid) await delay(20);
   }
-  assert.equal(child.kill('SIGTERM'), true);
-  assert.deepEqual(await completion, { code: 143, signal: null });
+  assert.equal(child.kill(signal), true);
+  assert.deepEqual(await completion, { code: exitCode, signal: null });
   assert.throws(() => process.kill(testPid, 0), { code: 'ESRCH' });
+});
+
+}
+
+for (const signal of ['SIGTERM', 'SIGINT']) {
+  test(`${signal} closes active groups without starting queued files`, { skip: process.platform === 'win32' && 'POSIX process-group cancellation.', timeout: 15000 }, async (t) => {
+    const testsDir = await mkdtemp(path.join(os.tmpdir(), 'codex-sol-ci-groups-'));
+    const files = [];
+    const leafEffect = path.join(testsDir, 'late-effect');
+    for (let i = 0; i < 8; i += 1) {
+      const marker = path.join(testsDir, `pid-${i}`);
+      const leafMarker = path.join(testsDir, `leaf-${i}`);
+      const leaf = `const fs = require('node:fs'); process.on('SIGTERM', () => {}); process.on('SIGINT', () => {}); fs.writeFileSync(${JSON.stringify(leafMarker)}, String(process.pid)); setTimeout(() => fs.writeFileSync(${JSON.stringify(leafEffect)}, 'survived cancellation'), 1000);`;
+      const file = path.join(testsDir, `queued-${i}.test.mjs`);
+      files.push(file);
+      await writeFile(file, `import test from 'node:test'; import {writeFileSync} from 'node:fs'; import {spawn} from 'node:child_process';
+process.on('SIGTERM', () => {}); process.on('SIGINT', () => {});
+writeFileSync(${JSON.stringify(marker)}, String(process.pid));
+spawn(process.execPath, ['-e', ${JSON.stringify(leaf)}], {stdio: 'ignore'});
+setInterval(() => {}, 1000); test('waiting', () => new Promise(() => {}));`);
+    }
+    const env = { ...process.env };
+    delete env.NODE_TEST_CONTEXT;
+    const child = spawn(process.execPath, [runner, ...files], { env, detached: true, stdio: 'ignore' });
+    const completion = new Promise((done, fail) => { child.once('error', fail); child.once('close', (code, signal) => done({ code, signal })); });
+    t.after(async () => {
+      if (child.pid) { try { process.kill(-child.pid, 'SIGKILL'); } catch (error) { if (error.code !== 'ESRCH') throw error; } }
+      for (let i = 0; i < files.length; i += 1) {
+        for (const prefix of ['pid', 'leaf']) {
+          try {
+            const pid = Number(await readFile(path.join(testsDir, `${prefix}-${i}`), 'utf8'));
+            try { process.kill(-pid, 'SIGKILL'); } catch (error) { if (error.code !== 'ESRCH') throw error; }
+            try { process.kill(pid, 'SIGKILL'); } catch (error) { if (error.code !== 'ESRCH') throw error; }
+          } catch (error) { if (error.code !== 'ENOENT') throw error; }
+        }
+      }
+      await rm(testsDir, { recursive: true, force: true });
+    });
+    const active = [];
+    for (let i = 0; i < 4; i += 1) {
+      const deadline = Date.now() + 5000;
+      while (true) {
+        try {
+          const pid = Number(await readFile(path.join(testsDir, `pid-${i}`), 'utf8'));
+          await readFile(path.join(testsDir, `leaf-${i}`), 'utf8');
+          active.push(pid);
+          break;
+        } catch (error) { if (error.code !== 'ENOENT') throw error; }
+        if (Date.now() >= deadline) assert.fail('Active test group did not become ready.');
+        await delay(20);
+      }
+    }
+    assert.equal(child.kill(signal), true);
+    assert.deepEqual(await completion, { code: signal === 'SIGINT' ? 130 : 143, signal: null });
+    for (const pid of active) assert.throws(() => process.kill(pid, 0), { code: 'ESRCH' });
+    for (let i = 4; i < files.length; i += 1) await assert.rejects(readFile(path.join(testsDir, `pid-${i}`)), { code: 'ENOENT' });
+    await delay(1100);
+    await assert.rejects(readFile(leafEffect), { code: 'ENOENT' });
+  });
+}
+
+
+test('runner clears inherited test serialization context for its file children', async (t) => {
+  const testsDir = await testDirectory(t);
+  const file = path.join(testsDir, 'portable.test.mjs');
+  await writeFile(file, "import test from 'node:test'; test('readable-spec-output', () => {});");
+  const result = spawnSync(process.execPath, [runner, file], {
+    env: { ...process.env, NODE_TEST_CONTEXT: 'child-v8' }, encoding: 'utf8', windowsHide: true, timeout: 15000,
+  });
+  assert.equal(result.status, 0, result.stderr + result.stdout);
+  assert.match(result.stdout, /readable-spec-output/);
+  assert.match(result.stdout, /pass 1/);
 });
