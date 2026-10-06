@@ -4,7 +4,7 @@ SoL-Pi 的 Codex 本地适配项目：帮助模型发现并复用项目内已登
 
 优先通过[本地插件安装说明](PLUGIN.md)接入；插件标识为 `codex-sol@sol-local`。本仓库保存开发源码，安装前需要依照说明生成兼容插件包。真实模型稳定自主连续任务、完整 Desktop GUI 流程和成本对照仍待验收。
 
-最新源码改造：[文件事实、证据读取与恢复架构验收](fixtures/architecture-evolution/README.md)。已有发布说明见 [Linux 初步适配公告](CHANGELOG.md)；本轮未改版本或发布。项目仍处于早期开发阶段。
+最新更新：[2026年10月6日架构与可靠性更新](CHANGELOG.md#2026年10月6日-架构与可靠性更新)；完整本地验收范围和限制见[架构演进验收](fixtures/architecture-evolution/README.md)。安装入口见[本地插件说明](PLUGIN.md)。远端 workflow 结果尚未核实；真实 GUI / Linux TUI 信任与取消，以及模型 A/B 尚未验收。项目仍处于早期开发阶段。
 
 为受管文件操作提供同步验证回执（Validation Receipt），并将大输出归档成可精确召回的 ObservationPack。项目参考 SoL-Pi commit `1559b5cb12c72da4a485bc50fe326586b216fb19`；[Notion 开工单](https://app.notion.com/p/3e831ddb72338111ada4dffbdd87713b) 保留 V0.1 清单与后续设计。V0.1 接口和范围以本仓库合同为准；下一阶段方向见本文末节。
 
