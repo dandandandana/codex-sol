@@ -16,7 +16,7 @@
       "source": [],
       "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
       "updated_at": "2026-10-03T09:45:23.950Z",
-      "fingerprint": "pending"
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
       "id": "sol.architecture-change",
@@ -37,7 +37,7 @@
       ],
       "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
       "updated_at": "2026-10-04T08:30:50.798Z",
-      "fingerprint": "ab878e166be65cd2c52f5867292f2e448726e627e7256eae3126d7569331af30",
+      "fingerprint": "7132b09ac71c0681ed2ae416a9806cf54628cbe27dd6c8a991d509d374f5939b",
       "apis": [
         {
           "protocol": "rpc",
@@ -99,8 +99,8 @@
         }
       ],
       "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
-      "updated_at": "2026-10-04T04:59:55.581Z",
-      "fingerprint": "81a4c3faddbedb6d6e5ff16797f3397c786b5ab0e3ad3197aa6db431f9fb3602",
+      "updated_at": "2026-10-06T04:36:59.866Z",
+      "fingerprint": "86a1bc9a3a31c38a5a188704dcd82a1ad586844ac3f67bd113acb71964141610",
       "apis": [
         {
           "protocol": "rpc",
@@ -116,6 +116,14 @@
           "description": {
             "zh": "contextError",
             "en": "contextError"
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "readContextConfiguration",
+          "description": {
+            "zh": "安全读取并校验职责 Context 配置，解析架构与上游产物路径。",
+            "en": "Safely reads and validates responsibility Context configuration and resolves architecture and producer-artifact paths."
           }
         }
       ]
@@ -201,7 +209,7 @@
       ],
       "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
       "updated_at": "2026-10-04T08:30:50.798Z",
-      "fingerprint": "373f1afafa05b546669fa61b56cc0d85219019dc8ad82bddc848cdbb893a5c60",
+      "fingerprint": "c9eacc31e78035158d0acb9e3934af4760e0242e3e8b4c622313812a14c96f6b",
       "apis": [
         {
           "protocol": "rpc",
@@ -231,8 +239,8 @@
         }
       ],
       "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
-      "updated_at": "2026-10-03T09:45:23.950Z",
-      "fingerprint": "4374ca9a4e79eb7557ef2f4fb2769c49f3e6e03ac0c283e0fda6ee436f27444c",
+      "updated_at": "2026-10-06T04:36:59.866Z",
+      "fingerprint": "24b92894e25eecc1f3c419ac4b66e58cf21323670b8c35b040727169e4f5c496",
       "apis": [
         {
           "protocol": "rpc",
@@ -257,6 +265,22 @@
             "zh": "withHostCancellation",
             "en": "withHostCancellation"
           }
+        },
+        {
+          "protocol": "rpc",
+          "path": "decodeHostTurnMetadata",
+          "description": {
+            "zh": "校验并提取宿主 turn metadata 中的线程与 turn 标识。",
+            "en": "Validates and extracts thread and turn identities from host turn metadata."
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "decodeHostThread",
+          "description": {
+            "zh": "校验宿主线程记录并投影为受限线程身份与工作区路径。",
+            "en": "Validates a host thread record and projects it to bounded thread identity and workspace path."
+          }
         }
       ]
     },
@@ -269,8 +293,8 @@
         "en": "managed-command"
       },
       "description": {
-        "zh": "现有 managed-command.mjs 的公共职责",
-        "en": "现有 managed-command.mjs 的公共职责"
+        "zh": "受管命令与文件变化后的实际事实登记、事件发布和同步验证。",
+        "en": "Managed commands and post-write factual change recording, event publication and synchronous validation."
       },
       "source": [
         {
@@ -278,8 +302,8 @@
         }
       ],
       "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
-      "updated_at": "2026-10-03T15:49:23.098Z",
-      "fingerprint": "0fb805f6dc07609e5a8e95de1efacf4175043b6ccc7a9ce9747f1c11876c0876",
+      "updated_at": "2026-10-06T04:36:59.866Z",
+      "fingerprint": "05e0e0a9bc4e18d70dabaf70f6f064baa74623cd5731aa031e23a59ccbaa3b3f",
       "apis": [
         {
           "protocol": "rpc",
@@ -296,8 +320,55 @@
             "zh": "runManagedCommand",
             "en": "runManagedCommand"
           }
+        },
+        {
+          "protocol": "rpc",
+          "path": "recordActualChanges",
+          "description": {
+            "zh": "按路径核验实际变更，创建事件并完成相关同步验证，保留验证失败状态。",
+            "en": "Checks actual changes by path, records the event and runs related synchronous validation while preserving validation failures."
+          }
         }
       ]
+    },
+    {
+      "id": "sol.managed-write",
+      "uid": "9e57f42c",
+      "parent": "sol",
+      "name": {
+        "zh": "受管文件写入",
+        "en": "Managed file writes"
+      },
+      "description": {
+        "zh": "执行受管文件写入与删除，比较前后事实并记录实际变更和验证事件",
+        "en": "Performs managed file writes and deletes, compares before/after facts, and records actual changes and validation events"
+      },
+      "source": [
+        {
+          "path": "src/managed-write.mjs"
+        }
+      ],
+      "revision": "f2ed54313f9aa97c1928b3411c1330dfdd3c05f2",
+      "updated_at": "2026-10-06T04:36:59.866Z",
+      "apis": [
+        {
+          "protocol": "rpc",
+          "path": "applyFileChanges",
+          "description": {
+            "zh": "在工作区边界内校验并执行文件写入或删除，返回实际变化、事实快照及错误；不回滚已发生的部分效果。",
+            "en": "Validates and applies workspace-bounded file writes or deletes, returning actual changes, fact snapshots and errors; partial effects are not rolled back."
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "runManagedFileChanges",
+          "description": {
+            "zh": "在工作区租约内执行文件变化，记录实际变更事件并同步验证；不拥有任务状态。",
+            "en": "Runs file changes under a workspace lease, records the actual change event and validates synchronously; it does not own task state."
+          }
+        }
+      ],
+      "fingerprint": "f3493f0c2dae9d3f4e73ae7ac17a075bb198ba62dedb4e4535ccd24657552299"
     },
     {
       "id": "sol.native-hook",
@@ -365,7 +436,7 @@
       ],
       "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
       "updated_at": "2026-10-03T09:45:23.950Z",
-      "fingerprint": "6441645b0d9ba54a61f2217f10a7357ae07ef9c0a29198c563726f3caa865c98",
+      "fingerprint": "73b6430a493a336c52ff42377b550400b68477f6f0cae1bb0f03f8783b592166",
       "apis": [
         {
           "protocol": "rpc",
@@ -404,7 +475,7 @@
       ],
       "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
       "updated_at": "2026-10-05T10:02:10.465Z",
-      "fingerprint": "5212cebdd94d28587851b6d1f8120e47620c0af5cc5171f356b0aafefbadea9d",
+      "fingerprint": "0aebb9123448f243f6311147903439049b79df2a52fe79cb1f73c92203dff423",
       "apis": [
         {
           "protocol": "rpc",
@@ -445,8 +516,8 @@
         }
       ],
       "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
-      "updated_at": "2026-10-05T10:02:10.465Z",
-      "fingerprint": "ba479d5e9f40d87ece7000d92c8f0d15a9758f8017f622dbdfe078720c24fe42",
+      "updated_at": "2026-10-06T05:16:27.895Z",
+      "fingerprint": "b695c8b5e77dd8447ba707e3a46fe6bc05047338ff88109d7cb1cde6c2abd5db",
       "apis": [
         {
           "protocol": "rpc",
@@ -471,6 +542,14 @@
             "zh": "pluginExecutionEnvironment",
             "en": "pluginExecutionEnvironment"
           }
+        },
+        {
+          "protocol": "rpc",
+          "path": "checkPluginConfiguration",
+          "description": {
+            "zh": "只读诊断显式项目插件配置，调用共享 RulesConfig 校验并报告配置状态与有效工具数量；不创建 store、任务或启动命令。",
+            "en": "Reads explicit project configuration through shared RulesConfig validation and reports status and tool count without writing files or running checks."
+          }
         }
       ]
     },
@@ -492,8 +571,8 @@
         }
       ],
       "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
-      "updated_at": "2026-10-03T09:45:23.950Z",
-      "fingerprint": "4212bd58526614784edff25a5f0d3823d29c70020c618786ddf7f87c6d30c26c",
+      "updated_at": "2026-10-06T04:36:59.866Z",
+      "fingerprint": "0e7b7f410eb21e80f3bad85aa318277cec319c14b19e4f0ef0018cc68e55fde7",
       "apis": [
         {
           "protocol": "rpc",
@@ -501,6 +580,14 @@
           "description": {
             "zh": "runCapturedCommand",
             "en": "runCapturedCommand"
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "toCheckResult",
+          "description": {
+            "zh": "将命令执行结果转换为严格 CheckResult 结构。",
+            "en": "Converts command execution output into the strict CheckResult shape."
           }
         }
       ]
@@ -524,7 +611,7 @@
       ],
       "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
       "updated_at": "2026-10-03T09:45:23.950Z",
-      "fingerprint": "f47aad52eb66eb69cfb8b312c00b13bb6f914b834f124ed3f738e029997b8afb",
+      "fingerprint": "3026ea4e39bae5649af4514768026e3a8749cc774434c2c80e961fed190c4e39",
       "apis": [
         {
           "protocol": "rpc",
@@ -555,7 +642,7 @@
       ],
       "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
       "updated_at": "2026-10-03T14:56:54.707Z",
-      "fingerprint": "d160cc778deec90579c6f20f451dd2a137fa66706a4a928b0e101d3a680c9c51",
+      "fingerprint": "79584d9515d059d767e97824999321bad5680908d5afc6c5393e7b6e52975004",
       "apis": [
         {
           "protocol": "rpc",
@@ -566,6 +653,76 @@
           }
         }
       ]
+    },
+    {
+      "id": "sol.records",
+      "uid": "0e9b5b99",
+      "parent": "sol",
+      "name": {
+        "zh": "结构化归档",
+        "en": "Structured records"
+      },
+      "description": {
+        "zh": "有界的不可变结构化证据归档、读取与引用核验；不承载任务状态或职责路由",
+        "en": "Bounded immutable structured-evidence archival, reading and reference verification; carries no task state or responsibility routing"
+      },
+      "source": [
+        {
+          "path": "src/records.mjs"
+        }
+      ],
+      "revision": "f2ed54313f9aa97c1928b3411c1330dfdd3c05f2",
+      "updated_at": "2026-10-06T04:36:59.866Z",
+      "apis": [
+        {
+          "protocol": "rpc",
+          "path": "ArchiveRecords",
+          "description": {
+            "zh": "绑定 ObservationStore；archive 写入有界 JSON 或文本证据，stored 核验工作区、工具、类型和引用摘要后读取，evidence 校验并生成归档引用。",
+            "en": "Binds an ObservationStore; archives bounded JSON/text, verifies workspace/tool/type/references when reading, and validates evidence references."
+          }
+        }
+      ],
+      "fingerprint": "d29717d52b3db2f7f9502f586c35d607d2ab6774e67e32779810d64b993aba29"
+    },
+    {
+      "id": "sol.runtime",
+      "uid": "7dd5355a",
+      "parent": "sol",
+      "name": {
+        "zh": "运行时组装",
+        "en": "Runtime composition"
+      },
+      "description": {
+        "zh": "按显式配置组装可复用核心状态；Hook 与 MCP 按需调用，不在此启动传输",
+        "en": "Composes reusable core state from explicit configuration; Hooks and MCP opt in as needed, with no transport started here"
+      },
+      "source": [
+        {
+          "path": "src/runtime.mjs"
+        }
+      ],
+      "revision": "f2ed54313f9aa97c1928b3411c1330dfdd3c05f2",
+      "updated_at": "2026-10-06T04:36:59.866Z",
+      "apis": [
+        {
+          "protocol": "rpc",
+          "path": "createSolRuntime",
+          "description": {
+            "zh": "从工作区、可选验证规则和显式 Context 配置组装 store、validator、Context 与 sessions；不创建任务或启动传输。",
+            "en": "Composes store, validator, Context and sessions from workspace, optional validation rules and explicit Context configuration; creates no task and starts no transport."
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "configureRuntimeChanges",
+          "description": {
+            "zh": "在已有 Context runtime 上配置绑定变更协调器与验证器，并返回协调器。",
+            "en": "Configures a bound-change coordinator and validator on an existing Context runtime and returns the coordinator."
+          }
+        }
+      ],
+      "fingerprint": "4df36432e8556ac0cbe99fb1a41dd6990a31de0f06844532ef56dcce6546b1f7"
     },
     {
       "id": "sol.schema",
@@ -617,7 +774,7 @@
       ],
       "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
       "updated_at": "2026-10-04T04:59:55.581Z",
-      "fingerprint": "83b0b8ba15aad9d91bd63cbf695f0cd4407b39467d596826c99b30b4894dfa13",
+      "fingerprint": "04e9cb39a3b53ec11b4ec2d51c42f8351059cf85dde68873ed68945c474ad362",
       "apis": [
         {
           "protocol": "rpc",
@@ -647,8 +804,8 @@
         }
       ],
       "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
-      "updated_at": "2026-10-03T09:45:23.950Z",
-      "fingerprint": "6a945b0c9a6d30a7f7a9dc5c39de1f0fd4d782aa116f23a99b51735089b854c2",
+      "updated_at": "2026-10-06T04:36:59.866Z",
+      "fingerprint": "692903fd92dc34096ecb49e7599c1e19ca86edd0a3037a62c7329920edcf232c",
       "apis": [
         {
           "protocol": "rpc",
@@ -670,8 +827,8 @@
           "protocol": "rpc",
           "path": "ObservationStore",
           "description": {
-            "zh": "ObservationStore",
-            "en": "ObservationStore"
+            "zh": "管理观察归档、索引及原始数据；包含 readVerifiedJSON 等按元数据、摘要、大小、类型和工作区核验的读取方法。",
+            "en": "Manages observation archives, indexes and raw data; includes verified reads such as readVerifiedJSON that check metadata, digest, size, type and workspace."
           }
         },
         {
@@ -709,8 +866,8 @@
         "en": "validation"
       },
       "description": {
-        "zh": "现有 validation.mjs 的公共职责",
-        "en": "现有 validation.mjs 的公共职责"
+        "zh": "运行时规则身份校验、验证计划与执行/来源复用；快照 API 保留兼容重导出并委托 workspace-snapshot。",
+        "en": "Shared runtime rule-identity validation, validation planning/execution and provenance reuse; snapshot APIs remain compatibility re-exports delegated to workspace-snapshot."
       },
       "source": [
         {
@@ -718,33 +875,9 @@
         }
       ],
       "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
-      "updated_at": "2026-10-05T10:02:10.465Z",
-      "fingerprint": "272789e6ee756028b517a1b22b8564122669e7c15ad85d402d107f4518615fa7",
+      "updated_at": "2026-10-06T05:16:27.895Z",
+      "fingerprint": "36c210c55fc5e6ed7cf990927ac4b8684610baa734fbd1f084496e4623a79b1f",
       "apis": [
-        {
-          "protocol": "rpc",
-          "path": "matchesGlob",
-          "description": {
-            "zh": "matchesGlob",
-            "en": "matchesGlob"
-          }
-        },
-        {
-          "protocol": "rpc",
-          "path": "snapshotInputs",
-          "description": {
-            "zh": "按 glob 读取文件快照；可选 signal 取消，保持宿主故障码；不写入归档",
-            "en": "Read glob-selected input snapshots with optional cancellation, preserve host faults, and write no archive"
-          }
-        },
-        {
-          "protocol": "rpc",
-          "path": "digestChangedPaths",
-          "description": {
-            "zh": "digestChangedPaths",
-            "en": "digestChangedPaths"
-          }
-        },
         {
           "protocol": "rpc",
           "path": "ValidationEngine",
@@ -763,10 +896,10 @@
         },
         {
           "protocol": "rpc",
-          "path": "isGeneratedPath",
+          "path": "validateRulesConfiguration",
           "description": {
-            "zh": "匹配生成目标及被排除的祖先目录",
-            "en": "Match generated targets and excluded ancestor directories"
+            "zh": "无存储或执行副作用地校验 RulesConfig，并确保规则 ID 与组合检查 ID 唯一；返回输入配置，非法时抛出配置错误。",
+            "en": "Validates RulesConfig without storage or command execution, enforces unique rule and check IDs, returns the input, and throws CONFIG_ERROR for duplicates."
           }
         }
       ]
@@ -780,8 +913,8 @@
         "en": "workspace"
       },
       "description": {
-        "zh": "现有 workspace.mjs 的公共职责",
-        "en": "现有 workspace.mjs 的公共职责"
+        "zh": "工作区路径安全、文件事实/指纹、受保护读取与条件化写删；供快照和受管修改复用。",
+        "en": "Workspace path safety, file facts/fingerprints, protected reads and conditional writes/deletes reused by snapshots and managed modifications."
       },
       "source": [
         {
@@ -789,8 +922,8 @@
         }
       ],
       "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
-      "updated_at": "2026-10-05T10:02:10.466Z",
-      "fingerprint": "af13e110bb31088fbecc4cbd093b87d6af6b40625a6fee3fc749ee208e49f904",
+      "updated_at": "2026-10-06T04:36:59.866Z",
+      "fingerprint": "664599a1d56f319756f5127b2ac30db349663219b55f5babcf61f19c4ebd8c89",
       "apis": [
         {
           "protocol": "rpc",
@@ -831,6 +964,46 @@
             "zh": "先写入并同步同目录临时文件，再原子替换 JSON；可选 beforePublish 在 rename 前核验发布条件，失败清理本次临时文件。",
             "en": "Writes and syncs a same-directory temporary JSON before atomic replacement; optional beforePublish guards rename and failure removes this temporary file."
           }
+        },
+        {
+          "protocol": "rpc",
+          "path": "fileFacts",
+          "description": {
+            "zh": "按路径读取受限文件事实，包括存在状态、内容摘要和文件模式。",
+            "en": "Reads bounded file facts by path, including existence, content digest and file mode."
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "fingerprintFileFacts",
+          "description": {
+            "zh": "按稳定路径顺序为一组文件事实计算内容与模式组合指纹。",
+            "en": "Computes a content-and-mode combined fingerprint for file facts in stable path order."
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "fileFactFingerprint",
+          "description": {
+            "zh": "为单条文件事实计算与组合指纹一致的内容/模式摘要。",
+            "en": "Computes the content/mode digest for one file fact using the combined-fingerprint format."
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "writeWorkspaceFile",
+          "description": {
+            "zh": "在工作区路径与预期事实核验下写入文件，并检测并发漂移。",
+            "en": "Writes a file after workspace-path and expected-fact checks, detecting concurrent drift."
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "deleteWorkspaceFile",
+          "description": {
+            "zh": "在工作区路径与预期事实核验下删除文件，并检测并发漂移。",
+            "en": "Deletes a file after workspace-path and expected-fact checks, detecting concurrent drift."
+          }
         }
       ]
     },
@@ -853,7 +1026,7 @@
       ],
       "revision": "3a0950cd68a468445d5a9f7dfc83d523b810f29e",
       "updated_at": "2026-10-03T09:45:23.950Z",
-      "fingerprint": "ac61dfe210ba91c1b7a723e328cdad509c3d0935a8b9e8c2e497a4c920461520",
+      "fingerprint": "bd46fc84d7063201b6d23da5d6d0e8b1e5f92b27ea05880f18768ca57b143730",
       "apis": [
         {
           "protocol": "rpc",
@@ -864,6 +1037,77 @@
           }
         }
       ]
+    },
+    {
+      "id": "sol.workspace-snapshot",
+      "uid": "0e932466",
+      "parent": "sol",
+      "name": {
+        "zh": "工作区快照",
+        "en": "Workspace snapshots"
+      },
+      "description": {
+        "zh": "按 glob 采集工作区输入事实，以 content_mode_v1 标记区分包含内容与模式的快照指纹。",
+        "en": "Collects workspace input facts by glob and marks content-and-mode snapshot fingerprints with content_mode_v1."
+      },
+      "source": [
+        {
+          "path": "src/workspace-snapshot.mjs"
+        }
+      ],
+      "revision": "f2ed54313f9aa97c1928b3411c1330dfdd3c05f2",
+      "updated_at": "2026-10-06T04:36:59.866Z",
+      "apis": [
+        {
+          "protocol": "rpc",
+          "path": "INPUT_FINGERPRINT_KIND",
+          "description": {
+            "zh": "标识包含文件内容与模式的快照指纹格式。",
+            "en": "Identifies the snapshot fingerprint format that includes file content and mode."
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "matchesGlob",
+          "description": {
+            "zh": "按工作区相对路径规则判断文件名是否匹配 glob。",
+            "en": "Matches a workspace-relative path against a glob pattern."
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "isGeneratedPath",
+          "description": {
+            "zh": "判断路径或其祖先是否属于生成内容排除规则。",
+            "en": "Checks whether a path or any ancestor matches generated-content exclusions."
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "snapshotInputs",
+          "description": {
+            "zh": "按 glob、生成路径和显式变化路径采集文件/缺失事实，返回带格式标记的 SHA-256 快照；检测链接、漂移和取消。",
+            "en": "Collects file/missing facts by glob, generated-path exclusions and explicit changed paths, returning a SHA-256 snapshot with a format marker; detects links, drift and cancellation."
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "digestChangedPaths",
+          "description": {
+            "zh": "计算给定变化路径当前文件事实的组合指纹，包括显式缺失项。",
+            "en": "Computes a combined fingerprint of current file facts for changed paths, including explicitly missing entries."
+          }
+        },
+        {
+          "protocol": "rpc",
+          "path": "parseWorkspaceSnapshot",
+          "description": {
+            "zh": "校验现代或兼容旧版快照形状及其内容/模式指纹，不读取工作区。",
+            "en": "Validates modern or legacy snapshot shape and its content/mode fingerprint without reading the workspace."
+          }
+        }
+      ],
+      "fingerprint": "3dc217010aeed69b38b8492f7411baea43b05d3a42dfec49328c6ad0711cb692"
     }
   ],
   "policy": {

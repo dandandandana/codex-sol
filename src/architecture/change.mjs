@@ -6,10 +6,14 @@ import { z } from 'zod';
 import { assertContract } from '../schema.mjs';
 import { interruptionFault, readRawSlice, SolFault } from '../store.mjs';
 import { isGeneratedPath, receiptSummary, snapshotInputs, ValidationEngine } from '../validation.mjs';
-import { readWorkspaceBytes, workspaceFile, writeAtomicJSON } from '../workspace.mjs';
+import { fileFacts, INPUT_FINGERPRINT_KIND, readWorkspaceBytes, workspaceFile, writeAtomicJSON } from '../workspace.mjs';
 import { withWorkspaceLock } from '../workspace-lock.mjs';
 import { publicError } from '../managed-command.mjs';
 import { ArchitectureIndex } from './index.mjs';
+import { ArchiveRecords } from '../records.mjs';
+import { parseWorkspaceSnapshot } from '../workspace-snapshot.mjs';
+
+export const REVIEW_POLICY_ID = 'change-review-v1';
 
 const sha = (value) => createHash('sha256').update(JSON.stringify(value)).digest('hex');
 const key = (path) => process.platform === 'win32' ? path.toLowerCase() : path;
@@ -48,22 +52,34 @@ export const changeReviewSchema = z.discriminatedUnion('phase', [
 export const changeCompleteSchema = z.object({ change: changeBindingSchema, review_handle: handle }).strict();
 const rawRef = z.custom((value) => { try { assertContract('RawRef', value); return true; } catch { return false; } });
 const pointerSchema = z.object({ schema_version: z.literal(1), workspace_id: z.string(), change: changeBindingSchema, record: rawRef }).strict();
-const snapshotSchema = z.object({ items: z.array(z.object({ path: z.string(), type: z.enum(['file', 'missing']), sha256: digest.optional() }).strict()), sha256: digest }).strict();
+const operationPointerSchema = z.object({ schema_version: z.literal(1), workspace_id: z.string(),
+  change: changeBindingSchema, operation_id: z.string().uuid(), outcome: rawRef }).strict();
+const operationOutcomeSchema = z.object({ schema_version: z.literal(1), kind: z.literal('change_operation_outcome'),
+  workspace_id: z.string(), change: changeBindingSchema, operation_id: z.string().uuid(),
+  outcome: z.record(z.string(), z.unknown()), evidence_refs: z.array(rawRef).max(1024) }).strict();
+const snapshotSchema = z.custom((value) => { try { parseWorkspaceSnapshot(value); return true; } catch { return false; } });
 const recordSchema = z.object({ schema_version: z.literal(1), kind: z.literal('change_record'), workspace_id: z.string(),
   id: z.string().uuid(), version: digest, state: z.enum(['open', 'dirty', 'checking', 'completed', 'interrupted', 'abandoned']),
   task: changeOpenSchema.shape.task, requirement_ref: text, scope: changeOpenSchema.shape.scope, acceptance: changeOpenSchema.shape.acceptance,
   reuse: changeOpenSchema.shape.reuse, architecture_version: digest, context_config_sha: digest, rules_sha: digest,
   observed: snapshotSchema, accumulated_paths: z.array(z.string()), blockers: z.array(z.object({ code: z.string(), paths: z.array(z.string()) }).strict()),
   evidence_generation: z.number().int().nonnegative(), latest_validation: z.record(z.string(), z.unknown()).nullable(),
-  pending: z.object({ operation_id: z.string().uuid(), paths: z.array(z.string()), kind: z.enum(['write', 'completion']).optional() }).strict().nullable(),
+  pending: z.object({ operation_id: z.string().uuid(), paths: z.array(z.string()), kind: z.enum(['write', 'completion']).optional(), starting_binding: changeBindingSchema.optional() }).strict().nullable(),
   baseline_architecture_ref: rawRef.optional(), review_ref: rawRef.nullable().optional(), completion_ref: rawRef.nullable().optional(),
+  input_fingerprint_kind: z.literal(INPUT_FINGERPRINT_KIND).optional(), review_policy_id: z.string().min(1).max(128).optional(),
+  operation_ref: rawRef.nullable().optional(), recovery: z.object({ operation_id: z.string().uuid(), status: z.enum(['known', 'unknown']), outcome_ref: rawRef.nullable() }).strict().optional(),
   previous_handle: handle.nullable(), updated_at: z.string(), abandonment_reason: text.optional(),
-}).strict();
+}).strict().superRefine((record, ctx) => {
+  const modern = record.observed?.fingerprint_kind === INPUT_FINGERPRINT_KIND;
+  if (modern !== (record.input_fingerprint_kind === INPUT_FINGERPRINT_KIND) || modern !== !!record.review_policy_id
+    || (!modern && ['operation_ref', 'recovery'].some((field) => Object.hasOwn(record, field))))
+    ctx.addIssue({ code: 'custom', message: 'Change record fingerprint policy is inconsistent.' });
+});
 const referenceValidity = z.enum(['absent', 'current', 'stale']);
 // A bounded immutable view, never a second mutable task record. The binding is
 // always the published version, even when the observed facts require refresh.
 const projectionSchema = z.object({ availability: z.literal('bound'), change: changeBindingSchema,
-  task_id: z.string(), state: recordSchema.shape.state, scope_count: z.number().int().nonnegative(),
+  task_id: z.string(), state: z.enum(['open', 'dirty', 'checking', 'completed', 'interrupted', 'abandoned']), scope_count: z.number().int().nonnegative(),
   selected_scope: z.array(z.object({ path: z.string(), in_scope: z.boolean(), module_uid: uid.optional() }).strict()),
   blocking: z.object({ count: z.number().int().nonnegative(), codes: z.array(z.string()) }).strict(),
   latest_validation: z.object({ status: z.string(), event_id: z.string().optional(), evidence_handle: handle.nullable().optional(),
@@ -80,7 +96,8 @@ const sameRefs = (actual, expected) => Object.keys(expected).every((field) => ac
 const difference = (before, after) => {
   const a = new Map(before.items.map((item) => [key(item.path), item]));
   const b = new Map(after.items.map((item) => [key(item.path), item]));
-  return [...new Set([...a.keys(), ...b.keys()])].filter((path) => a.get(path)?.sha256 !== b.get(path)?.sha256)
+  return [...new Set([...a.keys(), ...b.keys()])].filter((path) => a.get(path)?.type !== b.get(path)?.type || a.get(path)?.sha256 !== b.get(path)?.sha256
+      || (before.fingerprint_kind === after.fingerprint_kind && a.get(path)?.mode !== b.get(path)?.mode))
     .map((path) => (b.get(path) ?? a.get(path)).path).sort();
 };
 
@@ -91,8 +108,11 @@ const difference = (before, after) => {
  * Completion requires cumulative checks and a stable, durably published basis.
  */
 export class ChangeCoordinator {
-  constructor(engine, rules, { generated = [], validator, rulesPath, requireRecordedConfig = false } = {}) {
-    this.engine = engine; this.store = engine.store; this.generated = generated;
+  constructor(dependencies, rules, { generated = [], validator, rulesPath, requireRecordedConfig = false, reviewPolicyId = REVIEW_POLICY_ID } = {}) {
+    this.store = dependencies.store; this.records = dependencies.records ?? new ArchiveRecords(this.store);
+    this.loadConfig = dependencies.loadConfig.bind(dependencies);
+    // Compatibility alias for existing archive fault-injection callers.
+    this.engine = this.records; this.generated = generated; this.reviewPolicyId = z.string().trim().min(1).max(128).parse(reviewPolicyId);
     this.validator = validator ?? new ValidationEngine(this.store, rules, { generated });
     this.rules = rules; this.rulesPath = rulesPath;
     this.requireRecordedConfig = requireRecordedConfig;
@@ -125,9 +145,7 @@ export class ChangeCoordinator {
       if (size > 2048) fault('CHANGE_CORRUPT', 'Current change pointer exceeds its bound.');
       const pointer = pointerSchema.parse(JSON.parse((await readRawSlice(file, 0, size)).toString('utf8')));
       if (pointer.workspace_id !== this.store.workspaceId) fault('CHANGE_CORRUPT', 'Change belongs to a different workspace.');
-      const refs = await this.engine.evidence([pointer.record.handle], signal);
-      for (const field of Object.keys(refs[0])) if (refs[0][field] !== pointer.record[field]) fault('CHANGE_CORRUPT', 'Change archive reference does not match its verified bytes.');
-      const original = await this.engine.stored(pointer.record.handle, 'sol_change_record', 'change_record', signal);
+      const original = await this.records.stored(pointer.record, 'sol_change_record', 'change_record', signal);
       const { version, ...body } = original;
       if (sha(body) !== version || pointer.change.id !== original.id || pointer.change.version !== version) fault('CHANGE_CORRUPT', 'Change identity or version is invalid.');
       const record = recordSchema.parse(original);
@@ -148,7 +166,7 @@ export class ChangeCoordinator {
     value.version = sha(value);
     recordSchema.parse(value);
     // Archive first: an I/O failure never publishes a pointer to partial evidence.
-    const raw = await this.engine.archive(value, 'sol_change_record');
+    const raw = await this.records.archive(value, 'sol_change_record');
     await writeAtomicJSON(this.pointer, { schema_version: 1, workspace_id: this.store.workspaceId,
       change: { id: value.id, version: value.version }, record: raw }, { beforePublish });
     return { record: value, raw };
@@ -190,9 +208,7 @@ export class ChangeCoordinator {
   }
 
   async verified(ref, tool, kind, signal) {
-    const [actual] = await this.engine.evidence([ref.handle], signal);
-    if (!actual.complete || !sameRefs(actual, ref)) fault('REFERENCE_INVALID', 'Change evidence does not match its complete archived bytes.');
-    return this.engine.stored(ref.handle, tool, kind, signal);
+    return this.records.stored(ref, tool, kind, signal);
   }
 
   async currentRules(signal) {
@@ -224,10 +240,11 @@ export class ChangeCoordinator {
       const item = items.get(key(path));
       if (!item || item.type === 'missing') { sources.push({ path, state: 'missing' }); continue; }
       const bytes = await readWorkspaceBytes(this.store.workspaceRoot, path, 1024 * 1024, { signal });
-      if (createHash('sha256').update(bytes).digest('hex') !== item.sha256) fault('CHANGE_REVIEW_STALE', 'Source changed while capturing review evidence; prepare again.');
+      const fact = (await fileFacts(this.store.workspaceRoot, [path], { signal })).get(path);
+      if (createHash('sha256').update(bytes).digest('hex') !== item.sha256 || fact.type !== 'file' || fact.sha256 !== item.sha256 || fact.mode !== item.mode) fault('CHANGE_REVIEW_STALE', 'Source changed while capturing review evidence; prepare again.');
       try { new TextDecoder('utf-8', { fatal: true }).decode(bytes); }
       catch { fault('UNSUPPORTED_ENCODING', 'Review source evidence must be UTF-8 text in this JavaScript slice.'); }
-      sources.push({ path, state: 'file', sha256: item.sha256, raw: await this.engine.archive(bytes, 'sol_change_source', signal, true) });
+      sources.push({ path, state: 'file', sha256: item.sha256, mode: item.mode, raw: await this.records.archive(bytes, 'sol_change_source', signal, true) });
     }
     return sources;
   }
@@ -240,25 +257,25 @@ export class ChangeCoordinator {
     if (!basis || completed.change_id !== record.id || completed.basis_version !== sha(basis)
       || basis.observed_sha !== record.observed.sha256 || basis.scope_sha !== sha(record.scope)
       || basis.intent_sha !== sha({ task: record.task, requirement_ref: record.requirement_ref, acceptance: record.acceptance, reuse: record.reuse })
+      || record.review_policy_id !== this.reviewPolicyId || basis.review_policy_id !== this.reviewPolicyId
+      || basis.input_fingerprint_kind !== INPUT_FINGERPRINT_KIND || record.input_fingerprint_kind !== INPUT_FINGERPRINT_KIND
       || basis.context_config_sha !== config.sha256 || basis.rules_sha !== this.rulesSha
       || completed.conditions_sha !== conditions() || !Array.isArray(completed.evidence_refs)
       || completed.review_ref?.handle !== record.review_ref?.handle) fault('CHANGE_COMPLETION_INVALID', 'Completion evidence does not describe the current task and inputs.');
     const review = await this.verified(completed.review_ref, 'sol_change_review', 'change_review', signal);
-    if (review.change_id !== record.id || review.basis_version !== completed.basis_version || review.unresolved.length) fault('CHANGE_COMPLETION_INVALID', 'Completion review is missing, stale or unresolved.');
-    const prepared = await this.engine.stored(review.context_handle, 'sol_change_review_context', 'change_review_context', signal);
+    if (review.change_id !== record.id || review.review_policy_id !== this.reviewPolicyId || review.basis_version !== completed.basis_version || review.unresolved.length) fault('CHANGE_COMPLETION_INVALID', 'Completion review is missing, stale or unresolved.');
+    const prepared = await this.records.stored(review.context_handle, 'sol_change_review_context', 'change_review_context', signal);
     if (prepared.change_id !== record.id || prepared.version !== sha(prepared.basis) || prepared.version !== completed.basis_version)
       fault('CHANGE_COMPLETION_INVALID', 'Completion review material is missing or belongs to another basis.');
     for (const ref of completed.evidence_refs) {
-      const [actual] = await this.engine.evidence([ref.handle], signal);
+      const [actual] = await this.records.evidence([ref.handle], signal);
       if (!actual.complete || !sameRefs(actual, ref)) fault('CHANGE_COMPLETION_INVALID', 'Completion evidence is unavailable or incomplete.');
     }
     if (!Array.isArray(completed.rule_evidence)) fault('CHANGE_COMPLETION_INVALID', 'Completion lacks its cumulative check evidence.');
     for (const rule of completed.rule_evidence) {
       check(signal);
-      const opened = await this.store.openVerified(rule.receipt_ref.handle);
-      let receipt;
-      try { receipt = JSON.parse((await readRawSlice(opened.raw, 0, opened.meta.bytes)).toString('utf8')); }
-      finally { await opened.close(); }
+      const { value: receipt } = await this.store.readVerifiedJSON(rule.receipt_ref.handle, { maxBytes: 128 * 1024, signal,
+        validateMeta: (meta) => { if (meta.tool !== 'validation_receipt' || !sameRefs({ ...meta, handle: rule.receipt_ref.handle }, rule.receipt_ref)) fault('REFERENCE_INVALID', 'Validation receipt identity is invalid.'); } });
       const fresh = await this.validator.freshness(receipt, [rule.id], { signal });
       if (!fresh.valid_rule_ids.includes(rule.id)) {
         if (fresh.diagnostics.some((d) => d.reason === 'runtime_conditions_unverified'))
@@ -283,11 +300,12 @@ export class ChangeCoordinator {
     await this.currentRules(signal);
     const observed = await this.snapshot(signal);
     const paths = difference(record.observed, observed);
-    const config = await this.engine.loadConfig(signal);
+    const config = await this.loadConfig(signal);
     const configChanged = config.sha256 !== record.context_config_sha || this.rulesSha !== record.rules_sha;
+    const policyChanged = record.review_policy_id !== this.reviewPolicyId || record.input_fingerprint_kind !== INPUT_FINGERPRINT_KIND;
     let completionInvalid = false;
     let completionValidity = record.completion_ref ? 'stale' : 'absent';
-    if (record.state === 'completed' && !paths.length && !configChanged) {
+    if (record.state === 'completed' && !paths.length && !configChanged && !policyChanged) {
       try { await this.completionValid(record, config, signal); completionValidity = 'current'; }
       catch (error) {
         check(signal);
@@ -296,12 +314,12 @@ export class ChangeCoordinator {
       }
     }
     let reviewValidity = record.review_ref ? 'stale' : 'absent';
-    if (record.review_ref && !paths.length && !configChanged && !record.pending && record.state !== 'checking') {
+    if (record.review_ref && !paths.length && !configChanged && !policyChanged && !record.pending && record.state !== 'checking') {
       try {
         const review = await this.verified(record.review_ref, 'sol_change_review', 'change_review', signal);
         const inputs = await this.reviewInputs(current, signal);
-        const prepared = await this.engine.stored(review.context_handle, 'sol_change_review_context', 'change_review_context', signal);
-        if (review.change_id === record.id && review.basis_version === inputs.version && prepared.version === inputs.version
+        const prepared = await this.records.stored(review.context_handle, 'sol_change_review_context', 'change_review_context', signal);
+        if (review.change_id === record.id && review.review_policy_id === this.reviewPolicyId && review.basis_version === inputs.version && prepared.version === inputs.version
           && prepared.version === sha(prepared.basis) && prepared.change_id === record.id && !review.unresolved.length && !inputs.blockers.length) {
           for (const ref of review.evidence_refs) await this.verifiedSource(ref, signal);
           reviewValidity = 'current';
@@ -311,7 +329,11 @@ export class ChangeCoordinator {
         if (!(error instanceof SolFault) || ['INTERRUPTED', 'HOST_STATE_ERROR'].includes(error.code)) throw error;
       }
     }
-    const needsRefresh = !!(paths.length || record.pending || record.state === 'checking' || configChanged || completionInvalid);
+    const recoveredOperation = record.pending ? await this.recoverOperation(record, signal) : null;
+    const pendingChanged = record.pending && (record.state !== 'interrupted' || !record.recovery
+      || record.recovery.status !== recoveredOperation.status || record.recovery.outcome_ref?.handle !== recoveredOperation.outcome_ref?.handle);
+    const needsRefresh = !!(paths.length || pendingChanged
+      || record.state === 'checking' || configChanged || policyChanged || completionInvalid);
     const scope = new Set(record.scope.map((item) => key(item.path)));
     const outside = paths.filter((path) => !scope.has(key(path)));
     const blockers = [...record.blockers];
@@ -319,12 +341,12 @@ export class ChangeCoordinator {
     if (configChanged && !blockers.some((b) => b.code === 'CHANGE_CONFIG_CHANGED')) blockers.push({ code: 'CHANGE_CONFIG_CHANGED', paths: [] });
     if (completionInvalid) blockers.push({ code: 'CHANGE_COMPLETION_INVALID', paths: [] });
     check(signal);
-    return { observed, paths, configChanged, completionInvalid, reviewValidity, completionValidity, needsRefresh, blockers,
+    return { observed, paths, configChanged, policyChanged, completionInvalid, reviewValidity, completionValidity, needsRefresh, blockers, recoveredOperation,
       state: needsRefresh ? record.pending || ['interrupted', 'checking'].includes(record.state) ? 'interrupted' : 'dirty' : record.state };
   }
 
   async verifiedSource(ref, signal) {
-    const [actual] = await this.engine.evidence([ref.handle], signal);
+    const [actual] = await this.records.evidence([ref.handle], signal);
     if (!actual.complete || !sameRefs(actual, ref)) fault('REFERENCE_INVALID', 'Review evidence is unavailable or incomplete.');
   }
 
@@ -371,9 +393,92 @@ export class ChangeCoordinator {
     if (!facts?.needsRefresh) return current;
     const { record } = current;
     const { observed, blockers, paths } = facts;
+    const operation = facts.recoveredOperation ?? null;
     return this.publish({ ...record, state: facts.state,
-      observed, pending: null, evidence_generation: record.evidence_generation + 1, latest_validation: null, blockers, review_ref: null, completion_ref: null,
+      observed, pending: operation?.status === 'unknown' ? record.pending : null,
+      input_fingerprint_kind: INPUT_FINGERPRINT_KIND, review_policy_id: this.reviewPolicyId,
+      ...(operation ? { recovery: operation, operation_ref: operation.outcome_ref } : {}),
+      evidence_generation: record.evidence_generation + 1, latest_validation: null, blockers, review_ref: null, completion_ref: null,
       accumulated_paths: [...new Set([...record.accumulated_paths, ...paths])].sort() }, current.raw);
+  }
+
+  async operationDirectory(create = false) {
+    await this.storage(create);
+    const directory = join(this.directory, 'operations');
+    if (create) await mkdir(directory, { mode: 0o700 }).catch((error) => { if (error.code !== 'EEXIST') throw error; });
+    const info = await lstat(directory).catch((error) => { if (error.code === 'ENOENT' && !create) return null; throw error; });
+    if (info && (!info.isDirectory() || info.isSymbolicLink())) fault('CHANGE_STORAGE', 'Operation references require a regular private directory.');
+    return info ? directory : null;
+  }
+
+  /** This evidence pointer has no authority to change the active task. */
+  async publishOperation(startingBinding, operationId, outcome, signal) {
+    check(signal);
+    const evidence = new Map();
+    const collect = (value, depth = 0) => {
+      if (!value || typeof value !== 'object') return;
+      if (depth > 32) fault('CHANGE_BUDGET', 'Operation evidence exceeds its nesting limit.');
+      try { assertContract('RawRef', value); evidence.set(value.handle, value); return; } catch { /* containers are not refs */ }
+      for (const child of Object.values(value)) collect(child, depth + 1);
+    };
+    collect(outcome);
+    // Validation summaries and change events carry handle fields rather than RawRefs.
+    for (const name of ['evidence_handle', 'event_handle']) {
+      const value = outcome.validation?.[name] ?? outcome[name];
+      if (value) { const [ref] = await this.records.evidence([value], signal); evidence.set(value, ref); }
+    }
+    if (outcome.validation?.evidence_handle) {
+      const { value: receipt } = await this.store.readVerifiedJSON(outcome.validation.evidence_handle, { maxBytes: 128 * 1024, signal,
+        validateMeta: (meta) => { if (meta.tool !== 'validation_receipt' || !meta.complete) fault('REFERENCE_INVALID', 'Operation validation evidence has the wrong type.'); } });
+      assertContract('ValidationReceipt', receipt);
+      collect(receipt.checks.flatMap((result) => result.output));
+    }
+    for (const ref of evidence.values()) await this.verifiedSource(ref, signal);
+    const value = operationOutcomeSchema.parse({ schema_version: 1, kind: 'change_operation_outcome',
+      workspace_id: this.store.workspaceId, change: startingBinding, operation_id: operationId,
+      outcome, evidence_refs: [...evidence.values()] });
+    const raw = await this.records.archive(value, 'sol_change_operation_outcome', signal, false, { callId: operationId });
+    const directory = await this.operationDirectory(true);
+    const path = join(directory, `${operationId}.json`);
+    if (await lstat(path).catch((error) => { if (error.code === 'ENOENT') return null; throw error; }))
+      fault('CHANGE_STORAGE', 'Operation outcome was already published.');
+    await writeAtomicJSON(path, { schema_version: 1, workspace_id: this.store.workspaceId,
+      change: startingBinding, operation_id: operationId, outcome: raw });
+    return raw;
+  }
+
+  async recoverOperation(record, signal) {
+    const pending = record.pending;
+    const unknown = { operation_id: pending.operation_id, status: 'unknown', outcome_ref: null };
+    // Legacy pending writes have no trustworthy starting binding. Never infer one.
+    if (!pending.starting_binding || pending.kind !== 'write') return unknown;
+    let file;
+    try {
+      check(signal);
+      const directory = await this.operationDirectory();
+      if (!directory) return unknown;
+      const path = join(directory, `${pending.operation_id}.json`);
+      const info = await lstat(path).catch((error) => { if (error.code === 'ENOENT') return null; throw error; });
+      if (!info) return unknown;
+      if (!info.isFile() || info.isSymbolicLink() || info.size > 2048) fault('CHANGE_CORRUPT', 'Operation pointer is invalid.');
+      file = await open(path, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0));
+      const size = (await file.stat()).size;
+      if (size > 2048) fault('CHANGE_CORRUPT', 'Operation pointer exceeds its bound.');
+      const pointer = operationPointerSchema.parse(JSON.parse((await readRawSlice(file, 0, size)).toString('utf8')));
+      if (pointer.workspace_id !== this.store.workspaceId || pointer.operation_id !== pending.operation_id
+        || pointer.change.id !== record.id || !sameRefs(pointer.change, pending.starting_binding))
+        fault('CHANGE_CORRUPT', 'Operation pointer has the wrong workspace, task or starting binding.');
+      const outcome = operationOutcomeSchema.parse(await this.verified(pointer.outcome, 'sol_change_operation_outcome', 'change_operation_outcome', signal));
+      if (outcome.operation_id !== pending.operation_id || !sameRefs(outcome.change, pointer.change))
+        fault('CHANGE_CORRUPT', 'Operation outcome does not match its pointer.');
+      for (const ref of outcome.evidence_refs) await this.verifiedSource(ref, signal);
+      return { operation_id: pending.operation_id, status: 'known', outcome_ref: pointer.outcome };
+    } catch (error) {
+      check(signal);
+      if (error instanceof SolFault && error.code === 'NOT_FOUND') return unknown;
+      if (error instanceof SolFault) throw error;
+      fault('CHANGE_CORRUPT', 'Operation outcome could not be verified; the active pointer was preserved.');
+    } finally { await file?.close(); }
   }
 
   bind(current, binding) {
@@ -421,11 +526,11 @@ export class ChangeCoordinator {
         if (args.task.id !== current.record.task.id) fault('CHANGE_TASK', 'Scope adjustment must retain the task identity.');
       } else if (current && !['abandoned', 'completed'].includes(current.record.state)) fault('CHANGE_ACTIVE', 'A writable change already exists; adjust it or explicitly abandon it.');
       await this.currentRules();
-      const config = await this.engine.loadConfig(signal);
+      const config = await this.loadConfig(signal);
       if (!config.architecture) fault('ARCHITECTURE_UNAVAILABLE', 'Architecture is not configured.');
       const index = new ArchitectureIndex(this.store.workspaceRoot, config.architecture.path);
       const snapshot = await index.load(signal);
-      const query = await this.engine.stored(args.reuse.query_handle, 'sol_architecture_query', 'architecture_query', signal);
+      const query = await this.records.stored(args.reuse.query_handle, 'sol_architecture_query', 'architecture_query', signal);
       if (args.expected_architecture_version !== snapshot.version || query.version !== snapshot.version) fault('CHANGE_QUERY_STALE', 'Architecture query is stale; query current ownership and capabilities again.');
       if (snapshot.status !== 'ready') fault('ARCHITECTURE_BLOCKED', 'Resolve architecture diagnostics before opening or expanding a change.');
       if (['reuse', 'extend'].includes(args.reuse.decision) && (!args.reuse.capability || !query.candidates.some((candidate) =>
@@ -448,18 +553,18 @@ export class ChangeCoordinator {
       let baseline = args.change ? current.record.baseline_architecture_ref : null;
       if (!args.change) {
         const sources = await this.captureSources([...snapshot.versions.map((v) => v.path), ...args.scope.map((s) => s.path)], observed, signal);
-        baseline = await this.engine.archive({ schema_version: 1, kind: 'change_baseline', workspace_id: this.store.workspaceId,
+        baseline = await this.records.archive({ schema_version: 1, kind: 'change_baseline', workspace_id: this.store.workspaceId,
           change_id: changeId, architecture: snapshot, observed_sha: observed.sha256, sources }, 'sol_change_baseline', signal);
       }
       await index.fresh(snapshot.versions, signal);
       if ((await this.snapshot()).sha256 !== observed.sha256) fault('CHANGE_REVIEW_STALE', 'Workspace changed during registration; query and register current inputs.');
-      if ((await this.engine.loadConfig(signal)).sha256 !== config.sha256) fault('CHANGE_CONFIG_CHANGED', 'Context configuration changed during registration; prepare current inputs again.');
+      if ((await this.loadConfig(signal)).sha256 !== config.sha256) fault('CHANGE_CONFIG_CHANGED', 'Context configuration changed during registration; prepare current inputs again.');
       check(signal);
       const old = args.change ? current.record : null;
       current = await this.publish({ schema_version: 1, kind: 'change_record', workspace_id: this.store.workspaceId,
         id: changeId, state: old ? 'dirty' : 'open', task: args.task, requirement_ref: args.requirement_ref,
         scope: args.scope, acceptance: args.acceptance, reuse: args.reuse, architecture_version: snapshot.version,
-        context_config_sha: config.sha256, rules_sha: this.rulesSha, observed, accumulated_paths: old?.accumulated_paths ?? [],
+        context_config_sha: config.sha256, rules_sha: this.rulesSha, input_fingerprint_kind: INPUT_FINGERPRINT_KIND, review_policy_id: this.reviewPolicyId, observed, accumulated_paths: old?.accumulated_paths ?? [],
         blockers: [], evidence_generation: (old?.evidence_generation ?? -1) + 1, latest_validation: null, pending: null,
         ...(baseline ? { baseline_architecture_ref: baseline } : {}), review_ref: null, completion_ref: null }, current?.raw);
       return this.packet(current);
@@ -472,7 +577,7 @@ export class ChangeCoordinator {
 
   async reviewInputs(current, signal, capture = false) {
     const record = current.record;
-    const config = await this.engine.loadConfig(signal);
+    const config = await this.loadConfig(signal);
     if (!config.architecture) fault('ARCHITECTURE_UNAVAILABLE', 'Architecture is not configured.');
     await this.currentRules(signal);
     const observed = await this.snapshot(signal);
@@ -497,13 +602,13 @@ export class ChangeCoordinator {
     const docs = (path) => /\.(?:md|txt|rst|adoc)$/iu.test(path) && !registered.has(key(path));
     const missingRules = noChecks.filter((path) => !docs(path));
     if (missingRules.length) blockers.push({ code: 'REQUIRED_CHECK_MISSING', paths: missingRules });
-    const basis = { change_id: record.id, observed_sha: observed.sha256, architecture_version: architecture.version,
+    const basis = { change_id: record.id, review_policy_id: this.reviewPolicyId, input_fingerprint_kind: INPUT_FINGERPRINT_KIND, observed_sha: observed.sha256, architecture_version: architecture.version,
       baseline_sha: record.baseline_architecture_ref?.sha256 ?? null, context_config_sha: config.sha256, rules_sha: this.rulesSha,
       scope_sha: sha(record.scope), intent_sha: sha({ task: record.task, requirement_ref: record.requirement_ref, acceptance: record.acceptance, reuse: record.reuse }),
       plan_sha: sha(plan) };
     const sources = capture ? await this.captureSources([...paths, config.architecture.path, ...record.scope.map((s) => s.path)], observed, signal) : [];
     await index.fresh(architecture.versions, signal);
-    if ((await this.snapshot(signal)).sha256 !== observed.sha256 || (await this.engine.loadConfig(signal)).sha256 !== config.sha256)
+    if ((await this.snapshot(signal)).sha256 !== observed.sha256 || (await this.loadConfig(signal)).sha256 !== config.sha256)
       fault('CHANGE_REVIEW_STALE', 'Review inputs changed during preparation; prepare again.');
     check(signal);
     return { schema_version: 1, kind: 'change_review_context', workspace_id: this.store.workspaceId, change_id: record.id,
@@ -521,7 +626,7 @@ export class ChangeCoordinator {
       if (!['open', 'dirty'].includes(current.record.state)) fault('CHANGE_STATE', 'Review requires an open or dirty change; explicitly resume interruptions.');
       const inputs = await this.reviewInputs(current, signal, args.phase === 'prepare');
       if (args.phase === 'prepare') {
-        const raw = await this.engine.archive(inputs, 'sol_change_review_context', signal);
+        const raw = await this.records.archive(inputs, 'sol_change_review_context', signal);
         const result = { schema_version: 1, kind: 'change_review_context', change: args.change, version: inputs.version,
           status: inputs.blockers.length ? 'blocked' : 'ready', task_complete: false, raw, affected_uids: inputs.maintenance.affected_uids,
           acceptance_count: inputs.acceptance.length, uncovered_count: inputs.maintenance.uncovered.length,
@@ -535,7 +640,7 @@ export class ChangeCoordinator {
         if (Buffer.byteLength(JSON.stringify(result)) > 4096) fault('CHANGE_BUDGET', 'Review preparation exceeds its output budget.');
         return result;
       }
-      const prepared = await this.engine.stored(args.review_context_handle, 'sol_change_review_context', 'change_review_context', signal);
+      const prepared = await this.records.stored(args.review_context_handle, 'sol_change_review_context', 'change_review_context', signal);
       if (prepared.change_id !== current.record.id || prepared.version !== sha(prepared.basis) || prepared.version !== inputs.version)
         fault('CHANGE_REVIEW_STALE', 'Review was prepared against another task or earlier inputs.');
       const output = args.review;
@@ -566,7 +671,7 @@ export class ChangeCoordinator {
         for (const h of [...(row.contract_refs ?? []), ...row.evidence_handles]) {
           const ref = allowed.get(h);
           if (!ref) fault('CHANGE_REVIEW_EVIDENCE', 'Evidence must cite before/current source refs from this preparation.');
-          const [actual] = await this.engine.evidence([h], signal);
+          const [actual] = await this.records.evidence([h], signal);
           if (!actual.complete || !sameRefs(actual, ref)) fault('CHANGE_REVIEW_EVIDENCE', 'Review source evidence is unavailable or incomplete.');
           evidence.push(ref);
         }
@@ -593,8 +698,8 @@ export class ChangeCoordinator {
         if (own.size && !row.evidence_handles.some((h) => own.has(h))) fault('CHANGE_REVIEW_EVIDENCE', 'Uncovered relationship review must cite its source path.');
       }
       const outstanding = [...output.unresolved, ...rows.flatMap((row) => row.unresolved ?? [])];
-      const raw = await this.engine.archive({ schema_version: 1, kind: 'change_review', workspace_id: this.store.workspaceId,
-        change_id: current.record.id, basis_version: inputs.version, context_handle: args.review_context_handle,
+      const raw = await this.records.archive({ schema_version: 1, kind: 'change_review', workspace_id: this.store.workspaceId,
+        change_id: current.record.id, review_policy_id: this.reviewPolicyId, basis_version: inputs.version, context_handle: args.review_context_handle,
         method: { reported: output.method, identity_verified: false }, review: output, unresolved: outstanding,
         evidence_refs: [...new Map(evidence.map((ref) => [ref.handle, ref])).values()] }, 'sol_change_review', signal);
       if ((await this.reviewInputs(current, signal)).version !== inputs.version) fault('CHANGE_REVIEW_STALE', 'Inputs changed during review submission.');
@@ -614,7 +719,7 @@ export class ChangeCoordinator {
       if (!record.previous_handle) break;
       if (seen.has(`record:${record.previous_handle}`)) fault('CHANGE_CORRUPT', 'Change history contains a cycle.');
       seen.add(`record:${record.previous_handle}`);
-      const original = await this.engine.stored(record.previous_handle, 'sol_change_record', 'change_record', signal);
+      const original = await this.records.stored(record.previous_handle, 'sol_change_record', 'change_record', signal);
       const { version, ...body } = original;
       if (sha(body) !== version) fault('CHANGE_CORRUPT', 'Historical change version is invalid.');
       record = recordSchema.parse(original);
@@ -631,10 +736,10 @@ export class ChangeCoordinator {
       if (!initial.record.review_ref || args.review_handle !== initial.record.review_ref.handle) fault('CHANGE_REVIEW_REQUIRED', 'Submit a current review before completing.');
       const inputs = await this.reviewInputs(initial, signal);
       const reviewed = await this.verified(initial.record.review_ref, 'sol_change_review', 'change_review', signal);
-      if (reviewed.change_id !== initial.record.id || reviewed.basis_version !== inputs.version) fault('CHANGE_REVIEW_STALE', 'Review no longer describes current inputs.');
+      if (reviewed.change_id !== initial.record.id || reviewed.review_policy_id !== this.reviewPolicyId || reviewed.basis_version !== inputs.version) fault('CHANGE_REVIEW_STALE', 'Review no longer describes current inputs.');
       const problems = [...inputs.blockers, ...(reviewed.unresolved.length ? [{ code: 'CHANGE_REVIEW_UNRESOLVED', paths: [] }] : [])];
       if (problems.length) return this.packet(initial, { completion_status: 'blocked', completion_blockers: problems, review_context_handle: reviewed.context_handle });
-      const prepared = await this.engine.stored(reviewed.context_handle, 'sol_change_review_context', 'change_review_context', signal);
+      const prepared = await this.records.stored(reviewed.context_handle, 'sol_change_review_context', 'change_review_context', signal);
       const operationId = randomUUID();
       let current = await this.publish({ ...initial.record, state: 'checking', completion_ref: null,
         pending: { kind: 'completion', operation_id: operationId, paths: inputs.paths } }, initial.raw);
@@ -654,7 +759,7 @@ export class ChangeCoordinator {
           freshReceipt = await this.validator.revalidate({ rule_ids: [...remaining], paths: inputs.paths, operation_id: operationId }, { signal, onRunnerState: lease.setRunner });
           current = await this.publish({ ...current.record, latest_validation: receiptSummary(freshReceipt) }, current.raw);
           if (freshReceipt.status !== 'passed') fault(freshReceipt.reason === 'interrupted' ? 'INTERRUPTED' : 'CHANGE_CHECK_FAILED', 'Required checks did not pass; inspect the archived receipt before retrying.');
-          const [receiptRef] = await this.engine.evidence([freshReceipt.evidence_handle], signal);
+          const [receiptRef] = await this.records.evidence([freshReceipt.evidence_handle], signal);
           const verified = await this.validator.reuse(freshReceipt, [...remaining], { signal });
           for (const id of remaining) {
             const required = inputs.plan.rules.find((rule) => rule.id === id).check_ids;
@@ -669,22 +774,19 @@ export class ChangeCoordinator {
           ...prepared.before_sources.flatMap((source) => source.raw ? [source.raw] : []),
           ...ruleEvidence.flatMap((rule) => [rule.receipt_ref, rule.provenance_ref].filter(Boolean))];
         for (const ref of [...new Map(ruleEvidence.map((rule) => [rule.receipt_ref.handle, rule.receipt_ref])).values()]) {
-          const opened = await this.store.openVerified(ref.handle);
-          try {
-            if (opened.meta.tool !== 'validation_receipt' || opened.meta.bytes > 128 * 1024) fault('REFERENCE_INVALID', 'Completion requires a bounded real validation receipt.');
-            const receipt = JSON.parse((await readRawSlice(opened.raw, 0, opened.meta.bytes)).toString('utf8'));
-            assertContract('ValidationReceipt', receipt);
-            if (receipt.status !== 'passed') fault('CHANGE_CHECK_FAILED', 'Completion cites a non-passing receipt.');
-            refs.push(...receipt.checks.flatMap((c) => c.output));
-          } finally { await opened.close(); }
+          const { value: receipt } = await this.store.readVerifiedJSON(ref.handle, { maxBytes: 128 * 1024, signal,
+            validateMeta: (meta) => { if (meta.tool !== 'validation_receipt' || !meta.complete || !sameRefs({ ...meta, handle: ref.handle }, ref)) fault('REFERENCE_INVALID', 'Completion requires a bounded real validation receipt.'); } });
+          assertContract('ValidationReceipt', receipt);
+          if (receipt.status !== 'passed') fault('CHANGE_CHECK_FAILED', 'Completion cites a non-passing receipt.');
+          refs.push(...receipt.checks.flatMap((c) => c.output));
         }
         const evidenceRefs = [...new Map(refs.filter(Boolean).map((ref) => [ref.handle, ref])).values()];
         for (const ref of evidenceRefs) {
-          const [actual] = await this.engine.evidence([ref.handle], signal);
+          const [actual] = await this.records.evidence([ref.handle], signal);
           if (!actual.complete || !sameRefs(actual, ref)) fault('REFERENCE_INVALID', 'Completion evidence is unavailable or incomplete.');
         }
-        const completed = await this.engine.archive({ schema_version: 1, kind: 'change_completion', workspace_id: this.store.workspaceId,
-          change_id: initial.record.id, basis: inputs.basis, basis_version: inputs.version, review_ref: initial.record.review_ref,
+        const completed = await this.records.archive({ schema_version: 1, kind: 'change_completion', workspace_id: this.store.workspaceId,
+          change_id: initial.record.id, review_policy_id: this.reviewPolicyId, basis: inputs.basis, basis_version: inputs.version, review_ref: initial.record.review_ref,
           architecture_versions: inputs.architecture.versions, rule_evidence: ruleEvidence, evidence_refs: evidenceRefs,
           conditions_sha: startConditions, captured_at: new Date().toISOString() }, 'sol_change_completion', signal);
         if ((await this.reviewInputs(current, signal)).version !== inputs.version || conditions() !== startConditions) fault('CHANGE_REVIEW_STALE', 'Inputs changed before completion publication.');
@@ -692,7 +794,7 @@ export class ChangeCoordinator {
         const finalRecord = { ...current.record, state: 'completed', pending: null, completion_ref: completed };
         current = await this.publish(finalRecord, current.raw, { beforePublish: async () => {
           check(signal); await this.currentRules(signal);
-          await this.completionValid(finalRecord, await this.engine.loadConfig(signal), signal);
+          await this.completionValid(finalRecord, await this.loadConfig(signal), signal);
           if ((await this.snapshot(signal)).sha256 !== inputs.basis.observed_sha) fault('CHANGE_REVIEW_STALE', 'Workspace changed while archiving the final record; completion was not published.');
           check(signal);
         } });
@@ -729,10 +831,13 @@ export class ChangeCoordinator {
       check(signal);
       const initial = await this.refresh(await this.read({ signal }), { signal });
       const scope = await this.assertWritableLocked(initial, binding, paths, { signal });
+      const operationId = randomUUID();
       const pending = await this.publish({ ...initial.record, state: 'dirty', latest_validation: null,
-        pending: { operation_id: randomUUID(), paths, kind: 'write' }, evidence_generation: initial.record.evidence_generation + 1 }, initial.raw);
+        recovery: undefined, operation_ref: null,
+        pending: { operation_id: operationId, paths, kind: 'write', starting_binding: binding },
+        evidence_generation: initial.record.evidence_generation + 1 }, initial.raw);
       let outcome;
-      try { check(signal); outcome = await operation(lease); }
+      try { check(signal); outcome = await operation(lease, { operationId, callId: operationId }); }
       catch (error) { outcome = { tool_status: 'error', error: publicError(error), changed_paths: [], changed_paths_known: false }; }
       try {
         // Always capture actual effects after cancellation; never replay a partial write.
@@ -742,7 +847,9 @@ export class ChangeCoordinator {
           changed_paths_known: true, changed_path_count: changed.length, changed_paths_omitted: Math.max(0, changed.length - 50) };
         const outside = changed.filter((path) => !scope.has(key(path)));
         const interrupted = signal?.aborted || outcome.error?.code === 'INTERRUPTED' || outcome.error?.code === 'HOST_STATE_ERROR';
-        const record = { ...pending.record, pending: null, observed,
+        // Cancellation stops execution; durable capture of the already-known effects still proceeds.
+        const operationRef = await this.publishOperation(binding, operationId, outcome);
+        const record = { ...pending.record, pending: null, observed, operation_ref: operationRef,
           state: interrupted ? 'interrupted' : changed.length ? 'dirty' : initial.record.state,
           accumulated_paths: [...new Set([...initial.record.accumulated_paths, ...changed])].sort(),
           latest_validation: changed.length ? outcome.validation ?? null : initial.record.latest_validation,

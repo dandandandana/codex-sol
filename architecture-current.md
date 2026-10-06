@@ -1,6 +1,8 @@
 # 当前架构与测试边界
 
-更新日期：2026-10-05。本文描述当前已存在的实现；设计与后续接口合同仍以 [architecture.md](architecture.md) 和 [contracts.md](contracts.md) 为准。
+更新日期：2026-10-06。本文描述当前已存在的实现；设计与后续接口合同仍以 [architecture.md](architecture.md) 和 [contracts.md](contracts.md) 为准。
+
+2026-10-06 已按 [架构改造设计](architecture-evolution.md) 完成程序批次 A–E；当前验收见 [本轮记录](fixtures/architecture-evolution/README.md)。下文旧阶段计数和宿主证据保留原日期、版本与范围。
 
 ## 原始目标与当前状态
 
@@ -24,6 +26,7 @@ Codex-SoL：本地 Node.js 服务与宿主适配
 │  ├─ 生命周期 Hook：src/context-hook.mjs
 │  ├─ 本地插件 launcher/bootstrap：src/plugin-launcher.mjs、src/plugin-bootstrap.cjs
 │  └─ 原生 Shell Hook：src/native-hook.mjs
+├─ 共享装配：src/runtime.mjs（MCP 与绑定 Hook，未绑定 Hook 按需配置）
 ├─ 工程核心
 │  ├─ 架构声明与代码事实：src/architecture/index.mjs
 │  │  ├─ Normify engine：vendor/normify/engine/
@@ -32,9 +35,11 @@ Codex-SoL：本地 Node.js 服务与宿主适配
 │  ├─ 会话绑定与恢复：src/architecture/session.mjs
 │  └─ 变更、维护复核与完成协调：src/architecture/change.mjs
 └─ SoL 基础能力
-   ├─ 修改与执行：src/patch.mjs、src/managed-command.mjs、src/process.mjs
+   ├─ 修改与执行：src/managed-write.mjs、src/patch.mjs、src/managed-command.mjs、src/process.mjs
+   ├─ 共享输入事实与快照：src/workspace.mjs、src/workspace-snapshot.mjs
    ├─ 验证计划、执行、来源与有效性：src/validation.mjs
-   ├─ 证据与召回：src/store.mjs、src/pack.mjs、src/read.mjs、src/recall.mjs
+   ├─ 类型化证据记录：src/records.mjs（Context 与协调器共享，无任务状态）
+   ├─ 字节证据与召回：src/store.mjs、src/pack.mjs、src/read.mjs、src/recall.mjs
    └─ 边界：src/workspace.mjs、src/workspace-lock.mjs、src/host-cancellation.mjs、src/schema.mjs
 ```
 
@@ -71,7 +76,7 @@ Codex-SoL：本地 Node.js 服务与宿主适配
 
 ## 数据、覆盖与限制
 
-- 架构声明与 policy 来自工作区配置指定的文件；`architecture.example.json` 是本项目示例，不应复制成别的项目的实际架构。当前 Linux 适配阶段索引为 **ready：21 模块 / 48 能力 / 77 静态导入**，见 [当前索引](fixtures/linux/index-evidence.json)；新增能力仅为现有工作区模块的公共路径校验，未新增职责模块。2026-10-04 Host 的 **21/47/77** 与 Context 的 **20/44/70** 分别保留在 [Host 索引](fixtures/host/index-evidence.json) 和 [Context 索引](fixtures/context-state/index-evidence.json)。3 条非阻塞诊断仍为 layout/missing、root-no-source 与 launcher leaf-too-coarse；CommonJS bootstrap 记录为 `non_javascript_source`，不伪造静态导出。IF-004 的 **20/44/66** 仍是历史数据，见 [闭环索引](fixtures/closure/index-evidence.json)。
+- 架构声明与 policy 来自工作区配置指定的文件；`architecture.example.json` 是本项目示例，不应复制成别的项目的实际架构。2026-10-05 Linux 适配阶段历史索引为 **ready：21 模块 / 48 能力 / 77 静态导入**，见 [该阶段索引](fixtures/linux/index-evidence.json)；新增能力仅为现有工作区模块的公共路径校验，未新增职责模块。2026-10-04 Host 的 **21/47/77** 与 Context 的 **20/44/70** 分别保留在 [Host 索引](fixtures/host/index-evidence.json) 和 [Context 索引](fixtures/context-state/index-evidence.json)。该阶段的 3 条非阻塞诊断为 layout/missing、root-no-source 与 launcher leaf-too-coarse；CommonJS bootstrap 记录为 `non_javascript_source`，不伪造静态导出。IF-004 的 **20/44/66** 仍是历史数据，见 [闭环索引](fixtures/closure/index-evidence.json)。
 - Host 插件只接受显式项目 `.codex/sol-project.json`；Git 项目用最近的真实根，无 Git 时只看精确 cwd。Hook/MCP launcher realpath 必须匹配。运行入口用相同的最小 OS 环境重启；`execution_path` 可固定 runtime/检查 PATH，未配置时继承路径变化会反映在 freshness。完整配置和打包边界见 [合同 §15](contracts.md#15-宿主写门禁与本地插件接入)。
 - 查询按已声明 source 收集事实；收尾额外核对累计未登记 JS 源码，不是扫描全部仓库的发现平台，也不是完整调用图。动态导入、间接调用、外部依赖及其他语言列未覆盖。Normify revision 仅作声明元数据。
 - Context 职责契约由配置指定；来源与产物使用现有不可变 ObservationStore。完整包上限 4096 UTF-8 字节，省略内容通过 recall 获取。
@@ -102,4 +107,13 @@ TUI 0.158 初始 `/hooks` 审阅、`sol_context_prepare`、Stop `{}` 和源码 S
 
 WSL2 Ubuntu 24.04 x64 的 Linux 文件系统完整 `npm run check` **248 通过 / 1 项 Windows 专项跳过 / 0 失败**；Windows 为 **240 通过 / 9 项 Linux 专项跳过 / 0 失败**，均含 249 个计数测试、审计 0 漏洞。77 个运行/检查输入两平台字节相同且各自运行前后不变。两次 Linux 旧夹具失败及修正、WSL DNS 的临时审计方式均保留于 [Linux 检查记录](fixtures/linux/check-evidence.json)。
 
-默认 Linux 登录终端的 Node 22 另有 34/34 专项通过；实际 Codex 0.160.0 的隔离安装/重启装载验证了 1773 文件包、四个 Hook 和十三工具，见 [Linux Host 记录](fixtures/linux/host-evidence.json)。当前索引 **21/48/77、ready**，3 条既有非阻塞诊断，见 [索引](fixtures/linux/index-evidence.json)。Linux TUI 的交互信任/Esc、Linux 宿主取消桥接、受限 sandbox／ask 和独立普通 Linux 主机仍未验收；未增加模型回合、公开发布或版本号。
+默认 Linux 登录终端的 Node 22 另有 34/34 专项通过；实际 Codex 0.160.0 的隔离安装/重启装载验证了 1773 文件包、四个 Hook 和十三工具，见 [Linux Host 记录](fixtures/linux/host-evidence.json)。当时索引 **21/48/77、ready**，3 条既有非阻塞诊断，见 [索引](fixtures/linux/index-evidence.json)。Linux TUI 的交互信任/Esc、Linux 宿主取消桥接、受限 sandbox／ask 和独立普通 Linux 主机仍未验收；未增加模型回合、公开发布或版本号。
+## 文件事实、证据与恢复架构演进（2026-10-06）
+
+按 [设计](architecture-evolution.md) 实施程序 A–E，具体反例、计数、输入 SHA 和未验收项见 [本轮记录](fixtures/architecture-evolution/README.md)。新增受管文件写入、共享快照、类型化归档记录、runtime 装配四个模块；ChangeCoordinator 继续独占任务状态，Context/Hook 读投影，默认工具注册及公开合同保持一致。
+
+正式替换保留普通 POSIX 权限，同内容不替换 inode；FileFacts 与 content_mode_v1 快照使 chmod 单独变化可见。窄 watch 只在无关分支剪枝，完整范围核对仍保留。进程启动、归档与清理分开记录，启动后失败不会误报未执行；清理失败保留已知路径、回执和 outcome。旧 snapshot/completion 先按旧 hash 严格验证，status 显式升级活动指针，旧档案不改写、不重放。
+
+ObservationStore 的候选数据来自同次完整验证扫描，JSON 记录消费方使用有界 reader；pack/recall 不再重新加载完整 raw Buffer。每页完整 SHA 成本仍在，不能据此宣称减少模型 token 或取消完整 I/O。复核准则标记和操作证据引用已纳入恢复/完成核验；只读 check-config 给出配置覆盖范围，CI portable 与真实 native 分离。
+
+当前索引为 ready：25 模块 / 67 能力 / 99 静态导入，24 个有源码模块的 source fingerprint 全部相符，0 阻塞、4 非阻塞诊断，见 [索引证据](fixtures/architecture-evolution/index-evidence.json)。完整平台检查与最低版本实测以 [检查证据](fixtures/architecture-evolution/check-evidence.json) 为准；远端 workflow、当前 Desktop GUI 和模型开关 A/B 不能由程序测试推断通过。

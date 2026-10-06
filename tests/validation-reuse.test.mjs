@@ -91,6 +91,14 @@ test('real change validation records its source and preserves event redelivery d
   assert.equal(await runs('a'), 'x');
 });
 
+test('receipt freshness reads bounded JSON and verifies outputs without reopening verified raw descriptors', async (t) => {
+  const { engine, store, execute } = await fixture(t);
+  const receipt = await execute();
+  store.openVerified = async () => { throw new Error('A verified raw descriptor must not be reopened by validation.'); };
+  assert.deepEqual((await engine.reuse(receipt, ['a', 'b'])).valid_rule_ids, ['a', 'b']);
+  assert.deepEqual((await engine.freshness(receipt, ['a', 'b'])).valid_rule_ids, ['a', 'b']);
+});
+
 test('per-rule watched changes and missing seed transitions invalidate only their own rule', async (t) => {
   const { root, engine, execute, runs } = await fixture(t);
   const receipt = await execute();
@@ -108,6 +116,43 @@ test('per-rule watched changes and missing seed transitions invalidate only thei
   assert.deepEqual((await engine.reuse(receipt, ['a', 'b'])).valid_rule_ids, ['a', 'b']);
   await unlink(join(root, 'a.txt'));
   assert.deepEqual((await engine.reuse(receipt, ['a', 'b'])).valid_rule_ids, ['b']);
+});
+
+test('permission-only watched changes invalidate just their rule without executing again', {
+  skip: process.platform === 'win32' && 'Ordinary POSIX permissions require a POSIX filesystem.',
+}, async (t) => {
+  const { root, engine, execute, runs } = await fixture(t);
+  await chmod(join(root, 'a.txt'), 0o755);
+  const receipt = await execute();
+  await chmod(join(root, 'a.txt'), 0o644);
+  const reuse = await engine.reuse(receipt, ['a', 'b']);
+  assert.deepEqual(reuse.valid_rule_ids, ['b']);
+  assert.equal(reuse.diagnostics[0].reason, 'watched_inputs_changed');
+  assert.deepEqual((await engine.freshness(receipt, ['a', 'b'])).valid_rule_ids, ['b']);
+  assert.equal(await runs('a'), 'x'); assert.equal(await runs('b'), 'x');
+});
+
+test('verified historical provenance without a fingerprint policy remains recallable and ineligible', async (t) => {
+  const { store, engine, execute, record, recordPath, runs } = await fixture(t);
+  const receipt = await execute();
+  const pointer = await record(receipt);
+  const original = await store.readVerified(pointer.provenance_ref.handle);
+  const historical = JSON.parse(original.buffer.toString());
+  historical.rules.forEach((rule) => { delete rule.input_fingerprint_kind; });
+  const writer = await store.beginCapture({ schema_version: 1, workspace_id: store.workspaceId,
+    call_id: original.meta.call_id, tool: 'validation_provenance', captured_at: new Date().toISOString(),
+    media_type: 'application/json', encoding: 'utf-8', source_form: 'response_json', channel: 'response' });
+  const bytes = Buffer.from(JSON.stringify(historical));
+  await writer.write(bytes); const legacyRef = await writer.commit({ complete: true });
+  await writeFile(recordPath(receipt), JSON.stringify({ ...pointer, provenance_ref: legacyRef }));
+  for (const method of ['reuse', 'freshness']) {
+    const result = await engine[method](receipt, ['a', 'b']);
+    assert.deepEqual(result.valid_rule_ids, []);
+    assert.ok(result.diagnostics.every((item) => item.reason === 'input_fingerprint_unknown'));
+  }
+  assert.deepEqual((await store.readVerified(legacyRef.handle)).buffer, bytes);
+  assert.deepEqual((await store.readVerified(pointer.provenance_ref.handle)).buffer, original.buffer);
+  assert.equal(await runs('a'), 'x'); assert.equal(await runs('b'), 'x');
 });
 
 test('a successful command resolved through PATH remains unverified for local reuse', async (t) => {

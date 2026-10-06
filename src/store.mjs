@@ -7,6 +7,7 @@ import { assertContract } from './schema.mjs';
 const HANDLE_RE = /^[A-Za-z0-9_-]{16,128}$/u;
 const READ_FLAGS = constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0);
 const CHUNK_BYTES = 64 * 1024;
+const META_BYTES = 64 * 1024;
 
 export class SolFault extends Error {
   constructor(code, message, retryable = false) {
@@ -50,17 +51,53 @@ async function requireRegular(path) {
   return stats;
 }
 
-async function hashFile(file) {
+async function hashFile(file, signal) {
   const digest = createHash('sha256');
   const block = Buffer.allocUnsafe(CHUNK_BYTES);
   let position = 0;
   while (true) {
+    checkSignal(signal);
     const { bytesRead } = await file.read(block, 0, block.length, position);
     if (bytesRead === 0) break;
     digest.update(block.subarray(0, bytesRead));
     position += bytesRead;
   }
   return { sha256: digest.digest('hex'), bytes: position };
+}
+
+function checkSignal(signal) {
+  if (signal?.aborted) throw interruptionFault(signal, 'Observation reading was interrupted.');
+}
+
+function sameFile(before, after) {
+  return ['dev', 'ino', 'size', 'mtimeMs', 'ctimeMs'].every((key) => before[key] === after[key]);
+}
+
+async function readMeta(directory) {
+  const path = join(directory, 'meta.json');
+  const before = await requireRegular(path);
+  if (before.size > META_BYTES) throw new SolFault('CORRUPT', 'Observation metadata exceeds its storage limit.');
+  const file = await open(path, READ_FLAGS);
+  try {
+    const opened = await file.stat();
+    if (!sameFile(before, opened)) throw new SolFault('CORRUPT', 'Observation metadata changed while opening.');
+    const bytes = await readExact(file, 0, opened.size);
+    if (!sameFile(opened, await file.stat()) || !sameFile(opened, await requireRegular(path))) {
+      throw new SolFault('CORRUPT', 'Observation metadata changed while reading.');
+    }
+    try { return JSON.parse(new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes)); }
+    catch { throw new SolFault('CORRUPT', 'Observation metadata is not valid UTF-8 JSON.'); }
+  } finally { await file.close(); }
+}
+
+function validateStoredMeta(meta, handle, workspaceId) {
+  try {
+    const { handle: storedHandle, bytes, sha256, index_sha256, complete, line_count, ...capture } = meta;
+    assertContract('CaptureMeta', capture);
+    assertContract('RawRef', { schema_version: 1, handle: storedHandle, bytes, sha256, complete, media_type: meta.media_type });
+    if (storedHandle !== handle || capture.workspace_id !== workspaceId || !/^[a-f0-9]{64}$/u.test(index_sha256)
+      || !Number.isSafeInteger(bytes) || !Number.isSafeInteger(line_count) || line_count < 0) throw new Error('invalid metadata');
+  } catch { throw new SolFault('CORRUPT', 'Observation metadata is invalid.'); }
 }
 
 async function readExact(file, start, length) {
@@ -223,49 +260,136 @@ export class ObservationStore {
     throw new SolFault('STORAGE_ERROR', 'Could not allocate an observation handle.');
   }
 
-  async openVerified(handle) {
+  /**
+   * Private collectors may retain bounded candidates, but must not publish chunks.
+   * onChunk receives borrowed, read-only bytes, valid only during that callback.
+   * finish runs only after complete raw/index verification and metadata recheck.
+   * No raw descriptor escapes; success, failure and cancellation close every fd.
+   */
+  async withVerifiedRead(handle, createCollector = () => ({}), { signal, expectedMeta, validateMeta } = {}) {
+    checkSignal(signal);
     if (!HANDLE_RE.test(handle)) throw new SolFault('NOT_FOUND', 'Observation handle was not found.');
     const directory = join(this.observationsRoot, handle);
     let raw;
     let index;
+    let failed = false;
     try {
       const dirStats = await lstat(directory);
       if (!dirStats.isDirectory() || dirStats.isSymbolicLink()) throw new SolFault('CORRUPT', 'Observation directory is not regular.');
-      await requireRegular(join(directory, 'meta.json'));
-      await requireRegular(join(directory, 'raw'));
-      await requireRegular(join(directory, 'lines.idx'));
-      const metaFile = await open(join(directory, 'meta.json'), READ_FLAGS);
-      let meta;
-      try {
-        meta = JSON.parse(await metaFile.readFile('utf8'));
-      } finally {
-        await metaFile.close();
+      const meta = await readMeta(directory);
+      validateStoredMeta(meta, handle, this.workspaceId);
+      Object.freeze(meta);
+      const identity = JSON.stringify(meta);
+      if (expectedMeta && identity !== JSON.stringify(expectedMeta)) throw new SolFault('CORRUPT', 'Observation identity changed between verified scans.');
+      await validateMeta?.(meta);
+      const collector = await createCollector(meta);
+      const rawPath = join(directory, 'raw');
+      const indexPath = join(directory, 'lines.idx');
+      const rawBefore = await requireRegular(rawPath);
+      const indexBefore = await requireRegular(indexPath);
+      if (rawBefore.size !== meta.bytes) throw new SolFault('CORRUPT', 'Observation byte count does not match metadata.');
+      raw = await open(rawPath, READ_FLAGS);
+      index = await open(indexPath, READ_FLAGS);
+      if (!sameFile(rawBefore, await raw.stat()) || !sameFile(indexBefore, await index.stat())) {
+        throw new SolFault('CORRUPT', 'Observation files changed while opening.');
       }
-      if (meta.handle !== handle || meta.workspace_id !== this.workspaceId || !Number.isSafeInteger(meta.bytes) || meta.bytes < 0 || !/^[a-f0-9]{64}$/u.test(meta.sha256) || !/^[a-f0-9]{64}$/u.test(meta.index_sha256) || !Number.isSafeInteger(meta.line_count) || meta.line_count < 0) {
-        throw new SolFault('CORRUPT', 'Observation metadata is invalid.');
+      const digest = createHash('sha256');
+      const expectedIndex = createHash('sha256').update(Buffer.alloc(8));
+      const offsets = Buffer.allocUnsafe(CHUNK_BYTES);
+      const block = Buffer.allocUnsafe(CHUNK_BYTES);
+      let position = 0;
+      let newlines = 0;
+      let lastByte;
+      while (true) {
+        checkSignal(signal);
+        const { bytesRead } = await raw.read(block, 0, block.length, position);
+        if (!bytesRead) break;
+        if (position + bytesRead > meta.bytes) throw new SolFault('CORRUPT', 'Observation grew during verification.');
+        const chunk = block.subarray(0, bytesRead);
+        digest.update(chunk);
+        let filled = 0;
+        for (let i = 0; i < bytesRead; i += 1) {
+          if (chunk[i] !== 10) continue;
+          offsets.writeBigUInt64LE(BigInt(position + i + 1), filled);
+          filled += 8;
+          newlines += 1;
+          if (filled === offsets.length) { expectedIndex.update(offsets); filled = 0; }
+        }
+        if (filled) expectedIndex.update(offsets.subarray(0, filled));
+        lastByte = chunk[bytesRead - 1];
+        await collector.onChunk?.(chunk, position);
+        position += bytesRead;
       }
-      raw = await open(join(directory, 'raw'), READ_FLAGS);
-      index = await open(join(directory, 'lines.idx'), READ_FLAGS);
-      const rawHash = await hashFile(raw);
-      const indexHash = await hashFile(index);
-      const endsWithLf = meta.bytes > 0 && (await readExact(raw, meta.bytes - 1, 1))[0] === 0x0a;
-      const indexEntries = meta.bytes === 0 ? 1 : meta.line_count + (endsWithLf ? 1 : 0);
-      if (rawHash.bytes !== meta.bytes || rawHash.sha256 !== meta.sha256 || indexHash.sha256 !== meta.index_sha256 || indexHash.bytes !== indexEntries * 8) {
+      const indexHash = await hashFile(index, signal);
+      const lineCount = position === 0 ? 0 : newlines + (lastByte === 10 ? 0 : 1);
+      if (position !== meta.bytes || digest.digest('hex') !== meta.sha256
+        || indexHash.sha256 !== meta.index_sha256 || expectedIndex.digest('hex') !== meta.index_sha256
+        || indexHash.bytes !== (newlines + 1) * 8 || lineCount !== meta.line_count) {
         throw new SolFault('CORRUPT', 'Observation content or line index failed verification.');
       }
+      checkSignal(signal);
+      if (identity !== JSON.stringify(await readMeta(directory))
+        || !sameFile(rawBefore, await raw.stat()) || !sameFile(rawBefore, await requireRegular(rawPath))
+        || !sameFile(indexBefore, await index.stat()) || !sameFile(indexBefore, await requireRegular(indexPath))) {
+        throw new SolFault('CORRUPT', 'Observation changed during verification.');
+      }
+      checkSignal(signal);
+      const value = await collector.finish?.();
+      checkSignal(signal);
+      return { meta, value };
+    } catch (error) {
+      failed = true;
+      throw ioFault(error);
+    } finally {
+      const closed = await Promise.allSettled([raw?.close(), index?.close()]);
+      if (!failed && closed.some((entry) => entry.status === 'rejected')) {
+        throw new SolFault('IO_ERROR', 'Could not close verified observation files.', true);
+      }
+      if (!failed) checkSignal(signal);
+    }
+  }
+
+  async verify(handle, options = {}) {
+    const { meta } = await this.withVerifiedRead(handle, undefined, options);
+    return { meta };
+  }
+
+  /** Legacy full read. Production record callers must pass their own maxBytes. */
+  async readVerified(handle, { maxBytes = Infinity, ...options } = {}) {
+    if (!(maxBytes === Infinity || Number.isSafeInteger(maxBytes) && maxBytes >= 0)) throw new TypeError('maxBytes must be a nonnegative safe integer.');
+    const { meta, value: buffer } = await this.withVerifiedRead(handle, (meta) => {
+      if (meta.bytes > maxBytes) throw new SolFault('INPUT_LIMIT', 'Observation exceeds the verified read byte limit.');
+      const candidate = Buffer.alloc(meta.bytes);
+      return { onChunk: (chunk, start) => { chunk.copy(candidate, start); }, finish: () => candidate };
+    }, options);
+    return { meta, buffer };
+  }
+
+  async readVerifiedText(handle, { maxBytes = 256 * 1024, ...options } = {}) {
+    const { meta, buffer } = await this.readVerified(handle, { maxBytes, ...options });
+    try { return { meta, text: new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(buffer) }; }
+    catch { throw new SolFault('UNSUPPORTED_ENCODING', 'Observation is not valid UTF-8 text.'); }
+  }
+
+  async readVerifiedJSON(handle, options = {}) {
+    const { meta, text } = await this.readVerifiedText(handle, options);
+    try { return { meta, value: JSON.parse(text) }; }
+    catch { throw new SolFault('CORRUPT', 'Observation record is not valid JSON.'); }
+  }
+
+  /** @deprecated Bare handles do not guarantee any subsequent read is verified. */
+  async openVerified(handle) {
+    const { meta } = await this.verify(handle);
+    let raw;
+    let index;
+    try {
+      const directory = join(this.observationsRoot, handle);
+      raw = await open(join(directory, 'raw'), READ_FLAGS);
+      index = await open(join(directory, 'lines.idx'), READ_FLAGS);
       return { meta, raw, index, close: async () => { await Promise.allSettled([raw.close(), index.close()]); } };
     } catch (error) {
       await Promise.allSettled([raw?.close(), index?.close()]);
       throw ioFault(error);
-    }
-  }
-
-  async readVerified(handle) {
-    const opened = await this.openVerified(handle);
-    try {
-      return { meta: opened.meta, buffer: await readExact(opened.raw, 0, opened.meta.bytes) };
-    } finally {
-      await opened.close();
     }
   }
 }

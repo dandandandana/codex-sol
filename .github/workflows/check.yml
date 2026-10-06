@@ -1,0 +1,71 @@
+name: Checks
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      run_native:
+        description: Run real Codex patch integration on the configured self-hosted runners
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  portable:
+    name: Portable (${{ matrix.os }}, Node ${{ matrix.node }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: ['20.8.0', 24]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm audit --audit-level=high --registry=https://registry.npmjs.org/
+      - name: Run portable tests
+        run: node scripts/ci-check.mjs portable
+
+  native-linux:
+    if: github.event_name == 'workflow_dispatch' && inputs.run_native == true
+    name: Native Codex (Linux)
+    runs-on: [self-hosted, linux, x64, codex-native]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm audit --audit-level=high --registry=https://registry.npmjs.org/
+      - name: Run full native tests
+        run: node scripts/ci-check.mjs native
+        env:
+          CODEX_SOL_PATCH_EXECUTABLE: ${{ vars.CODEX_SOL_LINUX_PATCH_EXECUTABLE }}
+
+  native-windows:
+    if: github.event_name == 'workflow_dispatch' && inputs.run_native == true
+    name: Native Codex (Windows)
+    runs-on: [self-hosted, windows, x64, codex-native]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm audit --audit-level=high --registry=https://registry.npmjs.org/
+      - name: Run full native tests
+        run: node scripts/ci-check.mjs native
+        env:
+          CODEX_SOL_PATCH_EXECUTABLE: ${{ vars.CODEX_SOL_WINDOWS_PATCH_EXECUTABLE }}

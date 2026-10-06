@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { appendFile, copyFile, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
+import { appendFile, chmod, copyFile, mkdir, mkdtemp, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createSolServer } from '../src/server.mjs';
@@ -296,8 +296,8 @@ test('validation rules edited on disk require a server restart instead of comple
 
 test('source drift during final record archive does not publish completed', async (t) => {
   const f = await fixture(t); const state = await edited(f); const reviewed = await submit(f, await prepare(f, state.change));
-  const archive = f.engine.archive.bind(f.engine); let injected = false;
-  f.engine.archive = async (value, tool, ...rest) => {
+  const archive = f.changes.records.archive.bind(f.changes.records); let injected = false;
+  f.changes.records.archive = async (value, tool, ...rest) => {
     const raw = await archive(value, tool, ...rest);
     if (!injected && tool === 'sol_change_record' && value.state === 'completed') { injected = true; await writeFile(join(f.root, 'src/html.mjs'), escaped + 'export const changedExternally = true;\n'); }
     return raw;
@@ -310,8 +310,8 @@ test('source drift during final record archive does not publish completed', asyn
 test('completion archive failure and cancellation preserve unfinished actual state and explicit recovery', async (t) => {
   for (const mode of ['storage', 'cancel']) await t.test(mode, async (child) => {
     const f = await fixture(child); const state = await edited(f); const reviewed = await submit(f, await prepare(f, state.change));
-    const controller = new AbortController(); const archive = f.engine.archive.bind(f.engine);
-    f.engine.archive = async (value, tool, ...rest) => {
+    const controller = new AbortController(); const archive = f.changes.records.archive.bind(f.changes.records);
+    f.changes.records.archive = async (value, tool, ...rest) => {
       if (tool === 'sol_change_completion') {
         if (mode === 'storage') throw new Error('test archive failure');
         controller.abort();
@@ -365,4 +365,55 @@ test('real STDIO closes a registered feature and exposes the two opt-in tools', 
   const completed = await call('sol_change_complete', { change: accepted.change, review_handle: accepted.review.handle });
   assert.equal(completed.task_complete, true, JSON.stringify(completed)); assert.equal((await call('sol_change_status')).task_complete, true);
   assert.equal((await client.request('tools/list')).result.tools.length, 13);
+});
+
+test('review policy alone invalidates completion and review in read-only projections then publishes a new binding', async (t) => {
+  const f = await fixture(t); const state = await edited(f);
+  const prepared = await prepare(f, state.change); const reviewed = await submit(f, prepared);
+  const completed = await f.changes.complete({ change: reviewed.change, review_handle: reviewed.review.handle });
+  assert.equal(completed.task_complete, true);
+  const before = await readFile(f.changes.pointer); const archives = await readdir(f.store.observationsRoot);
+  const counts = [await f.count('html'), await f.count('view')];
+  f.changes.reviewPolicyId = 'change-review-v2-fixture';
+  const inspection = await f.changes.inspectLocked({ targets: ['src/html.mjs'] });
+  assert.equal(inspection.projection.task_complete, false);
+  assert.equal(inspection.projection.review.validity, 'stale');
+  assert.equal(inspection.projection.completion.validity, 'stale');
+  assert.equal(inspection.projection.needs_status_refresh, true);
+  assert.deepEqual(await readFile(f.changes.pointer), before);
+  assert.deepEqual(await readdir(f.store.observationsRoot), archives);
+  let current = await f.changes.status();
+  assert.equal(current.state, 'dirty'); assert.equal(current.task_complete, false);
+  assert.equal(current.accumulated_path_count, completed.accumulated_path_count);
+  const refreshed = await f.changes.read();
+  assert.equal(refreshed.record.previous_handle, completed.raw.handle);
+  assert.equal(refreshed.record.review_policy_id, 'change-review-v2-fixture');
+  assert.equal(refreshed.record.review_ref, null); assert.equal(refreshed.record.completion_ref, null);
+  await fault(f.changes.review({ change: current.change, phase: 'submit', review_context_handle: prepared.packet.raw.handle,
+    review: output(prepared.context) }), 'CHANGE_REVIEW_STALE');
+  const renewed = await prepare(f, current.change);
+  assert.equal(renewed.context.basis.review_policy_id, 'change-review-v2-fixture');
+  assert.equal(renewed.context.sources.find((source) => source.path === 'src/html.mjs').mode, process.platform === 'win32' ? null : (await stat(join(f.root, 'src/html.mjs'))).mode & 0o777);
+  current = await submit(f, renewed);
+  assert.equal(current.review_status, 'ready');
+  assert.deepEqual([await f.count('html'), await f.count('view')], counts);
+  const historical = await f.engine.stored(completed.raw.handle, 'sol_change_record', 'change_record');
+  assert.equal(historical.state, 'completed'); assert.equal(historical.review_policy_id, 'change-review-v1');
+});
+
+test('chmod alone stales current completion and captured source metadata without running checks', { skip: process.platform === 'win32' }, async (t) => {
+  const f = await fixture(t); const state = await edited(f);
+  const reviewed = await submit(f, await prepare(f, state.change));
+  const completed = await f.changes.complete({ change: reviewed.change, review_handle: reviewed.review.handle });
+  assert.equal(completed.task_complete, true);
+  const sourcePath = join(f.root, 'src/html.mjs'); const originalMode = (await stat(sourcePath)).mode & 0o777;
+  const counts = [await f.count('html'), await f.count('view')]; const pointer = await readFile(f.changes.pointer);
+  await chmod(sourcePath, originalMode === 0o755 ? 0o644 : 0o755);
+  const inspection = await f.changes.inspectLocked({ targets: ['src/html.mjs'] });
+  assert.equal(inspection.projection.task_complete, false); assert.equal(inspection.projection.needs_status_refresh, true);
+  assert.deepEqual(await readFile(f.changes.pointer), pointer);
+  const refreshed = await f.changes.status(); assert.equal(refreshed.state, 'dirty');
+  const material = await prepare(f, refreshed.change);
+  assert.equal(material.context.sources.find((source) => source.path === 'src/html.mjs').mode, originalMode === 0o755 ? 0o644 : 0o755);
+  assert.deepEqual([await f.count('html'), await f.count('view')], counts);
 });

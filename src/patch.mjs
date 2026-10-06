@@ -27,13 +27,13 @@ export function patchPaths(patch) {
   return [...paths].sort();
 }
 
-export async function applyManagedPatch(store, validator, patch, { executable, generated = [], signal, lease } = {}) {
+export async function applyManagedPatch(store, validator, patch, { executable, generated = [], signal, lease, callId } = {}) {
   const paths = patchPaths(patch);
   if (!executable || !isAbsolute(executable) || !(await stat(executable)).isFile()) throw new SolFault('CONFIG_ERROR', 'Configure CODEX_SOL_PATCH_EXECUTABLE with the installed Codex executable path.');
   if (process.platform === 'linux') await access(executable, constants.X_OK).catch(() => {
     throw new SolFault('CONFIG_ERROR', 'The configured Codex patch executable is not executable by this user.');
   });
-  // Validation is also repeated under the lease by fileState in runManagedCommand.
+  // Validation is repeated under the lease by fileFacts in runManagedCommand.
   for (const path of paths) await workspaceFile(store.workspaceRoot, path, { allowMissing: true });
-  return runManagedCommand(store, validator, { argv: [executable, '--codex-run-as-apply-patch', patch], cwd: '.', timeout_ms: 30000 }, { tool: 'sol_apply_patch', paths, generated, signal, lease });
+  return runManagedCommand(store, validator, { argv: [executable, '--codex-run-as-apply-patch', patch], cwd: '.', timeout_ms: 30000 }, { tool: 'sol_apply_patch', paths, generated, signal, lease, ...(callId ? { callId } : {}) });
 }

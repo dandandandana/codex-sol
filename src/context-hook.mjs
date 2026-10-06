@@ -1,13 +1,12 @@
 import { realpath } from 'node:fs/promises';
 import { relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createObservationStore, SolFault } from './store.mjs';
-import { assertContract } from './schema.mjs';
+import { SolFault } from './store.mjs';
 import { readWorkspaceBytes } from './workspace.mjs';
 import { withWorkspaceLock } from './workspace-lock.mjs';
 import { patchPaths } from './patch.mjs';
-import { ContextEngine, contextError } from './architecture/context.mjs';
-import { ContextSessions } from './architecture/session.mjs';
+import { contextError } from './architecture/context.mjs';
+import { createSolRuntime, configureRuntimeChanges } from './runtime.mjs';
 
 const nativeWrites = new Set(['apply_patch', 'Edit', 'Write']);
 const managedWrite = (name) => typeof name === 'string' ? /^mcp__.+__sol_apply_(patch|changes)$/u.exec(name)?.[1] : undefined;
@@ -39,12 +38,11 @@ export async function handleContextHook(event, { workspace, rules, validationRul
     const normalize = (path) => process.platform === 'win32' ? path.toLowerCase() : path;
     const prefix = normalize(root).endsWith(sep) ? normalize(root) : normalize(root) + sep;
     if (normalize(cwd) !== normalize(root) && !normalize(cwd).startsWith(prefix)) throw new Error('Workspace mismatch');
-    const store = await createObservationStore(root);
-    const engine = await new ContextEngine(store, rules).initialize();
+    const runtime = await createSolRuntime(root, null, { contextRulesPath: rules });
+    const { store, contextEngine: engine, sessions } = runtime;
     if (['PreToolUse', 'Stop'].includes(name) && !(await engine.loadConfig(signal)).architecture) return {};
     if (name === 'PreToolUse' && nativeWrites.has(event.tool_name))
       return deny('MANAGED_WRITE_REQUIRED', 'Use sol_apply_patch or sol_apply_changes with the explicit task/change binding; native patch is not replaced automatically.');
-    const sessions = new ContextSessions(engine);
     const bound = await sessions.read(event.session_id, { signal });
     const record = bound ? await engine.stored(bound.handle, 'sol_context_prepare', 'context_record', signal) : null;
     if (record?.change_state) {
@@ -55,7 +53,7 @@ export async function handleContextHook(event, { workspace, rules, validationRul
       const config = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(await readWorkspaceBytes(root,
         relative(root, rulesPath).replaceAll('\\', '/'), 256 * 1024, { signal })));
       const exclusions = typeof generated === 'string' ? JSON.parse(generated) : generated;
-      engine.configureChanges(config, { rulesPath, generated: exclusions, requireRecordedConfig: true });
+      configureRuntimeChanges(runtime, config, { rulesPath, generated: exclusions, requireRecordedConfig: true });
     }
     if (name === 'PreToolUse' || name === 'Stop') {
       return await withWorkspaceLock(store, async () => {

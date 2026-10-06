@@ -25,11 +25,11 @@
 ## 3. 变更与规则
 
 - 适配器必须报告实际改动，包含删除；工具报错但有部分改动仍触发。无改动不生成验证事件，不运行命令。
-- `change_digest` 对按路径排序的改动清单计算 SHA-256；每项含路径、最终文件原始字节 SHA-256 或显式删除标记。校验失败不能继续给出 `passed`。
+- `change_digest` 对按路径排序的文件事实计算 SHA-256；每项含路径、最终内容 SHA-256 与普通 POSIX 权限，或显式缺失状态，并带 `content_mode_v1` 策略标记。公开文件 SHA-256 仍只表示原始字节。校验失败不能继续给出 `passed`。
 - 只处理 `origin=agent`。验证自身产生的日志、构建产物和 `.codex/sol/` 不创建新事件。
 - 规则按配置数组顺序选择：任一 `changed_paths` 命中规则 `globs` 即选该规则；同一事件的所有命中规则依序执行，各命令依序执行。命令 ID 以 `rule.id/command.id` 标识，配置内必须唯一；不去重、不推断测试。
 - `watch_paths` 必须覆盖该规则验证依赖的完整项目输入树，包含未提交文件、配置、锁文件和删除状态。`.git/`、`.codex/sol/`、声明的生成物排除。glob 以工作区为根，`/` 分隔，匹配隐藏文件；不允许 `..` 或绝对路径。
-- `validation_key = SHA-256(输入树规范快照 + 所选规则与命令配置的规范 JSON)`。快照按相对路径排序，含文件类型与内容 SHA-256，缺失和删除以显式状态表示；不能只看 Git HEAD 或本次修改列表。目录穿越、无法读取或不稳定快照为 `error`，不得 `passed`。
+- `validation_key = SHA-256(输入树规范快照 + 所选规则与命令配置的规范 JSON)`。快照按相对路径排序，含文件类型、内容 SHA-256、普通 POSIX 权限和指纹策略；Windows mode 为 null，缺失和删除以显式状态表示。不能只看 Git HEAD 或本次修改列表。目录穿越、无法读取或不稳定快照为 `error`，不得 `passed`。
 - 规则未命中返回 `skipped/no_rule`。同一 `event_id` 重复投递复用原回执；不同事件即使 `validation_key` 相同，也重新运行。
 - 命令只用 `argv` 执行，不经 shell，不自动安装或修复。默认单命令 120000 ms，总预算 300000 ms；首个非成功后，剩余命令记 `skipped`。超时终止其进程树。
 - 运行前后对比完整输入快照；不同则顶层 `stale/input_changed`，已执行检查保留实际状态，不重试。`passed` 仅意味着列出的检查通过且快照稳定。
@@ -220,3 +220,19 @@ Linux 的逐规则运行条件核验包括实际检查程序的当前执行权�
 - Hook 与 MCP 入口重新启动时使用相同的最小 OS 环境白名单，过滤任意秘密和传输变量；完整实际子进程环境摘要仍参与检查证据的新鲜度核验，环境值不输出。已有 `execution_path` 可选配置（单行、最多 16384 个字符）用于明确 runtime/check 实际 `PATH`，避免宿主临时 PATH 随重启改变运行条件。省略时沿用真实继承的 PATH，并承担其变化导致证据失效的后果；额外 env-dependent checks 当前不支持。
 - fresh 0.160 host run 已实测原生 `apply_patch` deny、MCP 越界拒绝及合法写入/验证、Stop false/true flag、Context 生命周期恢复/提醒/compact 和隔离 profile 的插件读取/安装/重启。较早一轮中模型选择 MCP patch而未触发原生拒绝、三次无效 review 与后续 PATH/范围失败仍作为历史保留。fresh run 中模型只 prepare review 并报告 unfinished；独立 reviewer 提交合法 refs 并 complete，之后实际 thread/resume 恢复当前有效完成证据。该分工不称模型自主语义闭环。
 - Hook 仅覆盖实际注册且被宿主信任的事件与匹配工具；不能阻止未匹配工具或声明为全局防绕过。TUI 0.158 初始 `/hooks` 审阅、Context prepare、Stop `{}` 和源码 SHA 不变通过；同 session 的两次 0.158 resume 因 account/read workspace discovery timeout（`code=-32603`）失败并保留。随后已安装的 bundled CLI 0.160 在同 session 真实 PTY resume 通过，SessionStart 恢复 ready 且 handle/pointer 匹配，UserPromptSubmit 和 Stop 返回 `{}`，源码 SHA 不变，四条 Hook 精确 hash 正常匹配且未 bypass。Desktop GUI 操作、稳定自主连续任务或固定 A/B token/费用收益未验证。准确宿主版本和逐项记录以 [Host 证据](fixtures/host/host-evidence.json)、[package 证据](fixtures/host/package-evidence.json)、[检查证据](fixtures/host/check-evidence.json) 与 [索引证据](fixtures/host/index-evidence.json) 为准。
+
+## 16. 架构演进的内部合同（2026-10-06）
+
+本节补充当前内部行为，沿用四/六/十三工具、公开请求与 schema_version=1。源码职责、回归和本轮边界见 [架构演进验收](fixtures/architecture-evolution/README.md)。
+
+`sol_apply_changes` 委托 `managed-write.mjs`：路径预检、文件效果、唯一 ChangeEvent 与同步验证共用工作区租约。现有文件同内容时不替换 inode；实际替换保留普通 POSIX 权限，新文件使用 0600。带特殊 POSIX 位的现有文件在替换前报 METADATA_UNSUPPORTED。未承诺 ACL、owner 或扩展属性的完整保留。私有 JSON 指针仍采用自己的私有权限策略。部分写入不回滚或重放；后置事实读取失败时明确 changed_paths_known=false，已知发布路径和错误保留。
+
+`workspace.mjs` 是文件事实 owner；`workspace-snapshot.mjs` 是 glob、generated 排除、输入快照与 change digest owner。FileFacts 含 file/missing、内容 SHA-256 和普通 mode；输入指纹标记为 content_mode_v1。窄 watch 根据固定前缀保守剪枝，相关链接和不稳定事实仍拒绝；协调器的完整工作区核对继续使用完整范围。权限单独变化使输入证据失效。旧 content-only 快照先按原 bytes/body hash 严格验证，再作历史解释，未知 mode 不能获得新缓存、复核或完成资格。显式 status 在同一租约内升级活动记录并串接旧 handle，旧归档字节不改写，格式升级不伪报成文件修改。
+
+进程层分别保存 launch_status=not_started/started/unknown、capture_error 和 cleanup_error；退出码为 null 不能证明未执行。公开 CheckResult 通过 toCheckResult 保持原严格六字段，内部事实留在受管执行结果。启动后归档失败保留 may-have-executed、已经提交的 stdout/stderr 引用和实际文件效果；取消原因与归档错误可同时保留。idle 或租约清理失败不覆盖已知 outcome、回执与事件。runner 的非 idle 状态只有持久化成功后才记入本进程状态；已确认 idle 的失败释放路径允许后续租约恢复。
+
+ObservationStore.withVerifiedRead 在同次有界扫描内核验完整 raw SHA、真实行索引及 meta/文件身份，再发布候选结果。collector 只借用扫描缓冲，需保留的字节必须复制；finish 在证明成功后执行，fd 在所有路径关闭。pack/recall 与有界 JSON 记录消费方均复用此入口，生产读取不再在验证后另读 raw。bytes/lines 每页仍完整扫描；keyword 最多两次且绑定同一 meta。流式收集降低全长 Buffer 分配，保留每页完整核验的 O(P*N) 读取成本，不以 mtime 或局部哈希替代证明。readVerified 的缓冲兼容入口仍保留，正式记录消费须显式给出字节上限；openVerified 仅为弃用兼容方法，不能作为新的验证后 raw 读取路径。
+
+ArchiveRecords 只负责有界不可变记录和引用核验，无任务状态；Context 的配置解析仍只有一个 owner。runtime.mjs 统一 MCP/Hook 装配，未绑定 Hook 不启用额外验证器。ChangeCoordinator 独占活动任务发布：写入 pending、执行和全部下游证据共用 operation/call ID；先归档 outcome，再原子发布按 ID 的证据指针，最后发布 settled。证据指针不能发布任务完成。status 可恢复已核实 outcome，缺证据保持 interrupted/unknown，resume 不自动重放；不扫描孤儿档案猜测结果。review_policy_id 进入 prepare、submit、complete 与只读 freshness，仅准则变化也使旧复核失效。
+
+launcher 的 check-config 复用运行入口的配置、规则唯一性/ID 上限、职责 schema 与路径校验，不创建 store、执行检查、握手宿主或改指针。valid 只表示 coverage 所列项目通过；架构声明是 path_only，host_compatibility 是 not_checked。tool_count 表示配置的注册模式，不能表示查询 ready 或任务完成。错误仅报告有限 code/stage/cause，保留 HOST_STATE_ERROR，避免私密路径、环境值、完整 stderr 与堆栈进入诊断。CI portable 与真实 native 分离，后者要求明确配置已有原生 Codex；workflow 声明不等同实际远端运行证据。

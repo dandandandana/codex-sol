@@ -6,7 +6,17 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 
-import { interruptionReason, openHostCancellation } from '../src/host-cancellation.mjs';
+import { decodeHostTurnMetadata, decodeHostThread, interruptionReason, openHostCancellation } from '../src/host-cancellation.mjs';
+
+test('host shape adapters accept extra fields but reject changed critical identity types safely', () => {
+  const threadId = randomUUID();
+  const turnId = randomUUID();
+  assert.deepEqual(decodeHostTurnMetadata({ 'x-codex-turn-metadata': { thread_id: threadId, turn_id: turnId, extra: 'ignored' } }), { thread_id: threadId, turn_id: turnId });
+  const thread = { id: threadId, cwd: os.tmpdir(), path: path.join(os.tmpdir(), 'rollout.jsonl'), extra: 'ignored' };
+  assert.deepEqual(decodeHostThread(thread, threadId), { id: threadId, cwd: thread.cwd, path: thread.path });
+  assert.throws(() => decodeHostTurnMetadata({ 'x-codex-turn-metadata': { thread_id: { private: 'DO_NOT_EXPOSE' }, turn_id: turnId } }), (error) => error.code === 'HOST_STATE_ERROR' && error.stage === 'metadata' && !error.message.includes('DO_NOT_EXPOSE'));
+  assert.throws(() => decodeHostThread({ ...thread, path: ['DO_NOT_EXPOSE'] }, threadId), (error) => error.code === 'HOST_STATE_ERROR' && error.stage === 'thread' && !error.message.includes('DO_NOT_EXPOSE'));
+});
 
 const NO_REPLY = Symbol('no reply');
 const ok = (result) => ({ result });

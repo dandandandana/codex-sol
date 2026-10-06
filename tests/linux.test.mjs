@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
-import { chmod, mkdir, mkdtemp, readFile, readdir, realpath, rm, symlink, writeFile } from 'node:fs/promises';
+import { chmod, lstat, mkdir, mkdtemp, readFile, readdir, realpath, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -13,6 +13,7 @@ import { resolvePluginProject } from '../src/plugin-launcher.mjs';
 import { createObservationStore } from '../src/store.mjs';
 import { ValidationEngine } from '../src/validation.mjs';
 import { validateWorkspacePath, workspaceFile } from '../src/workspace.mjs';
+import { startMcpServer } from './helpers/mcp-client.mjs';
 
 const linuxOnly = process.platform === 'linux' ? false : 'Linux filesystem and Bash integration coverage.';
 const entry = fileURLToPath(new URL('../src/native-hook.mjs', import.meta.url));
@@ -66,6 +67,37 @@ test('Linux patch and workspace paths agree on filenames, case and protected met
     assert.throws(() => validateWorkspacePath(name), { code: 'PATH_ERROR' });
     assert.throws(() => patchPaths(`*** Begin Patch\n*** Add File: ${name}\n+bad\n*** End Patch`), { code: 'PATH_ERROR' });
   }
+});
+
+test('Linux MCP formal writes keep executable mode and unchanged file identity', { skip: linuxOnly }, async (t) => {
+  const f = await fixture(t);
+  const client = startMcpServer({ workspace: f.root, rulesPath: f.config.rules });
+  t.after(() => client.close());
+  await client.initialize({ timeoutMs: 15000 });
+  for (const mode of [0o755, 0o644]) {
+    const target = `mode-${mode.toString(8)}.sh`;
+    await writeFile(join(f.root, target), 'before'); await chmod(join(f.root, target), mode);
+    const original = await lstat(join(f.root, target), { bigint: true });
+    for (const content of ['before', 'after']) {
+      const response = await client.request('tools/call', { name: 'sol_apply_changes', arguments: { changes: [{ action: 'write', path: target, content }] } });
+      const result = JSON.parse(response.result.content[0].text);
+      assert.equal(result.tool_status, 'ok', JSON.stringify(result));
+      assert.deepEqual(result.changed_paths, content === 'before' ? [] : [target]);
+      const current = await lstat(join(f.root, target), { bigint: true });
+      assert.equal(Number(current.mode & 0o777n), mode);
+      if (content === 'before') { assert.equal(current.ino, original.ino); assert.equal(current.ctimeNs, original.ctimeNs); }
+    }
+  }
+});
+
+test('Linux managed Bash chmod reports a real content-independent change', { skip: linuxOnly }, async (t) => {
+  const f = await fixture(t);
+  await writeFile(join(f.root, 'run.sh'), 'unchanged'); await chmod(join(f.root, 'run.sh'), 0o755);
+  const pending = await request(f, 'chmod 644 run.sh');
+  const result = run(f, pending.path).value;
+  assert.equal(result.tool_status, 'ok', JSON.stringify(result));
+  assert.deepEqual(result.changed_paths, ['run.sh']);
+  assert.equal(await readFile(join(f.root, 'run.sh'), 'utf8'), 'unchanged');
 });
 
 test('real Linux patch creates punctuation filenames and keeps filename case distinct', {

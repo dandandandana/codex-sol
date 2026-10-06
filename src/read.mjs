@@ -31,10 +31,11 @@ export async function readObservation(store, captureMeta, openSource, { signal }
       const source = await openSource({ signal });
       for await (const chunk of source) {
         if (signal?.aborted) throw interruptionFault(signal, 'File reading was interrupted.');
-        receivedBytes += chunk.length;
-        try { await writer.write(chunk); }
+        const captured = chunk instanceof Uint8Array && receivedBytes + chunk.length <= 8192 ? Buffer.from(chunk) : chunk;
+        receivedBytes += captured.length;
+        try { await writer.write(captured); }
         catch (error) { storageFailure = error; throw error; }
-        if (receivedBytes <= 8192) inline.push(chunk);
+        if (receivedBytes <= 8192) inline.push(captured);
         else inline.length = 0;
       }
       if (signal?.aborted) throw interruptionFault(signal, 'File reading was interrupted.');
@@ -51,7 +52,7 @@ export async function readObservation(store, captureMeta, openSource, { signal }
     if (observation.mode === 'storage_error') return { value: storageErrorPack(meta, { refs: [ref], receivedBytes, mayHaveExecuted: started }), isError: true };
     if (upstreamError) return { value: { observation, error }, isError: true };
     if (observation.mode === 'inline') {
-      try { return { value: { observation, text: new TextDecoder('utf-8', { fatal: true }).decode(Buffer.concat(inline)) }, isError: false }; }
+      try { return { value: { observation, text: new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(Buffer.concat(inline)) }, isError: false }; }
       catch { return { value: { observation, error: { code: 'UNSUPPORTED_ENCODING', message: 'File is not valid UTF-8; recall exact bytes using its handle.', retryable: false } }, isError: true }; }
     }
     return { value: observation, isError: false };

@@ -100,6 +100,7 @@ export async function withWorkspaceLock(store, operation, { signal, timeoutMs = 
     if (release) {
       let owned = false;
       let record;
+      let runnerIdleConfirmed = false;
       try {
         interrupted(signal);
         const previous = await readOwner(ownerPath);
@@ -111,16 +112,22 @@ export async function withWorkspaceLock(store, operation, { signal, timeoutMs = 
           record = { schema_version: 1, token: randomUUID(), pid: process.pid, acquired_at: new Date().toISOString(), runner: { state: 'idle', pid: null } };
           await writeOwner(ownerPath, record);
           owned = true;
+          runnerIdleConfirmed = true;
           interrupted(signal);
           return await operation({ setRunner: async (runner) => {
             const next = { ...record, runner };
+            assertContract('LockOwner', next);
+            // idle is only reported after the child closes. Keep that fact even
+            // if persisting the metadata fails, while retaining the native lease.
+            if (runner.state === 'idle') runnerIdleConfirmed = true;
             await writeOwner(ownerPath, next);
             record = next;
+            if (runner.state !== 'idle') runnerIdleConfirmed = false;
           } });
         }
       } finally {
         try {
-          if (owned && record.runner.state === 'idle') await unlink(ownerPath);
+          if (owned && runnerIdleConfirmed) await unlink(ownerPath);
         } finally { await release(); }
       }
     }

@@ -5,7 +5,7 @@
   "type": "module",
   "engines": { "node": ">=20.8" },
   "scripts": {
-    "test": "node --test --test-concurrency=4 tests/*.test.mjs",
+    "test": "node scripts/ci-check.mjs all",
     "check": "npm test && npm audit --audit-level=high --registry=https://registry.npmjs.org/"
   },
   "dependencies": {

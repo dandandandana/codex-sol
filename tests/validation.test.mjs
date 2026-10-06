@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { chmod, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
@@ -19,6 +19,16 @@ async function fixture(commands) {
 }
 
 const command = (id, script, timeout_ms = 10000) => ({ id, argv: [process.execPath, '-e', script], cwd: '.', timeout_ms });
+
+test('permission-only input changes during validation cannot produce a passed receipt', {
+  skip: process.platform === 'win32' && 'Ordinary POSIX permissions require a POSIX filesystem.',
+}, async () => {
+  const { root, engine, event } = await fixture([command('chmod', "require('node:fs').chmodSync('target.py',0o600)")]);
+  await chmod(join(root, 'target.py'), 0o755);
+  const receipt = await engine.onChange(await event());
+  assert.equal(receipt.checks[0].status, 'passed');
+  assert.equal(receipt.status, 'stale'); assert.equal(receipt.reason, 'input_changed');
+});
 
 test('successful validation captures separate stdout and stderr, persists and deduplicates receipt', async () => {
   const { store, engine, event } = await fixture([command('ok', "process.stdout.write('out');process.stderr.write('err')")]);

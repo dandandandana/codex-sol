@@ -164,7 +164,8 @@ test('real server and validator tree termination recovers pending change without
   assert.equal(state.state, 'interrupted'); assert.equal(state.accumulated_path_count, 1);
   assert.equal(await readFile(join(root, 'src/html.mjs'), 'utf8'), modifiedSource);
   const record = await engine.stored(state.raw.handle, 'sol_change_record', 'change_record');
-  assert.equal(record.pending, null); assert.equal(record.latest_validation, null);
+  assert.ok(record.pending); assert.equal(record.recovery.status, 'unknown'); assert.equal(record.latest_validation, null);
+  const again = await call(client, 'sol_change_status'); assert.equal(again.change.version, state.change.version);
   assert.equal((await call(client, 'sol_change_resume', { change: state.change })).state, 'dirty');
 });
 

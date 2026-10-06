@@ -24,6 +24,12 @@ codex plugin list --marketplace sol-local --json
 
 源码仓库含开发用 portable manifest，本机已验收的兼容包会按版本要求整理入口；请安装生成的目录。项目回归命令为 `npm run check`，其中原生 patch 专项需要 `CODEX_SOL_PATCH_EXECUTABLE` 指向实际 Codex 可执行文件，未提供时该专项会明确跳过。
 
+## CI 检查
+
+推送和 Pull Request 会在 Ubuntu、Windows 与 Node.js 20.8.0、24 上运行 portable 测试及依赖审计。portable 检查排除 `tests/native-integration.test.mjs`，不覆盖真实 Codex patch 执行；`change.test.mjs` 和 Linux 原生 patch 案例仍遵循各自已有的环境跳过条件。当前远端 GitHub Actions workflow 尚未运行；本地平台和最低版本实测以 [架构演进验收](fixtures/architecture-evolution/README.md) 为准。npm 与 CI 共用标准库测试调度器，保持最多四个测试文件并行；Node 20.8.0 无需使用后续版本才支持的 CLI 并发参数。
+
+真实 native 检查只在手动运行 GitHub Actions 的 `Checks` workflow 并勾选 `run_native` 时执行。Linux 和 Windows job 需要分别标记 `self-hosted`、对应系统、`x64`、`codex-native` 的 runner，并预先安装真实 Codex 可执行文件。仓库变量 `CODEX_SOL_LINUX_PATCH_EXECUTABLE` 与 `CODEX_SOL_WINDOWS_PATCH_EXECUTABLE` 填写其绝对路径；Linux 文件须有执行权限，Windows 路径须指向 `.exe`。缺少配置会在启动测试前失败，不会下载 Codex 或调用模型。该手动工作流运行全部现有测试文件和依赖审计。
+
 ## 启用项目
 
 在实际项目 Git 根创建 `.codex/sol-project.json`，参考包内 `sol-project.example.json`。无 Git 时配置必须位于启动目录；嵌套 Git 仓库不会继承外层项目配置。
@@ -37,6 +43,12 @@ codex plugin list --marketplace sol-local --json
 Linux 的 `patch_executable` 必须指向实际 ELF 程序，不能填 npm 的 JS 启动入口。`patch_executable` / `host_executable` 可通过符号链接解析到普通文件，并须具备当前用户的执行权限；入口 `plugin_launcher` 继续要求精确普通文件身份。检查缓存也核验检查程序的执行权限：撤销权限会使相关旧结果失效，保留历史回执且不自动运行。Linux 的宿主取消桥接尚未做真实 UI 验收，先省略 `host_executable`。
 
 普通 Bash 操作的包装是可选独立配置。参考包内 `native.linux.example.json`，填入项目、规则、Linux Node 和 Bash 的绝对路径；不会随插件安装自动启用。合并项目 Hook 时只增加 `^Bash$` 的 PreToolUse/PostToolUse，让它们调用 `node '/absolute/path/to/src/native-hook.mjs' --config '/absolute/path/to/project/.codex/native.json'`，并保留插件四项定义。`load_profile=false` 使用 `--noprofile --norc -c`；`true` 使用 `--login -c`，继承的 `BASH_ENV` 仍遵循 Bash 行为。
+
+## 检查项目配置
+
+从目标项目根运行 `node <已安装插件目录>/src/plugin-launcher.mjs check-config`。返回 JSON 的 status 为 valid、not_enabled 或 invalid；后两种退出码为 2。此入口复用实际规则和职责配置校验，并检查 launcher、文件路径及配置的执行权限；不会创建 `.codex/sol/`、执行项目命令、启动宿主或改变任务状态。
+
+valid 仅表示 coverage 列出的检查通过。architecture_declaration=path_only 表示架构声明路径存在，声明内容与源代码仍需 `sol_architecture_query` 核验；host_compatibility=not_checked 表示未做宿主握手。tool_count=4/6/13 是配置的工具模式，不能表示完成。失败诊断给出 stage/code，不回显私密配置值。
 
 ## 加载和信任
 

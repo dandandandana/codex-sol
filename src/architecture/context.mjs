@@ -1,18 +1,18 @@
-import { createHash, randomUUID } from 'node:crypto';
+import { createHash } from 'node:crypto';
 import { lstat, realpath } from 'node:fs/promises';
 import { isAbsolute, relative, resolve } from 'node:path';
 import Ajv from 'ajv/dist/2020.js';
 import { z } from 'zod';
-import { interruptionFault, readRawSlice, SolFault } from '../store.mjs';
-import { readWorkspaceBytes, workspaceFile } from '../workspace.mjs';
+import { interruptionFault, SolFault } from '../store.mjs';
+import { fileFacts, INPUT_FINGERPRINT_KIND, readWorkspaceBytes, workspaceFile } from '../workspace.mjs';
 import { withWorkspaceLock } from '../workspace-lock.mjs';
 import { assertContract } from '../schema.mjs';
+import { ArchiveRecords } from '../records.mjs';
 import { ArchitectureIndex, architectureQuerySchema } from './index.mjs';
 import { ChangeCoordinator, changeBindingSchema } from './change.mjs';
 
 const PACKET_BYTES = 4096;
 const FILE_BYTES = 1024 * 1024;
-const RECORD_BYTES = 256 * 1024;
 const sha = (value) => createHash('sha256').update(value).digest('hex');
 const id = z.string().regex(/^[a-z][a-z0-9_-]{0,47}$/u);
 const handle = z.string().regex(/^[A-Za-z0-9_-]{16,128}$/u);
@@ -53,7 +53,9 @@ async function readFile(store, sourcePath, maxBytes, signal) {
 
 function fingerprint(record) {
   return sha(jsonBytes({ config_sha: record.config_sha, task: record.task, role: record.role.id, targets: record.targets,
-    sources: record.sources.map(({ path: sourcePath, required, state, sha256 }) => ({ path: sourcePath, required, state, sha256 })),
+    sources: record.sources.map(({ path: sourcePath, required, state, sha256, mode }) => ({ path: sourcePath, required, state, sha256,
+      ...(record.input_fingerprint_kind ? { mode } : {}) })),
+    ...(record.input_fingerprint_kind ? { input_fingerprint_kind: record.input_fingerprint_kind } : {}),
     upstream: record.upstream?.artifact.sha256 ?? null, ...(record.architecture ? { architecture_version: record.architecture.version, architecture_query: record.architecture.query } : {}),
     ...(record.change_state ? { change_state_version: record.change_state.version } : {}) }));
 }
@@ -69,6 +71,58 @@ function prefix(text, maxBytes) {
   return result;
 }
 
+/** Read-only shared Context contract parser. Does not create storage or archives. */
+export async function readContextConfiguration(workspaceRoot, configPath, { signal } = {}) {
+    let bytes;
+    let config;
+    try {
+      bytes = await readWorkspaceBytes(workspaceRoot, configPath, 128 * 1024, { signal });
+      config = configSchema.parse(JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes)));
+    } catch (error) {
+      if (error.code === 'INTERRUPTED' || error.code === 'HOST_STATE_ERROR') throw error;
+      fail('CONFIG_ERROR', 'Context configuration must be a valid, bounded JSON file inside the workspace.');
+    }
+    const roles = new Map();
+    const validators = new Map();
+    const ajv = new Ajv({ allErrors: true, validateFormats: false, strict: true });
+    for (const role of config.roles) {
+      if (roles.has(role.id)) fail('CONFIG_ERROR', 'Context role IDs must be unique.');
+      if (new Set(role.sources.map((s) => s.path)).size !== role.sources.length) fail('CONFIG_ERROR', 'Role source paths must be unique.');
+      for (const source of role.sources) await workspaceFile(workspaceRoot, source.path, { allowMissing: true });
+      if (role.output_schema.type !== 'object' || role.output_schema.additionalProperties !== false) fail('CONFIG_ERROR', 'Role output schema must be a closed object schema.');
+      if (role.blocking_field) {
+        const property = role.output_schema.properties?.[role.blocking_field];
+        if (!role.output_schema.required?.includes(role.blocking_field) || property?.type !== 'array' || property.items?.type !== 'string') fail('CONFIG_ERROR', 'Blocking field must be a required array of strings in the output schema.');
+      }
+      try {
+        const validator = ajv.compile(role.output_schema);
+        if (validator.$async) fail('CONFIG_ERROR', 'Async output schemas are unsupported.');
+        validators.set(role.id, validator);
+      } catch { fail('CONFIG_ERROR', 'Role output schema could not be compiled; use synchronous JSON Schema 2020-12 without external references.'); }
+      roles.set(role.id, role);
+    }
+    for (const role of roles.values()) {
+      if (role.input && !roles.has(role.input.from_role)) fail('CONFIG_ERROR', 'Input references an unknown role.');
+      if (new Set(role.consumers.map((c) => c.role)).size !== role.consumers.length) fail('CONFIG_ERROR', 'Consumers must be unique.');
+      for (const consumer of role.consumers) {
+        const next = roles.get(consumer.role);
+        if (next?.input?.from_role !== role.id) fail('CONFIG_ERROR', 'Consumer must declare the matching producer as its input.');
+        const fields = Object.values(consumer.fields);
+        if (!fields.length || fields.some((name) => !Object.hasOwn(role.output_schema.properties ?? {}, name) || !role.output_schema.required?.includes(name))) fail('CONFIG_ERROR', 'Consumer mappings must select required output fields.');
+        if (role.blocking_field && !fields.includes(role.blocking_field)) fail('CONFIG_ERROR', 'Every consumer must receive the blocking field.');
+      }
+      if (role.input && !roles.get(role.input.from_role).consumers.some((c) => c.role === role.id)) fail('CONFIG_ERROR', 'Producer must declare the consumer mapping.');
+    }
+    // This first slice passes artifacts along an acyclic set of responsibilities.
+    const visit = (role, chain = new Set()) => {
+      if (chain.has(role.id)) fail('CONFIG_ERROR', 'Context responsibility mappings must not contain cycles.');
+      for (const consumer of role.consumers) visit(roles.get(consumer.role), new Set([...chain, role.id]));
+    };
+    for (const role of roles.values()) visit(role);
+    for (const role of roles.values()) if (role.architecture && !config.architecture) fail('CONFIG_ERROR', 'A role requests architecture but no declaration path is configured.');
+    return { roles, validators, sha256: sha(bytes), architecture: config.architecture };
+}
+
 /** Local opt-in responsibility contracts. No inference, source writes or task
  * completion transitions. Both operations share the managed workspace lock;
  * archive publication is immutable. Caller owns cancellation via AbortSignal.
@@ -77,6 +131,7 @@ function prefix(text, maxBytes) {
 export class ContextEngine {
   constructor(store, configPath) {
     this.store = store;
+    this.records = new ArchiveRecords(store);
     this.configPath = configPath;
     this.changes = null;
   }
@@ -117,96 +172,15 @@ export class ContextEngine {
     return this;
   }
 
-  async loadConfig(signal) {
-    let bytes;
-    let config;
-    try {
-      bytes = await readFile(this.store, this.configPath, 128 * 1024, signal);
-      config = configSchema.parse(JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes)));
-    } catch (error) {
-      if (error.code === 'INTERRUPTED' || error.code === 'HOST_STATE_ERROR') throw error;
-      fail('CONFIG_ERROR', 'Context configuration must be a valid, bounded JSON file inside the workspace.');
-    }
-    const roles = new Map();
-    const validators = new Map();
-    const ajv = new Ajv({ allErrors: true, validateFormats: false, strict: true });
-    for (const role of config.roles) {
-      if (roles.has(role.id)) fail('CONFIG_ERROR', 'Context role IDs must be unique.');
-      if (new Set(role.sources.map((s) => s.path)).size !== role.sources.length) fail('CONFIG_ERROR', 'Role source paths must be unique.');
-      for (const source of role.sources) await workspaceFile(this.store.workspaceRoot, source.path, { allowMissing: true });
-      if (role.output_schema.type !== 'object' || role.output_schema.additionalProperties !== false) fail('CONFIG_ERROR', 'Role output schema must be a closed object schema.');
-      if (role.blocking_field) {
-        const property = role.output_schema.properties?.[role.blocking_field];
-        if (!role.output_schema.required?.includes(role.blocking_field) || property?.type !== 'array' || property.items?.type !== 'string') fail('CONFIG_ERROR', 'Blocking field must be a required array of strings in the output schema.');
-      }
-      try {
-        const validator = ajv.compile(role.output_schema);
-        if (validator.$async) fail('CONFIG_ERROR', 'Async output schemas are unsupported.');
-        validators.set(role.id, validator);
-      } catch { fail('CONFIG_ERROR', 'Role output schema could not be compiled; use synchronous JSON Schema 2020-12 without external references.'); }
-      roles.set(role.id, role);
-    }
-    for (const role of roles.values()) {
-      if (role.input && !roles.has(role.input.from_role)) fail('CONFIG_ERROR', 'Input references an unknown role.');
-      if (new Set(role.consumers.map((c) => c.role)).size !== role.consumers.length) fail('CONFIG_ERROR', 'Consumers must be unique.');
-      for (const consumer of role.consumers) {
-        const next = roles.get(consumer.role);
-        if (next?.input?.from_role !== role.id) fail('CONFIG_ERROR', 'Consumer must declare the matching producer as its input.');
-        const fields = Object.values(consumer.fields);
-        if (!fields.length || fields.some((name) => !Object.hasOwn(role.output_schema.properties ?? {}, name) || !role.output_schema.required?.includes(name))) fail('CONFIG_ERROR', 'Consumer mappings must select required output fields.');
-        if (role.blocking_field && !fields.includes(role.blocking_field)) fail('CONFIG_ERROR', 'Every consumer must receive the blocking field.');
-      }
-      if (role.input && !roles.get(role.input.from_role).consumers.some((c) => c.role === role.id)) fail('CONFIG_ERROR', 'Producer must declare the consumer mapping.');
-    }
-    // This first slice passes artifacts along an acyclic set of responsibilities.
-    const visit = (role, chain = new Set()) => {
-      if (chain.has(role.id)) fail('CONFIG_ERROR', 'Context responsibility mappings must not contain cycles.');
-      for (const consumer of role.consumers) visit(roles.get(consumer.role), new Set([...chain, role.id]));
-    };
-    for (const role of roles.values()) visit(role);
-    for (const role of roles.values()) if (role.architecture && !config.architecture) fail('CONFIG_ERROR', 'A role requests architecture but no declaration path is configured.');
-    return { roles, validators, sha256: sha(bytes), architecture: config.architecture };
-  }
+  async loadConfig(signal) { return readContextConfiguration(this.store.workspaceRoot, this.configPath, { signal }); }
 
-  async archive(value, tool, signal, text = false) {
-    checkSignal(signal);
-    const bytes = text ? value : jsonBytes(value);
-    if (!text && bytes.length > RECORD_BYTES) fail('INPUT_LIMIT', 'Context record exceeds 256 KiB.');
-    const writer = await this.store.beginCapture({ schema_version: 1, workspace_id: this.store.workspaceId,
-      call_id: randomUUID(), tool, captured_at: new Date().toISOString(), media_type: text ? 'text/plain; charset=utf-8' : 'application/json',
-      encoding: 'utf-8', source_form: text ? 'stream_bytes' : 'response_json', channel: 'response' });
-    try { await writer.write(bytes); checkSignal(signal); return await writer.commit({ complete: true }); }
-    catch (error) { await writer.abort(); throw error; }
-  }
-
-  async stored(handleValue, tool, kind, signal) {
-    checkSignal(signal);
-    const opened = await this.store.openVerified(handleValue);
-    let record;
-    try {
-      if (opened.meta.tool !== tool || !opened.meta.complete || opened.meta.bytes > RECORD_BYTES) fail('REFERENCE_INVALID', 'Reference is not a complete Context record of the expected kind.');
-      try { record = JSON.parse((await readRawSlice(opened.raw, 0, opened.meta.bytes)).toString('utf8')); }
-      catch (error) { if (error instanceof SolFault) throw error; fail('CORRUPT', 'Context record is not valid JSON.'); }
-    } finally { await opened.close(); }
-    if (record.kind !== kind || record.schema_version !== 1 || record.workspace_id !== this.store.workspaceId) fail('REFERENCE_INVALID', 'Context reference has the wrong identity or kind.');
-    return record;
-  }
-
-  async evidence(handles, signal) {
-    const refs = [];
-    for (const value of new Set(handles)) {
-      checkSignal(signal);
-      const opened = await this.store.openVerified(value);
-      try {
-        const { meta } = opened;
-        refs.push({ schema_version: 1, handle: value, sha256: meta.sha256, bytes: meta.bytes, media_type: meta.media_type, complete: meta.complete });
-      } finally { await opened.close(); }
-    }
-    return refs;
-  }
+  async archive(...args) { return this.records.archive(...args); }
+  async stored(...args) { return this.records.stored(...args); }
+  async evidence(...args) { return this.records.evidence(...args); }
 
   async fresh(record, config, signal, seen = new Set()) {
     checkSignal(signal);
+    if (record.input_fingerprint_kind !== INPUT_FINGERPRINT_KIND) fail('CONTEXT_STALE', 'Selected source fingerprint policy changed; prepare again.');
     if (record.config_sha !== config.sha256 || record.version !== fingerprint(record)) fail('CONTEXT_STALE', 'Context contract changed or its version is invalid; prepare again.');
     if (record.change_state) {
       let current;
@@ -229,7 +203,8 @@ export class ContextEngine {
         if (error.code === 'INTERRUPTED' || error.code === 'HOST_STATE_ERROR') throw error;
         fail('CONTEXT_STALE', 'A selected source is no longer readable; prepare again.');
       }
-      if (source.state !== 'available' || sha(bytes) !== source.sha256) fail('CONTEXT_STALE', 'Selected source content changed; prepare again.');
+      const fact = (await fileFacts(this.store.workspaceRoot, [source.path], { signal })).get(source.path);
+      if (source.state !== 'available' || sha(bytes) !== source.sha256 || fact.type !== 'file' || fact.sha256 !== source.sha256 || fact.mode !== source.mode) fail('CONTEXT_STALE', 'Selected source content changed; prepare again.');
     }
     if (record.architecture) {
       if (!config.architecture || record.architecture.path !== config.architecture.path) fail('CONTEXT_STALE', 'Architecture configuration changed.');
@@ -292,9 +267,11 @@ export class ContextEngine {
         let text;
         try { text = new TextDecoder('utf-8', { fatal: true }).decode(bytes); }
         catch { fail('UNSUPPORTED_ENCODING', 'Context sources must be valid UTF-8.'); }
+        const fact = (await fileFacts(this.store.workspaceRoot, [sourcePath], { signal })).get(sourcePath);
+        if (fact.type !== 'file' || fact.sha256 !== sha(bytes)) fail('CONTEXT_STALE', 'Source changed while capturing Context; prepare again.');
         const raw = await this.archive(bytes, 'sol_context_source', signal, true);
         const excerpt = prefix(text, 512);
-        sources.push({ path: sourcePath, required, state: 'available', sha256: sha(bytes), raw, excerpt, omitted_bytes: bytes.length - Buffer.byteLength(excerpt) });
+        sources.push({ path: sourcePath, required, state: 'available', sha256: sha(bytes), mode: fact.mode, raw, excerpt, omitted_bytes: bytes.length - Buffer.byteLength(excerpt) });
       }
       let architecture;
       if (role.architecture) {
@@ -306,7 +283,7 @@ export class ContextEngine {
         architecture = { path: config.architecture.path, version: snapshot.version, versions: snapshot.versions, query, status: snapshot.status, raw, material };
         if (snapshot.status === 'blocked') diagnostics.push({ code: 'ARCHITECTURE_BLOCKED', blocking: true, message: 'Architecture declaration or code facts have blockers; recall architecture.raw for diagnostics.' });
       }
-      const record = { schema_version: 1, kind: 'context_record', workspace_id: this.store.workspaceId, config_sha: config.sha256,
+      const record = { schema_version: 1, kind: 'context_record', workspace_id: this.store.workspaceId, input_fingerprint_kind: INPUT_FINGERPRINT_KIND, config_sha: config.sha256,
         task: args.task, role: { id: role.id, goal: role.goal, allowed_operations: role.allowed_operations }, targets: args.targets,
         status: diagnostics.some((d) => d.blocking) ? 'blocked' : 'ready', diagnostics, sources, upstream,
         output_schema: role.output_schema, consumers: role.consumers,

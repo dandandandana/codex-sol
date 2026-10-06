@@ -1,0 +1,260 @@
+{
+  "schema_version": 1,
+  "stage": "architecture-evolution",
+  "status": "passed",
+  "recorded_at": "2026-10-06T05:39:23.834Z",
+  "baseline_commit": "f2ed54313f9aa97c1928b3411c1330dfdd3c05f2",
+  "architecture_index_evidence": "fixtures/architecture-evolution/index-evidence.json",
+  "platforms": [
+    {
+      "id": "windows-node24-native",
+      "platform": "windows",
+      "node": "v24.11.0",
+      "npm": "11.6.3",
+      "native_codex": "0.160.0",
+      "command": "npm run check",
+      "filesystem": "Windows local filesystem",
+      "exit_code": 0,
+      "tests": {
+        "tests": 327,
+        "pass": 308,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 19,
+        "todo": 0
+      },
+      "audit": {
+        "status": "passed",
+        "total_vulnerabilities": 0,
+        "by_severity": {
+          "info": 0,
+          "low": 0,
+          "moderate": 0,
+          "high": 0,
+          "critical": 0
+        }
+      },
+      "inputs": {
+        "count": 72,
+        "unchanged_before_after": true,
+        "manifest_before": {
+          "path": "slop/architecture-implementation-20261006/final-inputs-before.json",
+          "bytes": 9672,
+          "sha256": "495c80a6afa6fcd4b8e783cd4f788435e56eefcf876c388999ee897ef0ce9817"
+        },
+        "manifest_after": {
+          "path": "slop/architecture-implementation-20261006/final-inputs-after.json",
+          "bytes": 9672,
+          "sha256": "7c958bfef8d42ff88a21a5c890b03c7d87e66821874bae33367c53068f2ee1bb"
+        }
+      },
+      "logs": [
+        {
+          "path": "slop/architecture-implementation-20261006/final-windows-release-check.log",
+          "bytes": 34057,
+          "sha256": "2ffa11758f79a6e963b79cf1e2837dd8f20893a4b2a9595a2f7097e62d1d35b4"
+        }
+      ],
+      "native_codex_sha256": "4b01d5920e6785614727443bbecf343f4dedbb7347052b72ba805aab6353ef01"
+    },
+    {
+      "id": "linux-node24-native",
+      "platform": "linux",
+      "distribution": "WSL Ubuntu-24.04",
+      "node": "v24.11.0",
+      "native_codex": "0.160.0",
+      "filesystem": "Linux /tmp copy",
+      "command": "node scripts/ci-check.mjs native; npm audit --audit-level=high --registry=https://registry.npmjs.org/ --fetch-retries=0 --fetch-timeout=15000 --json",
+      "exit_code": 0,
+      "tests": {
+        "tests": 327,
+        "pass": 326,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 1,
+        "todo": 0
+      },
+      "audit": {
+        "status": "passed",
+        "exit_code": 0,
+        "total_vulnerabilities": 0,
+        "by_severity": {
+          "info": 0,
+          "low": 0,
+          "moderate": 0,
+          "high": 0,
+          "critical": 0
+        }
+      },
+      "inputs": {
+        "count": 72,
+        "unchanged_before_after": true,
+        "manifest_parity_with_windows": true,
+        "evidence": {
+          "path": "slop/architecture-implementation-20261006/final-linux-evidence.json",
+          "bytes": 20583,
+          "sha256": "31c03dd92a10f3b6a03271ab4042e96d092b22baa08fa93e296b047eec54a1c6"
+        }
+      },
+      "logs": [
+        {
+          "path": "slop/architecture-implementation-20261006/final-linux-tests.log",
+          "bytes": 33282,
+          "sha256": "b292498018d1f4b29c085bd90f016cd80e255e866ea3fe11d421b42c2079b571"
+        },
+        {
+          "path": "slop/architecture-implementation-20261006/final-linux-audit.json",
+          "bytes": 463,
+          "sha256": "639740ffd111dbada6c60742234aeb01dda4c1f0213f34def9557c5084143337"
+        }
+      ]
+    },
+    {
+      "id": "windows-node20-portable",
+      "platform": "windows",
+      "node": "v20.8.0",
+      "mode": "portable",
+      "command": "node scripts/ci-check.mjs portable",
+      "filesystem": "Windows local filesystem",
+      "exit_code": 0,
+      "tests": {
+        "tests": 317,
+        "pass": 297,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 20,
+        "todo": 0
+      },
+      "audit": {
+        "status": "not_run"
+      },
+      "native_codex": "not_required_for_portable_mode",
+      "inputs": {
+        "count": 72,
+        "manifest_parity_with_windows_node24": true,
+        "manifest_after": {
+          "path": "slop/architecture-implementation-20261006/final-node20-inputs-after.json",
+          "bytes": 9672,
+          "sha256": "7c958bfef8d42ff88a21a5c890b03c7d87e66821874bae33367c53068f2ee1bb"
+        }
+      },
+      "logs": [
+        {
+          "path": "slop/architecture-implementation-20261006/final-node20-portable-tests.log",
+          "bytes": 33171,
+          "sha256": "5b5b72e8f5148100d0c2acd0eb52d14e8dcccf71ce8aae1c6aa4c3c703965896"
+        }
+      ]
+    }
+  ],
+  "input_manifest": {
+    "count": 72,
+    "paths_are_workspace_relative": true,
+    "all_platforms_byte_identical": true,
+    "canonical_sha256": "c2273e55a55121c1d6a5501f4b86d2a483f2af066f4cbe9b0941f57521dab858",
+    "manifests": [
+      {
+        "path": "slop/architecture-implementation-20261006/final-inputs-before.json",
+        "bytes": 9672,
+        "sha256": "495c80a6afa6fcd4b8e783cd4f788435e56eefcf876c388999ee897ef0ce9817"
+      },
+      {
+        "path": "slop/architecture-implementation-20261006/final-inputs-after.json",
+        "bytes": 9672,
+        "sha256": "7c958bfef8d42ff88a21a5c890b03c7d87e66821874bae33367c53068f2ee1bb"
+      },
+      {
+        "path": "slop/architecture-implementation-20261006/final-node20-inputs-after.json",
+        "bytes": 9672,
+        "sha256": "7c958bfef8d42ff88a21a5c890b03c7d87e66821874bae33367c53068f2ee1bb"
+      },
+      {
+        "path": "slop/architecture-implementation-20261006/final-linux-evidence.json#/before",
+        "count": 72
+      },
+      {
+        "path": "slop/architecture-implementation-20261006/final-linux-evidence.json#/after",
+        "count": 72
+      }
+    ],
+    "linux_and_windows_manifest_evidence": {
+      "path": "slop/architecture-implementation-20261006/final-linux-evidence.json",
+      "bytes": 20583,
+      "sha256": "31c03dd92a10f3b6a03271ab4042e96d092b22baa08fa93e296b047eec54a1c6"
+    }
+  },
+  "recall_resource_probe": {
+    "status": "measured",
+    "platform": "linux",
+    "node": "v24.11.0",
+    "fixture_bytes": 16777216,
+    "page_count": 5,
+    "response_budget_bytes": 8192,
+    "returned_bytes": 27360,
+    "raw_read_bytes": 83886080,
+    "explicit_buffer_allocation_bytes": 1016670,
+    "explicit_buffer_allocation_calls": 35,
+    "largest_single_buffer_bytes": 65536,
+    "rss_before_bytes": 81993728,
+    "rss_after_bytes": 86388736,
+    "rss_delta_bytes": 4395008,
+    "process_lifetime_maxrss_bytes": 88494080,
+    "verification": {
+      "all_pages_within_budget": true,
+      "streamed_sha256_verified": true,
+      "descriptors_closed": true,
+      "source_inputs_unchanged": true
+    },
+    "evidence": {
+      "path": "slop/architecture-implementation-20261006/recall-resource-evidence.json",
+      "bytes": 4990,
+      "sha256": "4ab1d9ea6152c278eb0543e5936e554a6d175c588925c4670575f95f7297ffa2"
+    },
+    "limitations": [
+      "One current-version measurement; no old-version comparison or causal performance claim.",
+      "Peak RSS includes imports, fixture/probe work and assertions; explicit buffer counters cover Buffer.alloc/allocUnsafe during five recall calls only.",
+      "No model call, install or full suite was part of this measurement."
+    ]
+  },
+  "environment_resolution": {
+    "linux_audit": {
+      "initial_failure": "EAI_AGAIN while resolving registry.npmjs.org",
+      "final_resolution": "Final audit succeeded using a private mount namespace DNS setup.",
+      "global_hosts_modified": false,
+      "tls_verification_disabled": false,
+      "initial_failure_log": {
+        "path": "slop/architecture-implementation-20261006/attempt-linux-audit-dns.log",
+        "bytes": 614,
+        "sha256": "49cadd2f51d0d0af74348b0410fe8f554cfdc7565b0560133e0a0e79a330d43c"
+      },
+      "global_hosts_registry_mapping_after_test": "absent",
+      "default_dns_after_test": "unavailable"
+    },
+    "node20_cli": {
+      "initial_failure": "Node v20.8.0 rejected --test-concurrency=4; tests then used the shared Node test-runner API concurrency option (4).",
+      "initial_failure_log": {
+        "path": "slop/architecture-implementation-20261006/attempt-node20-cli-option.log",
+        "bytes": 376,
+        "sha256": "35cc2358706667ab02f658d5517aff25d377c33a77b67ab09266335e75326294"
+      }
+    }
+  },
+  "not_run": [
+    "Remote GitHub workflow",
+    "Linux Node 20",
+    "GUI or host-version validation",
+    "Model A/B evaluation"
+  ],
+  "not_configured": [
+    "lint",
+    "formatter",
+    "typecheck",
+    "build"
+  ],
+  "source_revision": {
+    "recorded_phase": "before_commit",
+    "version_changed": false,
+    "commit_created": false,
+    "pushed": false
+  }
+}

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
-import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { chmod, mkdir, mkdtemp, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createSolServer } from '../src/server.mjs';
@@ -76,6 +76,21 @@ function submitInput(packet) {
   return { context_handle: packet.raw.handle, task_id: packet.task.id, role: packet.role.id,
     version: packet.version, output: { plan: 'Keep escaping in the existing helper.', constraints: [], unresolved: [] } };
 }
+
+test('Context source metadata and freshness include ordinary POSIX mode independently of a bound change', { skip: process.platform === 'win32' }, async (t) => {
+  const f = await fixture(t); const sourcePath = join(f.root, 'src/core.mjs');
+  const originalMode = (await stat(sourcePath)).mode & 0o777;
+  const packet = await f.engine.prepare(prepareInput());
+  const source = packet.sources.find((item) => item.path === 'src/core.mjs');
+  assert.equal(source.mode, originalMode);
+  const archives = await observations(f.store);
+  await chmod(sourcePath, originalMode === 0o755 ? 0o644 : 0o755);
+  await assert.rejects(f.engine.submit(submitInput(packet)), { code: 'CONTEXT_STALE' });
+  assert.deepEqual(await observations(f.store), archives);
+  const renewed = await f.engine.prepare(prepareInput());
+  assert.equal(renewed.sources.find((item) => item.path === 'src/core.mjs').mode, originalMode === 0o755 ? 0o644 : 0o755);
+  assert.notEqual(renewed.version, packet.version);
+});
 
 const fault = (promise, code) => assert.rejects(promise, (error) => error.code === code);
 

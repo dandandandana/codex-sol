@@ -1,5 +1,7 @@
 # 架构实施合同：归属、复用与影响证据
 
+2026-10-06 已按 [架构改造设计](architecture-evolution.md) 实现文件与执行事实、共享输入快照、流式验证读取、证据与恢复职责、只读配置诊断及 CI。现行内部合同见 [contracts.md §16](contracts.md#16-架构演进的内部合同2026-10-06)，程序验收与未验证范围见 [本轮记录](fixtures/architecture-evolution/README.md)。真实宿主与模型效果仍单独验收。
+
 日期：2026-10-04。状态：M-000 写前 Context、M-001 查询索引及现有生命周期 Hooks 已实现；M-002 已接通登记、绑定写入、维护建议、版本绑定复核、累计检查及完成发布，最新边界见 §4.12。博客仅为 Hook 测试夹具，不列产品计划。本文承接 [README](README.md) 和 [Notion 开工单](https://app.notion.com/p/3e831ddb72338111ada4dffbdd87713b) 的已确认方向；运行行为以 [contracts.md](contracts.md) 为准。
 
 阅读顺序：目标 → 职责与数据 → 变更闭环 → 实施顺序 → 验收。本文锁定职责和行为，工具名称、文件拆分与非必要字段由实施时决定。

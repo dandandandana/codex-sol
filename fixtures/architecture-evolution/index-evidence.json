@@ -1,0 +1,1674 @@
+{
+  "schema_version": 1,
+  "stage": "architecture-evolution",
+  "recorded_at": "2026-10-06T05:37:20.506Z",
+  "status": "ready",
+  "module_count": 25,
+  "capability_count": 67,
+  "static_import_count": 99,
+  "architecture_version": "c2af752f696cb562273b8cf9947893511dc619d494e0fbc0c205cbea078734ed",
+  "fingerprint_validation": {
+    "checked_modules": 24,
+    "missing_source_count": 0,
+    "mismatch_count": 0,
+    "algorithm": "Normify fingerprintOf: SHA-256 over sorted unique relative source paths and file bytes",
+    "mismatches": []
+  },
+  "engine": {
+    "name": "Normify",
+    "version": "0.5.4",
+    "commit": "ed404e5b8db0010ff57ec8486ec8749421072545",
+    "compiled": true
+  },
+  "query": {
+    "input": {
+      "paths": [],
+      "capability": ""
+    },
+    "status": "ready",
+    "returned_capability_count": 67,
+    "impact_edge_count": 99,
+    "returned_capabilities": [
+      {
+        "module": "sol.architecture-change",
+        "uid": "1ce8b582",
+        "symbol": "ChangeCoordinator",
+        "protocol": "rpc",
+        "description": {
+          "zh": "单一变更登记、绑定写入、前后事实与累计影响、版本绑定复核、有效检查及原子完成发布；工作区租约内执行，取消与失败保留实际结果。",
+          "en": "Owns one change, bound writes, before/current impact, version-bound review, cumulative checks and atomic completion under the workspace lease; failures retain actual effects."
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/architecture/change.mjs",
+            "line": 110,
+            "sha256": "0bb67fd8a55e7dc7fcdc3b1055d95962f34179bc5a980b57f6c17f1b73ad29de"
+          }
+        ]
+      },
+      {
+        "module": "sol.architecture-change",
+        "uid": "1ce8b582",
+        "symbol": "changeBindingSchema",
+        "protocol": "rpc",
+        "description": {
+          "zh": "changeBindingSchema",
+          "en": "changeBindingSchema"
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/architecture/change.mjs",
+            "line": 24,
+            "sha256": "0bb67fd8a55e7dc7fcdc3b1055d95962f34179bc5a980b57f6c17f1b73ad29de"
+          }
+        ]
+      },
+      {
+        "module": "sol.architecture-change",
+        "uid": "1ce8b582",
+        "symbol": "changeOpenSchema",
+        "protocol": "rpc",
+        "description": {
+          "zh": "changeOpenSchema",
+          "en": "changeOpenSchema"
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/architecture/change.mjs",
+            "line": 25,
+            "sha256": "0bb67fd8a55e7dc7fcdc3b1055d95962f34179bc5a980b57f6c17f1b73ad29de"
+          }
+        ]
+      },
+      {
+        "module": "sol.architecture-change",
+        "uid": "1ce8b582",
+        "symbol": "changeReviewSchema",
+        "protocol": "rpc",
+        "description": {
+          "zh": "写后复核 prepare/submit 的严格输入合同；绑定变更、当前复核材料及逐模块、验收与未覆盖项的依据。",
+          "en": "Strict prepare/submit contract for post-write review bound to the change, current materials and per-module, acceptance and gap evidence."
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/architecture/change.mjs",
+            "line": 48,
+            "sha256": "0bb67fd8a55e7dc7fcdc3b1055d95962f34179bc5a980b57f6c17f1b73ad29de"
+          }
+        ]
+      },
+      {
+        "module": "sol.architecture-change",
+        "uid": "1ce8b582",
+        "symbol": "changeCompleteSchema",
+        "protocol": "rpc",
+        "description": {
+          "zh": "完成收尾严格输入：当前 change 绑定和当前 review_handle。",
+          "en": "Strict completion input: the current change binding and review_handle."
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/architecture/change.mjs",
+            "line": 52,
+            "sha256": "0bb67fd8a55e7dc7fcdc3b1055d95962f34179bc5a980b57f6c17f1b73ad29de"
+          }
+        ]
+      },
+      {
+        "module": "sol.architecture-context",
+        "uid": "7a0332d2",
+        "symbol": "ContextEngine",
+        "protocol": "rpc",
+        "description": {
+          "zh": "ContextEngine",
+          "en": "ContextEngine"
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/architecture/context.mjs",
+            "line": 131,
+            "sha256": "86a69844a6bfed12cc1c3d75a47d845d62bbd6e890f8a8655333adff4b46eefc"
+          }
+        ]
+      },
+      {
+        "module": "sol.architecture-context",
+        "uid": "7a0332d2",
+        "symbol": "contextError",
+        "protocol": "rpc",
+        "description": {
+          "zh": "contextError",
+          "en": "contextError"
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/architecture/context.mjs",
+            "line": 362,
+            "sha256": "86a69844a6bfed12cc1c3d75a47d845d62bbd6e890f8a8655333adff4b46eefc"
+          }
+        ]
+      },
+      {
+        "module": "sol.architecture-context",
+        "uid": "7a0332d2",
+        "symbol": "readContextConfiguration",
+        "protocol": "rpc",
+        "description": {
+          "zh": "安全读取并校验职责 Context 配置，解析架构与上游产物路径。",
+          "en": "Safely reads and validates responsibility Context configuration and resolves architecture and producer-artifact paths."
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/architecture/context.mjs",
+            "line": 75,
+            "sha256": "86a69844a6bfed12cc1c3d75a47d845d62bbd6e890f8a8655333adff4b46eefc"
+          }
+        ]
+      },
+      {
+        "module": "sol.architecture-index",
+        "uid": "2b6c0979",
+        "symbol": "ArchitectureIndex",
+        "protocol": "rpc",
+        "description": {
+          "zh": "只读 Normify 声明与 JavaScript 导入/导出事实、能力发现、版本核验及前后架构维护建议；未覆盖项显式返回，不自动批准契约。",
+          "en": "Read-only Normify declarations and JavaScript import/export facts, capability discovery, freshness and before/current maintenance suggestions; gaps remain explicit without automatic contract approval."
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/architecture/index.mjs",
+            "line": 64,
+            "sha256": "16a76d78831fb9fb503fc2674fb3d4dab58260be2b43ba5a5bb065f61675dc61"
+          }
+        ]
+      },
+      {
+        "module": "sol.architecture-session",
+        "uid": "572fa8c6",
+        "symbol": "ContextSessions",
+        "protocol": "rpc",
+        "description": {
+          "zh": "ContextSessions",
+          "en": "ContextSessions"
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/architecture/session.mjs",
+            "line": 26,
+            "sha256": "c19c1e8c57d7492a950eb758e277affd57868a7bd72e835c0227d766890133d7"
+          }
+        ]
+      },
+      {
+        "module": "sol.context-hook",
+        "uid": "7a8e45d6",
+        "symbol": "handleContextHook",
+        "protocol": "rpc",
+        "description": {
+          "zh": "handleContextHook",
+          "en": "handleContextHook"
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/context-hook.mjs",
+            "line": 27,
+            "sha256": "781ff565a74a6453cbd300d3ce8df87f8ab319d7432af2aac7d241abd4654331"
+          }
+        ]
+      },
+      {
+        "module": "sol.host-cancellation",
+        "uid": "911552e0",
+        "symbol": "interruptionReason",
+        "protocol": "rpc",
+        "description": {
+          "zh": "interruptionReason",
+          "en": "interruptionReason"
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/host-cancellation.mjs",
+            "line": 28,
+            "sha256": "b7ba21494af29c829a258a090f36b9a4efa3f66f587f9e1028441ff19ede2a9f"
+          }
+        ]
+      },
+      {
+        "module": "sol.host-cancellation",
+        "uid": "911552e0",
+        "symbol": "openHostCancellation",
+        "protocol": "rpc",
+        "description": {
+          "zh": "openHostCancellation",
+          "en": "openHostCancellation"
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/host-cancellation.mjs",
+            "line": 97,
+            "sha256": "b7ba21494af29c829a258a090f36b9a4efa3f66f587f9e1028441ff19ede2a9f"
+          }
+        ]
+      },
+      {
+        "module": "sol.host-cancellation",
+        "uid": "911552e0",
+        "symbol": "withHostCancellation",
+        "protocol": "rpc",
+        "description": {
+          "zh": "withHostCancellation",
+          "en": "withHostCancellation"
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/host-cancellation.mjs",
+            "line": 174,
+            "sha256": "b7ba21494af29c829a258a090f36b9a4efa3f66f587f9e1028441ff19ede2a9f"
+          }
+        ]
+      },
+      {
+        "module": "sol.host-cancellation",
+        "uid": "911552e0",
+        "symbol": "decodeHostTurnMetadata",
+        "protocol": "rpc",
+        "description": {
+          "zh": "校验并提取宿主 turn metadata 中的线程与 turn 标识。",
+          "en": "Validates and extracts thread and turn identities from host turn metadata."
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/host-cancellation.mjs",
+            "line": 15,
+            "sha256": "b7ba21494af29c829a258a090f36b9a4efa3f66f587f9e1028441ff19ede2a9f"
+          }
+        ]
+      },
+      {
+        "module": "sol.host-cancellation",
+        "uid": "911552e0",
+        "symbol": "decodeHostThread",
+        "protocol": "rpc",
+        "description": {
+          "zh": "校验宿主线程记录并投影为受限线程身份与工作区路径。",
+          "en": "Validates a host thread record and projects it to bounded thread identity and workspace path."
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/host-cancellation.mjs",
+            "line": 22,
+            "sha256": "b7ba21494af29c829a258a090f36b9a4efa3f66f587f9e1028441ff19ede2a9f"
+          }
+        ]
+      },
+      {
+        "module": "sol.managed-command",
+        "uid": "f8a3d671",
+        "symbol": "publicError",
+        "protocol": "rpc",
+        "description": {
+          "zh": "publicError",
+          "en": "publicError"
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/managed-command.mjs",
+            "line": 11,
+            "sha256": "8e4aa03fbf83486ec569046dfce68ca745bdd775a56055d5be92eac27f518db8"
+          }
+        ]
+      },
+      {
+        "module": "sol.managed-command",
+        "uid": "f8a3d671",
+        "symbol": "runManagedCommand",
+        "protocol": "rpc",
+        "description": {
+          "zh": "runManagedCommand",
+          "en": "runManagedCommand"
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/managed-command.mjs",
+            "line": 42,
+            "sha256": "8e4aa03fbf83486ec569046dfce68ca745bdd775a56055d5be92eac27f518db8"
+          }
+        ]
+      },
+      {
+        "module": "sol.managed-command",
+        "uid": "f8a3d671",
+        "symbol": "recordActualChanges",
+        "protocol": "rpc",
+        "description": {
+          "zh": "按路径核验实际变更，创建事件并完成相关同步验证，保留验证失败状态。",
+          "en": "Checks actual changes by path, records the event and runs related synchronous validation while preserving validation failures."
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/managed-command.mjs",
+            "line": 18,
+            "sha256": "8e4aa03fbf83486ec569046dfce68ca745bdd775a56055d5be92eac27f518db8"
+          }
+        ]
+      },
+      {
+        "module": "sol.managed-write",
+        "uid": "9e57f42c",
+        "symbol": "applyFileChanges",
+        "protocol": "rpc",
+        "description": {
+          "zh": "在工作区边界内校验并执行文件写入或删除，返回实际变化、事实快照及错误；不回滚已发生的部分效果。",
+          "en": "Validates and applies workspace-bounded file writes or deletes, returning actual changes, fact snapshots and errors; partial effects are not rolled back."
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/managed-write.mjs",
+            "line": 11,
+            "sha256": "51d19cb08d355bd22b1e5b623b5b47ae701ec48259b250b062363044a0862cf3"
+          }
+        ]
+      },
+      {
+        "module": "sol.managed-write",
+        "uid": "9e57f42c",
+        "symbol": "runManagedFileChanges",
+        "protocol": "rpc",
+        "description": {
+          "zh": "在工作区租约内执行文件变化，记录实际变更事件并同步验证；不拥有任务状态。",
+          "en": "Runs file changes under a workspace lease, records the actual change event and validates synchronously; it does not own task state."
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/managed-write.mjs",
+            "line": 45,
+            "sha256": "51d19cb08d355bd22b1e5b623b5b47ae701ec48259b250b062363044a0862cf3"
+          }
+        ]
+      },
+      {
+        "module": "sol.native-hook",
+        "uid": "8d9303b9",
+        "symbol": "loadNativeConfig",
+        "protocol": "rpc",
+        "description": {
+          "zh": "loadNativeConfig",
+          "en": "loadNativeConfig"
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/native-hook.mjs",
+            "line": 23,
+            "sha256": "c1a1dfd729b4b518d72cbe64eba6d7675126f18ea1df57afe12268ca3a2cde02"
+          }
+        ]
+      },
+      {
+        "module": "sol.native-hook",
+        "uid": "8d9303b9",
+        "symbol": "handleNativeHook",
+        "protocol": "rpc",
+        "description": {
+          "zh": "handleNativeHook",
+          "en": "handleNativeHook"
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/native-hook.mjs",
+            "line": 54,
+            "sha256": "c1a1dfd729b4b518d72cbe64eba6d7675126f18ea1df57afe12268ca3a2cde02"
+          }
+        ]
+      },
+      {
+        "module": "sol.native-hook",
+        "uid": "8d9303b9",
+        "symbol": "runNativeRequest",
+        "protocol": "rpc",
+        "description": {
+          "zh": "runNativeRequest",
+          "en": "runNativeRequest"
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/native-hook.mjs",
+            "line": 99,
+            "sha256": "c1a1dfd729b4b518d72cbe64eba6d7675126f18ea1df57afe12268ca3a2cde02"
+          }
+        ]
+      },
+      {
+        "module": "sol.pack",
+        "uid": "a8105ba4",
+        "symbol": "storageErrorPack",
+        "protocol": "rpc",
+        "description": {
+          "zh": "storageErrorPack",
+          "en": "storageErrorPack"
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/pack.mjs",
+            "line": 232,
+            "sha256": "b797dc4edbf70e3a3cd9b219f64d7faf57a0d13a30f105cbfecab96fb8310a87"
+          }
+        ]
+      },
+      {
+        "module": "sol.pack",
+        "uid": "a8105ba4",
+        "symbol": "pack",
+        "protocol": "rpc",
+        "description": {
+          "zh": "pack",
+          "en": "pack"
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/pack.mjs",
+            "line": 247,
+            "sha256": "b797dc4edbf70e3a3cd9b219f64d7faf57a0d13a30f105cbfecab96fb8310a87"
+          }
+        ]
+      },
+      {
+        "module": "sol.patch",
+        "uid": "7b7e65d7",
+        "symbol": "patchPaths",
+        "protocol": "rpc",
+        "description": {
+          "zh": "patchPaths",
+          "en": "patchPaths"
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/patch.mjs",
+            "line": 8,
+            "sha256": "5792b1e7467a7f01074d0a257d157a87512c37f018d650a7ec5494a5b37f0077"
+          }
+        ]
+      },
+      {
+        "module": "sol.patch",
+        "uid": "7b7e65d7",
+        "symbol": "applyManagedPatch",
+        "protocol": "rpc",
+        "description": {
+          "zh": "applyManagedPatch",
+          "en": "applyManagedPatch"
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/patch.mjs",
+            "line": 30,
+            "sha256": "5792b1e7467a7f01074d0a257d157a87512c37f018d650a7ec5494a5b37f0077"
+          }
+        ]
+      },
+      {
+        "module": "sol.plugin-launcher",
+        "uid": "cf135529",
+        "symbol": "resolvePluginProject",
+        "protocol": "rpc",
+        "description": {
+          "zh": "resolvePluginProject",
+          "en": "resolvePluginProject"
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/plugin-launcher.mjs",
+            "line": 39,
+            "sha256": "92244db6a60ce500a3dfe3b83ae6b58df3d0cf6716ef2a4a850d9dfbd6ede5a4"
+          }
+        ]
+      },
+      {
+        "module": "sol.plugin-launcher",
+        "uid": "cf135529",
+        "symbol": "handlePluginHook",
+        "protocol": "rpc",
+        "description": {
+          "zh": "handlePluginHook",
+          "en": "handlePluginHook"
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/plugin-launcher.mjs",
+            "line": 121,
+            "sha256": "92244db6a60ce500a3dfe3b83ae6b58df3d0cf6716ef2a4a850d9dfbd6ede5a4"
+          }
+        ]
+      },
+      {
+        "module": "sol.plugin-launcher",
+        "uid": "cf135529",
+        "symbol": "pluginExecutionEnvironment",
+        "protocol": "rpc",
+        "description": {
+          "zh": "pluginExecutionEnvironment",
+          "en": "pluginExecutionEnvironment"
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/plugin-launcher.mjs",
+            "line": 26,
+            "sha256": "92244db6a60ce500a3dfe3b83ae6b58df3d0cf6716ef2a4a850d9dfbd6ede5a4"
+          }
+        ]
+      },
+      {
+        "module": "sol.plugin-launcher",
+        "uid": "cf135529",
+        "symbol": "checkPluginConfiguration",
+        "protocol": "rpc",
+        "description": {
+          "zh": "只读诊断显式项目插件配置，调用共享 RulesConfig 校验并报告配置状态与有效工具数量；不创建 store、任务或启动命令。",
+          "en": "Reads explicit project configuration through shared RulesConfig validation and reports status and tool count without writing files or running checks."
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/plugin-launcher.mjs",
+            "line": 86,
+            "sha256": "92244db6a60ce500a3dfe3b83ae6b58df3d0cf6716ef2a4a850d9dfbd6ede5a4"
+          }
+        ]
+      },
+      {
+        "module": "sol.process",
+        "uid": "dc326b6a",
+        "symbol": "runCapturedCommand",
+        "protocol": "rpc",
+        "description": {
+          "zh": "runCapturedCommand",
+          "en": "runCapturedCommand"
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/process.mjs",
+            "line": 33,
+            "sha256": "7db23971614c8d1f4eeb548ead76c7468cbfa2b9d2cd7f345d73778e22b6b5e4"
+          }
+        ]
+      },
+      {
+        "module": "sol.process",
+        "uid": "dc326b6a",
+        "symbol": "toCheckResult",
+        "protocol": "rpc",
+        "description": {
+          "zh": "将命令执行结果转换为严格 CheckResult 结构。",
+          "en": "Converts command execution output into the strict CheckResult shape."
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/process.mjs",
+            "line": 25,
+            "sha256": "7db23971614c8d1f4eeb548ead76c7468cbfa2b9d2cd7f345d73778e22b6b5e4"
+          }
+        ]
+      },
+      {
+        "module": "sol.read",
+        "uid": "a4b6638c",
+        "symbol": "readObservation",
+        "protocol": "rpc",
+        "description": {
+          "zh": "readObservation",
+          "en": "readObservation"
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/read.mjs",
+            "line": 17,
+            "sha256": "57dc3be78ecd3a76b2f6f4793ba1276414fa8b6cf49216843a59e3572480dae3"
+          }
+        ]
+      },
+      {
+        "module": "sol.recall",
+        "uid": "59918ee2",
+        "symbol": "recall",
+        "protocol": "rpc",
+        "description": {
+          "zh": "recall",
+          "en": "recall"
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/recall.mjs",
+            "line": 203,
+            "sha256": "8b014d7cdf5270d580076d6cd19791720c8c42d58d35464031a2e95e30b525a6"
+          }
+        ]
+      },
+      {
+        "module": "sol.records",
+        "uid": "0e9b5b99",
+        "symbol": "ArchiveRecords",
+        "protocol": "rpc",
+        "description": {
+          "zh": "绑定 ObservationStore；archive 写入有界 JSON 或文本证据，stored 核验工作区、工具、类型和引用摘要后读取，evidence 校验并生成归档引用。",
+          "en": "Binds an ObservationStore; archives bounded JSON/text, verifies workspace/tool/type/references when reading, and validates evidence references."
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/records.mjs",
+            "line": 12,
+            "sha256": "daffe45eda4aa8bf05b01953f84d4fadcc47f26f026bec1fdeda6b738a3210a9"
+          }
+        ]
+      },
+      {
+        "module": "sol.runtime",
+        "uid": "7dd5355a",
+        "symbol": "createSolRuntime",
+        "protocol": "rpc",
+        "description": {
+          "zh": "从工作区、可选验证规则和显式 Context 配置组装 store、validator、Context 与 sessions；不创建任务或启动传输。",
+          "en": "Composes store, validator, Context and sessions from workspace, optional validation rules and explicit Context configuration; creates no task and starts no transport."
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/runtime.mjs",
+            "line": 11,
+            "sha256": "b20631cef7ba1e8ad67e8129b05297835cf84ecd8a52c13f807bac0f99c2474e"
+          }
+        ]
+      },
+      {
+        "module": "sol.runtime",
+        "uid": "7dd5355a",
+        "symbol": "configureRuntimeChanges",
+        "protocol": "rpc",
+        "description": {
+          "zh": "在已有 Context runtime 上配置绑定变更协调器与验证器，并返回协调器。",
+          "en": "Configures a bound-change coordinator and validator on an existing Context runtime and returns the coordinator."
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/runtime.mjs",
+            "line": 23,
+            "sha256": "b20631cef7ba1e8ad67e8129b05297835cf84ecd8a52c13f807bac0f99c2474e"
+          }
+        ]
+      },
+      {
+        "module": "sol.schema",
+        "uid": "a07d75dc",
+        "symbol": "assertContract",
+        "protocol": "rpc",
+        "description": {
+          "zh": "assertContract",
+          "en": "assertContract"
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/schema.mjs",
+            "line": 9,
+            "sha256": "d11b589b786f6627e2d0144564d0fc3842cf1718ae77d10cc926da8034b3db42"
+          }
+        ]
+      },
+      {
+        "module": "sol.server",
+        "uid": "41d4444c",
+        "symbol": "createSolServer",
+        "protocol": "rpc",
+        "description": {
+          "zh": "createSolServer",
+          "en": "createSolServer"
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/server.mjs",
+            "line": 45,
+            "sha256": "aa8daffadf63e96bd43bcbe29b9c8801f9e5b294a86266ab03ebfe9641c8a2c1"
+          }
+        ]
+      },
+      {
+        "module": "sol.store",
+        "uid": "6e7786ea",
+        "symbol": "SolFault",
+        "protocol": "rpc",
+        "description": {
+          "zh": "SolFault",
+          "en": "SolFault"
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/store.mjs",
+            "line": 12,
+            "sha256": "8c26efa488a6254b9e1ba35ab0af0cd0282eb7607a6b0b4f456c5e935c195847"
+          }
+        ]
+      },
+      {
+        "module": "sol.store",
+        "uid": "6e7786ea",
+        "symbol": "interruptionFault",
+        "protocol": "rpc",
+        "description": {
+          "zh": "interruptionFault",
+          "en": "interruptionFault"
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/store.mjs",
+            "line": 21,
+            "sha256": "8c26efa488a6254b9e1ba35ab0af0cd0282eb7607a6b0b4f456c5e935c195847"
+          }
+        ]
+      },
+      {
+        "module": "sol.store",
+        "uid": "6e7786ea",
+        "symbol": "ObservationStore",
+        "protocol": "rpc",
+        "description": {
+          "zh": "管理观察归档、索引及原始数据；包含 readVerifiedJSON 等按元数据、摘要、大小、类型和工作区核验的读取方法。",
+          "en": "Manages observation archives, indexes and raw data; includes verified reads such as readVerifiedJSON that check metadata, digest, size, type and workspace."
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/store.mjs",
+            "line": 213,
+            "sha256": "8c26efa488a6254b9e1ba35ab0af0cd0282eb7607a6b0b4f456c5e935c195847"
+          }
+        ]
+      },
+      {
+        "module": "sol.store",
+        "uid": "6e7786ea",
+        "symbol": "createObservationStore",
+        "protocol": "rpc",
+        "description": {
+          "zh": "createObservationStore",
+          "en": "createObservationStore"
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/store.mjs",
+            "line": 397,
+            "sha256": "8c26efa488a6254b9e1ba35ab0af0cd0282eb7607a6b0b4f456c5e935c195847"
+          }
+        ]
+      },
+      {
+        "module": "sol.store",
+        "uid": "6e7786ea",
+        "symbol": "readIndexOffset",
+        "protocol": "rpc",
+        "description": {
+          "zh": "readIndexOffset",
+          "en": "readIndexOffset"
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/store.mjs",
+            "line": 404,
+            "sha256": "8c26efa488a6254b9e1ba35ab0af0cd0282eb7607a6b0b4f456c5e935c195847"
+          }
+        ]
+      },
+      {
+        "module": "sol.store",
+        "uid": "6e7786ea",
+        "symbol": "readRawSlice",
+        "protocol": "rpc",
+        "description": {
+          "zh": "readRawSlice",
+          "en": "readRawSlice"
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/store.mjs",
+            "line": 411,
+            "sha256": "8c26efa488a6254b9e1ba35ab0af0cd0282eb7607a6b0b4f456c5e935c195847"
+          }
+        ]
+      },
+      {
+        "module": "sol.validation",
+        "uid": "f194da0b",
+        "symbol": "ValidationEngine",
+        "protocol": "rpc",
+        "description": {
+          "zh": "真实修改验证及显式再验证；保存逐规则来源，核验计划、复用许可与当前有效性，沿用原回执、取消和 runner。",
+          "en": "Validates real changes and explicit revalidation; records rule provenance and verifies plans, permitted reuse and freshness with existing receipts, cancellation and runners."
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/validation.mjs",
+            "line": 91,
+            "sha256": "c1b8cc1ab580a8df5f81aa5e4f4f1f68bb79bd3720f779eccbfeedd21946567a"
+          }
+        ]
+      },
+      {
+        "module": "sol.validation",
+        "uid": "f194da0b",
+        "symbol": "receiptSummary",
+        "protocol": "rpc",
+        "description": {
+          "zh": "receiptSummary",
+          "en": "receiptSummary"
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/validation.mjs",
+            "line": 434,
+            "sha256": "c1b8cc1ab580a8df5f81aa5e4f4f1f68bb79bd3720f779eccbfeedd21946567a"
+          }
+        ]
+      },
+      {
+        "module": "sol.validation",
+        "uid": "f194da0b",
+        "symbol": "validateRulesConfiguration",
+        "protocol": "rpc",
+        "description": {
+          "zh": "无存储或执行副作用地校验 RulesConfig，并确保规则 ID 与组合检查 ID 唯一；返回输入配置，非法时抛出配置错误。",
+          "en": "Validates RulesConfig without storage or command execution, enforces unique rule and check IDs, returns the input, and throws CONFIG_ERROR for duplicates."
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/validation.mjs",
+            "line": 75,
+            "sha256": "c1b8cc1ab580a8df5f81aa5e4f4f1f68bb79bd3720f779eccbfeedd21946567a"
+          }
+        ]
+      },
+      {
+        "module": "sol.workspace",
+        "uid": "3c015058",
+        "symbol": "validateWorkspacePath",
+        "protocol": "rpc",
+        "description": {
+          "zh": "无副作用地校验工作区相对文件路径；平台文件名与保留元数据规则由读写及 patch 共同复用，非法路径抛出 PATH_ERROR。",
+          "en": "Validates workspace-relative file paths without I/O; reads, writes and patch preflight share platform filename and reserved metadata rules; invalid paths raise PATH_ERROR."
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/workspace.mjs",
+            "line": 13,
+            "sha256": "5d63992285bd3c7cc866b1eef28705d4793b1399c66d444891ee534e73098c0f"
+          }
+        ]
+      },
+      {
+        "module": "sol.workspace",
+        "uid": "3c015058",
+        "symbol": "workspaceFile",
+        "protocol": "rpc",
+        "description": {
+          "zh": "workspaceFile",
+          "en": "workspaceFile"
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/workspace.mjs",
+            "line": 21,
+            "sha256": "5d63992285bd3c7cc866b1eef28705d4793b1399c66d444891ee534e73098c0f"
+          }
+        ]
+      },
+      {
+        "module": "sol.workspace",
+        "uid": "3c015058",
+        "symbol": "fileState",
+        "protocol": "rpc",
+        "description": {
+          "zh": "fileState",
+          "en": "fileState"
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/workspace.mjs",
+            "line": 102,
+            "sha256": "5d63992285bd3c7cc866b1eef28705d4793b1399c66d444891ee534e73098c0f"
+          }
+        ]
+      },
+      {
+        "module": "sol.workspace",
+        "uid": "3c015058",
+        "symbol": "readWorkspaceBytes",
+        "protocol": "rpc",
+        "description": {
+          "zh": "readWorkspaceBytes",
+          "en": "readWorkspaceBytes"
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/workspace.mjs",
+            "line": 158,
+            "sha256": "5d63992285bd3c7cc866b1eef28705d4793b1399c66d444891ee534e73098c0f"
+          }
+        ]
+      },
+      {
+        "module": "sol.workspace",
+        "uid": "3c015058",
+        "symbol": "writeAtomicJSON",
+        "protocol": "rpc",
+        "description": {
+          "zh": "先写入并同步同目录临时文件，再原子替换 JSON；可选 beforePublish 在 rename 前核验发布条件，失败清理本次临时文件。",
+          "en": "Writes and syncs a same-directory temporary JSON before atomic replacement; optional beforePublish guards rename and failure removes this temporary file."
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/workspace.mjs",
+            "line": 185,
+            "sha256": "5d63992285bd3c7cc866b1eef28705d4793b1399c66d444891ee534e73098c0f"
+          }
+        ]
+      },
+      {
+        "module": "sol.workspace",
+        "uid": "3c015058",
+        "symbol": "fileFacts",
+        "protocol": "rpc",
+        "description": {
+          "zh": "按路径读取受限文件事实，包括存在状态、内容摘要和文件模式。",
+          "en": "Reads bounded file facts by path, including existence, content digest and file mode."
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/workspace.mjs",
+            "line": 89,
+            "sha256": "5d63992285bd3c7cc866b1eef28705d4793b1399c66d444891ee534e73098c0f"
+          }
+        ]
+      },
+      {
+        "module": "sol.workspace",
+        "uid": "3c015058",
+        "symbol": "fingerprintFileFacts",
+        "protocol": "rpc",
+        "description": {
+          "zh": "按稳定路径顺序为一组文件事实计算内容与模式组合指纹。",
+          "en": "Computes a content-and-mode combined fingerprint for file facts in stable path order."
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/workspace.mjs",
+            "line": 96,
+            "sha256": "5d63992285bd3c7cc866b1eef28705d4793b1399c66d444891ee534e73098c0f"
+          }
+        ]
+      },
+      {
+        "module": "sol.workspace",
+        "uid": "3c015058",
+        "symbol": "fileFactFingerprint",
+        "protocol": "rpc",
+        "description": {
+          "zh": "为单条文件事实计算与组合指纹一致的内容/模式摘要。",
+          "en": "Computes the content/mode digest for one file fact using the combined-fingerprint format."
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/workspace.mjs",
+            "line": 99,
+            "sha256": "5d63992285bd3c7cc866b1eef28705d4793b1399c66d444891ee534e73098c0f"
+          }
+        ]
+      },
+      {
+        "module": "sol.workspace",
+        "uid": "3c015058",
+        "symbol": "writeWorkspaceFile",
+        "protocol": "rpc",
+        "description": {
+          "zh": "在工作区路径与预期事实核验下写入文件，并检测并发漂移。",
+          "en": "Writes a file after workspace-path and expected-fact checks, detecting concurrent drift."
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/workspace.mjs",
+            "line": 118,
+            "sha256": "5d63992285bd3c7cc866b1eef28705d4793b1399c66d444891ee534e73098c0f"
+          }
+        ]
+      },
+      {
+        "module": "sol.workspace",
+        "uid": "3c015058",
+        "symbol": "deleteWorkspaceFile",
+        "protocol": "rpc",
+        "description": {
+          "zh": "在工作区路径与预期事实核验下删除文件，并检测并发漂移。",
+          "en": "Deletes a file after workspace-path and expected-fact checks, detecting concurrent drift."
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/workspace.mjs",
+            "line": 148,
+            "sha256": "5d63992285bd3c7cc866b1eef28705d4793b1399c66d444891ee534e73098c0f"
+          }
+        ]
+      },
+      {
+        "module": "sol.workspace-lock",
+        "uid": "03265c52",
+        "symbol": "withWorkspaceLock",
+        "protocol": "rpc",
+        "description": {
+          "zh": "withWorkspaceLock",
+          "en": "withWorkspaceLock"
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/workspace-lock.mjs",
+            "line": 86,
+            "sha256": "c25a851ea1dd62586e2fe4f6ae43cb5c60ac43728f1d8059e504a30f44413890"
+          }
+        ]
+      },
+      {
+        "module": "sol.workspace-snapshot",
+        "uid": "0e932466",
+        "symbol": "INPUT_FINGERPRINT_KIND",
+        "protocol": "rpc",
+        "description": {
+          "zh": "标识包含文件内容与模式的快照指纹格式。",
+          "en": "Identifies the snapshot fingerprint format that includes file content and mode."
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/workspace-snapshot.mjs",
+            "line": 7,
+            "sha256": "e257b58a5ce046cdfd8ba2c42bac887e7486464fe6ea2e61e601d799a692da41"
+          }
+        ]
+      },
+      {
+        "module": "sol.workspace-snapshot",
+        "uid": "0e932466",
+        "symbol": "matchesGlob",
+        "protocol": "rpc",
+        "description": {
+          "zh": "按工作区相对路径规则判断文件名是否匹配 glob。",
+          "en": "Matches a workspace-relative path against a glob pattern."
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/workspace-snapshot.mjs",
+            "line": 24,
+            "sha256": "e257b58a5ce046cdfd8ba2c42bac887e7486464fe6ea2e61e601d799a692da41"
+          }
+        ]
+      },
+      {
+        "module": "sol.workspace-snapshot",
+        "uid": "0e932466",
+        "symbol": "isGeneratedPath",
+        "protocol": "rpc",
+        "description": {
+          "zh": "判断路径或其祖先是否属于生成内容排除规则。",
+          "en": "Checks whether a path or any ancestor matches generated-content exclusions."
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/workspace-snapshot.mjs",
+            "line": 26,
+            "sha256": "e257b58a5ce046cdfd8ba2c42bac887e7486464fe6ea2e61e601d799a692da41"
+          }
+        ]
+      },
+      {
+        "module": "sol.workspace-snapshot",
+        "uid": "0e932466",
+        "symbol": "snapshotInputs",
+        "protocol": "rpc",
+        "description": {
+          "zh": "按 glob、生成路径和显式变化路径采集文件/缺失事实，返回带格式标记的 SHA-256 快照；检测链接、漂移和取消。",
+          "en": "Collects file/missing facts by glob, generated-path exclusions and explicit changed paths, returning a SHA-256 snapshot with a format marker; detects links, drift and cancellation."
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/workspace-snapshot.mjs",
+            "line": 89,
+            "sha256": "e257b58a5ce046cdfd8ba2c42bac887e7486464fe6ea2e61e601d799a692da41"
+          }
+        ]
+      },
+      {
+        "module": "sol.workspace-snapshot",
+        "uid": "0e932466",
+        "symbol": "digestChangedPaths",
+        "protocol": "rpc",
+        "description": {
+          "zh": "计算给定变化路径当前文件事实的组合指纹，包括显式缺失项。",
+          "en": "Computes a combined fingerprint of current file facts for changed paths, including explicitly missing entries."
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/workspace-snapshot.mjs",
+            "line": 104,
+            "sha256": "e257b58a5ce046cdfd8ba2c42bac887e7486464fe6ea2e61e601d799a692da41"
+          }
+        ]
+      },
+      {
+        "module": "sol.workspace-snapshot",
+        "uid": "0e932466",
+        "symbol": "parseWorkspaceSnapshot",
+        "protocol": "rpc",
+        "description": {
+          "zh": "校验现代或兼容旧版快照形状及其内容/模式指纹，不读取工作区。",
+          "en": "Validates modern or legacy snapshot shape and its content/mode fingerprint without reading the workspace."
+        },
+        "state": "active",
+        "verification": "static_export",
+        "locations": [
+          {
+            "path": "src/workspace-snapshot.mjs",
+            "line": 114,
+            "sha256": "e257b58a5ce046cdfd8ba2c42bac887e7486464fe6ea2e61e601d799a692da41"
+          }
+        ]
+      }
+    ]
+  },
+  "modules": [
+    {
+      "id": "sol",
+      "uid": "e3fa368d",
+      "parent": null,
+      "source": []
+    },
+    {
+      "id": "sol.architecture-change",
+      "uid": "1ce8b582",
+      "parent": "sol",
+      "source": [
+        "src/architecture/change.mjs"
+      ]
+    },
+    {
+      "id": "sol.architecture-context",
+      "uid": "7a0332d2",
+      "parent": "sol",
+      "source": [
+        "src/architecture/context.mjs"
+      ]
+    },
+    {
+      "id": "sol.architecture-index",
+      "uid": "2b6c0979",
+      "parent": "sol",
+      "source": [
+        "src/architecture/index.mjs"
+      ]
+    },
+    {
+      "id": "sol.architecture-session",
+      "uid": "572fa8c6",
+      "parent": "sol",
+      "source": [
+        "src/architecture/session.mjs"
+      ]
+    },
+    {
+      "id": "sol.context-hook",
+      "uid": "7a8e45d6",
+      "parent": "sol",
+      "source": [
+        "src/context-hook.mjs"
+      ]
+    },
+    {
+      "id": "sol.host-cancellation",
+      "uid": "911552e0",
+      "parent": "sol",
+      "source": [
+        "src/host-cancellation.mjs"
+      ]
+    },
+    {
+      "id": "sol.managed-command",
+      "uid": "f8a3d671",
+      "parent": "sol",
+      "source": [
+        "src/managed-command.mjs"
+      ]
+    },
+    {
+      "id": "sol.managed-write",
+      "uid": "9e57f42c",
+      "parent": "sol",
+      "source": [
+        "src/managed-write.mjs"
+      ]
+    },
+    {
+      "id": "sol.native-hook",
+      "uid": "8d9303b9",
+      "parent": "sol",
+      "source": [
+        "src/native-hook.mjs"
+      ]
+    },
+    {
+      "id": "sol.pack",
+      "uid": "a8105ba4",
+      "parent": "sol",
+      "source": [
+        "src/pack.mjs"
+      ]
+    },
+    {
+      "id": "sol.patch",
+      "uid": "7b7e65d7",
+      "parent": "sol",
+      "source": [
+        "src/patch.mjs"
+      ]
+    },
+    {
+      "id": "sol.plugin-launcher",
+      "uid": "cf135529",
+      "parent": "sol",
+      "source": [
+        "src/plugin-bootstrap.cjs",
+        "src/plugin-launcher.mjs"
+      ]
+    },
+    {
+      "id": "sol.process",
+      "uid": "dc326b6a",
+      "parent": "sol",
+      "source": [
+        "src/process.mjs"
+      ]
+    },
+    {
+      "id": "sol.read",
+      "uid": "a4b6638c",
+      "parent": "sol",
+      "source": [
+        "src/read.mjs"
+      ]
+    },
+    {
+      "id": "sol.recall",
+      "uid": "59918ee2",
+      "parent": "sol",
+      "source": [
+        "src/recall.mjs"
+      ]
+    },
+    {
+      "id": "sol.records",
+      "uid": "0e9b5b99",
+      "parent": "sol",
+      "source": [
+        "src/records.mjs"
+      ]
+    },
+    {
+      "id": "sol.runtime",
+      "uid": "7dd5355a",
+      "parent": "sol",
+      "source": [
+        "src/runtime.mjs"
+      ]
+    },
+    {
+      "id": "sol.schema",
+      "uid": "a07d75dc",
+      "parent": "sol",
+      "source": [
+        "src/schema.mjs"
+      ]
+    },
+    {
+      "id": "sol.server",
+      "uid": "41d4444c",
+      "parent": "sol",
+      "source": [
+        "src/server.mjs"
+      ]
+    },
+    {
+      "id": "sol.store",
+      "uid": "6e7786ea",
+      "parent": "sol",
+      "source": [
+        "src/store.mjs"
+      ]
+    },
+    {
+      "id": "sol.validation",
+      "uid": "f194da0b",
+      "parent": "sol",
+      "source": [
+        "src/validation.mjs"
+      ]
+    },
+    {
+      "id": "sol.workspace",
+      "uid": "3c015058",
+      "parent": "sol",
+      "source": [
+        "src/workspace.mjs"
+      ]
+    },
+    {
+      "id": "sol.workspace-lock",
+      "uid": "03265c52",
+      "parent": "sol",
+      "source": [
+        "src/workspace-lock.mjs"
+      ]
+    },
+    {
+      "id": "sol.workspace-snapshot",
+      "uid": "0e932466",
+      "parent": "sol",
+      "source": [
+        "src/workspace-snapshot.mjs"
+      ]
+    }
+  ],
+  "new_module_callers": {
+    "sol.managed-write": [
+      "sol.server"
+    ],
+    "sol.workspace-snapshot": [
+      "sol.architecture-change",
+      "sol.validation"
+    ],
+    "sol.records": [
+      "sol.architecture-change",
+      "sol.architecture-context"
+    ],
+    "sol.runtime": [
+      "sol.context-hook",
+      "sol.server"
+    ]
+  },
+  "shared_api_consumers": {
+    "sol.validation.validateRulesConfiguration": [
+      {
+        "module": "sol.plugin-launcher",
+        "path": "src/plugin-launcher.mjs",
+        "line": 8
+      }
+    ]
+  },
+  "diagnostics": [
+    {
+      "code": "structure/leaf-too-coarse",
+      "blocking": false,
+      "message": "叶子模块可能过大（source 2 个文件，最大行跨度 0），建议下沉一层拆分",
+      "subject": {
+        "module": "sol.plugin-launcher"
+      }
+    },
+    {
+      "code": "structure/shallow-hierarchy",
+      "blocking": false,
+      "message": "模块数已较多但层级过浅（最深 2 段），建议继续下钻以获得更精细的架构图",
+      "subject": {}
+    },
+    {
+      "code": "layout/missing",
+      "blocking": false,
+      "message": "容器模块缺少渲染数据（图谱将回退自动布局）",
+      "subject": {
+        "module": "sol"
+      }
+    },
+    {
+      "code": "evidence/root-no-source",
+      "blocking": false,
+      "message": "根模块无 source（纯文档根）",
+      "subject": {
+        "module": "sol"
+      }
+    }
+  ],
+  "blocking_diagnostic_count": 0,
+  "versions": [
+    {
+      "path": "architecture.example.json",
+      "sha256": "2518ad8c1388bed5ff1f81e1db0f399c5e8f3079a3c6072df685135c2ff9d2a6"
+    },
+    {
+      "path": "src/architecture/change.mjs",
+      "sha256": "0bb67fd8a55e7dc7fcdc3b1055d95962f34179bc5a980b57f6c17f1b73ad29de"
+    },
+    {
+      "path": "src/architecture/context.mjs",
+      "sha256": "86a69844a6bfed12cc1c3d75a47d845d62bbd6e890f8a8655333adff4b46eefc"
+    },
+    {
+      "path": "src/architecture/index.mjs",
+      "sha256": "16a76d78831fb9fb503fc2674fb3d4dab58260be2b43ba5a5bb065f61675dc61"
+    },
+    {
+      "path": "src/architecture/session.mjs",
+      "sha256": "c19c1e8c57d7492a950eb758e277affd57868a7bd72e835c0227d766890133d7"
+    },
+    {
+      "path": "src/context-hook.mjs",
+      "sha256": "781ff565a74a6453cbd300d3ce8df87f8ab319d7432af2aac7d241abd4654331"
+    },
+    {
+      "path": "src/host-cancellation.mjs",
+      "sha256": "b7ba21494af29c829a258a090f36b9a4efa3f66f587f9e1028441ff19ede2a9f"
+    },
+    {
+      "path": "src/managed-command.mjs",
+      "sha256": "8e4aa03fbf83486ec569046dfce68ca745bdd775a56055d5be92eac27f518db8"
+    },
+    {
+      "path": "src/managed-write.mjs",
+      "sha256": "51d19cb08d355bd22b1e5b623b5b47ae701ec48259b250b062363044a0862cf3"
+    },
+    {
+      "path": "src/native-hook.mjs",
+      "sha256": "c1a1dfd729b4b518d72cbe64eba6d7675126f18ea1df57afe12268ca3a2cde02"
+    },
+    {
+      "path": "src/pack.mjs",
+      "sha256": "b797dc4edbf70e3a3cd9b219f64d7faf57a0d13a30f105cbfecab96fb8310a87"
+    },
+    {
+      "path": "src/patch.mjs",
+      "sha256": "5792b1e7467a7f01074d0a257d157a87512c37f018d650a7ec5494a5b37f0077"
+    },
+    {
+      "path": "src/plugin-bootstrap.cjs",
+      "sha256": "bc4e5d94a3a711dc479c467e5632c3f5b9fd467ef45005a2d60d6ca64f410e0d"
+    },
+    {
+      "path": "src/plugin-launcher.mjs",
+      "sha256": "92244db6a60ce500a3dfe3b83ae6b58df3d0cf6716ef2a4a850d9dfbd6ede5a4"
+    },
+    {
+      "path": "src/process.mjs",
+      "sha256": "7db23971614c8d1f4eeb548ead76c7468cbfa2b9d2cd7f345d73778e22b6b5e4"
+    },
+    {
+      "path": "src/read.mjs",
+      "sha256": "57dc3be78ecd3a76b2f6f4793ba1276414fa8b6cf49216843a59e3572480dae3"
+    },
+    {
+      "path": "src/recall.mjs",
+      "sha256": "8b014d7cdf5270d580076d6cd19791720c8c42d58d35464031a2e95e30b525a6"
+    },
+    {
+      "path": "src/records.mjs",
+      "sha256": "daffe45eda4aa8bf05b01953f84d4fadcc47f26f026bec1fdeda6b738a3210a9"
+    },
+    {
+      "path": "src/runtime.mjs",
+      "sha256": "b20631cef7ba1e8ad67e8129b05297835cf84ecd8a52c13f807bac0f99c2474e"
+    },
+    {
+      "path": "src/schema.mjs",
+      "sha256": "d11b589b786f6627e2d0144564d0fc3842cf1718ae77d10cc926da8034b3db42"
+    },
+    {
+      "path": "src/server.mjs",
+      "sha256": "aa8daffadf63e96bd43bcbe29b9c8801f9e5b294a86266ab03ebfe9641c8a2c1"
+    },
+    {
+      "path": "src/store.mjs",
+      "sha256": "8c26efa488a6254b9e1ba35ab0af0cd0282eb7607a6b0b4f456c5e935c195847"
+    },
+    {
+      "path": "src/validation.mjs",
+      "sha256": "c1b8cc1ab580a8df5f81aa5e4f4f1f68bb79bd3720f779eccbfeedd21946567a"
+    },
+    {
+      "path": "src/workspace-lock.mjs",
+      "sha256": "c25a851ea1dd62586e2fe4f6ae43cb5c60ac43728f1d8059e504a30f44413890"
+    },
+    {
+      "path": "src/workspace-snapshot.mjs",
+      "sha256": "e257b58a5ce046cdfd8ba2c42bac887e7486464fe6ea2e61e601d799a692da41"
+    },
+    {
+      "path": "src/workspace.mjs",
+      "sha256": "5d63992285bd3c7cc866b1eef28705d4793b1399c66d444891ee534e73098c0f"
+    }
+  ],
+  "coverage": "JavaScript ESM file imports/exports only; no full call graph or task completion evidence"
+}

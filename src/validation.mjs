@@ -1,109 +1,21 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { constants, createReadStream } from 'node:fs';
-import { access, lstat, mkdir, open, readdir, readFile, realpath, rename, unlink } from 'node:fs/promises';
-import { isAbsolute, join, resolve, sep } from 'node:path';
+import { access, lstat, mkdir, open, readFile, realpath, rename, unlink } from 'node:fs/promises';
+import { isAbsolute, join, resolve } from 'node:path';
 import { release } from 'node:os';
 import { isDeepStrictEqual } from 'node:util';
-import { runCapturedCommand } from './process.mjs';
+import { runCapturedCommand, toCheckResult } from './process.mjs';
+import { snapshotInputs, digestChangedPaths, matchesGlob } from './workspace-snapshot.mjs';
+import { INPUT_FINGERPRINT_KIND } from './workspace.mjs';
+export { snapshotInputs, digestChangedPaths, matchesGlob, isGeneratedPath } from './workspace-snapshot.mjs';
 import { assertContract } from './schema.mjs';
-import { interruptionFault, readRawSlice, SolFault } from './store.mjs';
+import { interruptionFault, SolFault } from './store.mjs';
 import { interruptionReason } from './host-cancellation.mjs';
 
 const sha = (value) => createHash('sha256').update(value).digest('hex');
-const DEFAULT_EXCLUDED = ['.git', '.codex/sol'];
 const PROVENANCE_BYTES = 128 * 1024;
 const pathKey = (path) => process.platform === 'win32' ? path.toLowerCase() : path;
 function checkCancellation(signal) { if (signal?.aborted) throw interruptionFault(signal, 'Validation operation was interrupted.'); }
-
-function globRegex(glob) {
-  let out = '^';
-  for (let i = 0; i < glob.length; i += 1) {
-    const c = glob[i];
-    if (c === '*' && glob[i + 1] === '*') {
-      if (glob[i + 2] === '/') { out += '(?:.*/)?'; i += 2; }
-      else { out += '.*'; i += 1; }
-    } else if (c === '*') out += '[^/]*';
-    else if (c === '?') out += '[^/]';
-    else out += /[.+^${}()|[\]\\]/u.test(c) ? `\\${c}` : c;
-  }
-  return new RegExp(`${out}$`, 'u');
-}
-
-export function matchesGlob(path, glob) { return globRegex(pathKey(glob)).test(pathKey(path)); }
-/** Match the same directory pruning used by snapshots, including missing targets. */
-export function isGeneratedPath(path, patterns = []) {
-  const comparison = process.platform === 'win32' ? path.toLowerCase() : path;
-  const parts = comparison.split('/');
-  return patterns.some((pattern) => {
-    const normalized = process.platform === 'win32' ? pattern.toLowerCase() : pattern;
-    return parts.some((_, index) => {
-      const ancestor = parts.slice(0, index + 1).join('/');
-      return ancestor === normalized || ancestor.startsWith(`${normalized}/`) || matchesGlob(ancestor, normalized);
-    });
-  });
-}
-function excluded(path, extra = []) {
-  const comparison = process.platform === 'win32' ? path.toLowerCase() : path;
-  return DEFAULT_EXCLUDED.some((part) => comparison === part || comparison.startsWith(`${part}/`))
-    || isGeneratedPath(path, extra);
-}
-function normalize(path) { return path.split(sep).join('/'); }
-
-async function listTree(root, paths = [], prefix = '', generated = [], signal) {
-  checkCancellation(signal);
-  const directory = prefix ? join(root, prefix) : root;
-  const entries = await readdir(directory, { withFileTypes: true });
-  for (const entry of entries) {
-    checkCancellation(signal);
-    const path = prefix ? `${normalize(prefix)}/${entry.name}` : entry.name;
-    if (excluded(path, generated)) continue;
-    const full = join(root, path);
-    const stats = await lstat(full);
-    if (stats.isSymbolicLink()) throw new SolFault('SNAPSHOT_ERROR', `Symlink in input tree: ${path}`);
-    if (stats.isDirectory()) await listTree(root, paths, path, generated, signal);
-    else if (stats.isFile()) paths.push(path);
-    else throw new SolFault('SNAPSHOT_ERROR', `Unsupported input type: ${path}`);
-  }
-  return paths;
-}
-
-export async function snapshotInputs(root, globs, generated = [], changedPaths = [], { signal } = {}) {
-  const all = await listTree(root, [], '', generated, signal);
-  const paths = [...new Set([...all, ...changedPaths])].filter((path) => !excluded(path, generated) && globs.some((glob) => matchesGlob(path, glob))).sort();
-  const items = [];
-  for (const path of paths) {
-    checkCancellation(signal);
-    try {
-      const bytes = await readFile(join(root, path), { signal });
-      items.push({ path, type: 'file', sha256: sha(bytes) });
-    } catch (error) {
-      checkCancellation(signal);
-      if (error.code !== 'ENOENT' || !changedPaths.includes(path)) throw error;
-      items.push({ path, type: 'missing' });
-    }
-  }
-  checkCancellation(signal);
-  return { items, sha256: sha(JSON.stringify(items)) };
-}
-
-export async function digestChangedPaths(root, changedPaths) {
-  const items = [];
-  for (const path of [...new Set(changedPaths)].sort()) {
-    assertContract('ChangeEvent', { schema_version: 1, event_id: 'path-check', workspace_id: 'path-check', call_id: 'path-check', origin: 'agent', changed_paths: [path], change_digest: '0'.repeat(64) });
-    const full = resolve(root, path);
-    if (full !== root && !full.startsWith(`${root}${sep}`)) throw new SolFault('PATH_ERROR', 'Changed path escapes workspace.');
-    try {
-      const stats = await lstat(full);
-      if (stats.isSymbolicLink()) throw new SolFault('PATH_ERROR', `Changed path is a symlink: ${path}`);
-      if (!stats.isFile()) throw new SolFault('PATH_ERROR', `Changed path is not a file: ${path}`);
-      items.push({ path, sha256: sha(await readFile(full)) });
-    } catch (error) {
-      if (error.code === 'ENOENT') items.push({ path, deleted: true });
-      else throw error;
-    }
-  }
-  return sha(JSON.stringify(items));
-}
 
 function receiptBase(event, key, status, reason, checks = []) {
   return { schema_version: 1, receipt_id: randomUUID(), event_id: event.event_id, change_digest: event.change_digest, validation_key: key, status, reason, checks, evidence_handle: null };
@@ -159,22 +71,28 @@ async function runtimeConditions(store, selected, signal) {
   return result;
 }
 
+/** Validate runtime rule identities without storage, commands or input mutation. */
+export function validateRulesConfiguration(rulesConfig) {
+  assertContract('RulesConfig', rulesConfig);
+  const checkIds = new Set();
+  const ruleIds = new Set();
+  for (const rule of rulesConfig.rules) {
+    if (ruleIds.has(rule.id)) throw new SolFault('CONFIG_ERROR', 'Validation rule IDs must be unique.');
+    ruleIds.add(rule.id);
+    for (const command of rule.commands) {
+      const id = `${rule.id}/${command.id}`;
+      if (id.length > 4096 || checkIds.has(id)) throw new SolFault('CONFIG_ERROR', 'Validation check IDs must be unique and at most 4096 characters.');
+      checkIds.add(id);
+    }
+  }
+  return rulesConfig;
+}
+
 export class ValidationEngine {
   constructor(store, rulesConfig, { generated = [] } = {}) {
-    assertContract('RulesConfig', rulesConfig);
+    validateRulesConfiguration(rulesConfig);
     if (!Array.isArray(generated)) throw new TypeError('Generated exclusions must be an array.');
     generated.forEach((path) => assertContract('WorkspaceGlob', path));
-    const checkIds = new Set();
-    const ruleIds = new Set();
-    for (const rule of rulesConfig.rules) {
-      if (ruleIds.has(rule.id)) throw new SolFault('CONFIG_ERROR', 'Validation rule IDs must be unique.');
-      ruleIds.add(rule.id);
-      for (const command of rule.commands) {
-        const id = `${rule.id}/${command.id}`;
-        if (id.length > 4096 || checkIds.has(id)) throw new SolFault('CONFIG_ERROR', 'Validation check IDs must be unique and at most 4096 characters.');
-        checkIds.add(id);
-      }
-    }
     this.store = store;
     this.rules = structuredClone(rulesConfig.rules);
     this.generated = [...generated];
@@ -294,7 +212,7 @@ export class ValidationEngine {
       checkCancellation(signal);
       const inputs = await snapshotInputs(this.store.workspaceRoot, rule.watch_paths, this.generated, paths, { signal });
       result.push({ id: rule.id, rule_config_sha: sha(JSON.stringify(rule)), generated_sha: sha(JSON.stringify(this.generated)),
-        input_sha: inputs.sha256, seed_paths: [...paths], check_ids: rule.commands.map((command) => `${rule.id}/${command.id}`),
+        input_sha: inputs.sha256, input_fingerprint_kind: inputs.fingerprint_kind, seed_paths: [...paths], check_ids: rule.commands.map((command) => `${rule.id}/${command.id}`),
         conditions: conditions.find((condition) => condition.id === rule.id) });
     }
     if (Buffer.byteLength(JSON.stringify(result)) > PROVENANCE_BYTES / 2) throw new SolFault('VALIDATION_PROVENANCE_LIMIT', 'Validation provenance exceeds its metadata budget.');
@@ -350,22 +268,23 @@ export class ValidationEngine {
     checkCancellation(signal);
     assertContract('RawRef', ref);
     if (!ref.complete) throw new SolFault('VALIDATION_EVIDENCE', 'Validation evidence is incomplete.');
-    const opened = await this.store.openVerified(ref.handle);
-    try {
-      const meta = opened.meta;
+    const validateMeta = (meta) => {
       if (meta.tool !== tool || !meta.complete || meta.sha256 !== ref.sha256 || meta.bytes !== ref.bytes
         || meta.media_type !== ref.media_type || (callId !== undefined && meta.call_id !== callId)
         || (channel !== undefined && meta.channel !== channel))
         throw new SolFault('VALIDATION_EVIDENCE', 'Validation evidence identity or raw reference does not match.');
       checkCancellation(signal);
-      if (!json) return { meta };
-      if (meta.bytes > PROVENANCE_BYTES || meta.media_type !== 'application/json' || meta.encoding !== 'utf-8'
-        || meta.source_form !== 'response_json' || meta.channel !== 'response')
+      if (json && (meta.bytes > PROVENANCE_BYTES || meta.media_type !== 'application/json' || meta.encoding !== 'utf-8'
+        || meta.source_form !== 'response_json' || meta.channel !== 'response'))
         throw new SolFault('VALIDATION_EVIDENCE', 'Validation metadata is not a bounded JSON archive.');
-      const value = JSON.parse((await readRawSlice(opened.raw, 0, meta.bytes)).toString('utf8'));
-      checkCancellation(signal);
-      return { meta, value };
-    } finally { await opened.close(); }
+    };
+    // JSON allocation follows identity/size checks; returned bytes come from the
+    // same full verification stream. Output checks need no raw buffer at all.
+    const result = json
+      ? await this.store.readVerifiedJSON(ref.handle, { signal, maxBytes: PROVENANCE_BYTES, validateMeta })
+      : await this.store.verify(ref.handle, { signal, validateMeta });
+    checkCancellation(signal);
+    return json ? { meta: result.meta, value: result.value } : { meta: result.meta };
   }
 
   /** No runner or repair writes: missing, legacy or stale evidence stays missing. */
@@ -430,6 +349,7 @@ export class ValidationEngine {
       const source = provenance.rules.find((item) => item.id === rule.id);
       if (!ignoreReusePermission && rule.reuse !== 'watched_inputs') reason = 'reuse_not_declared';
       else if (!source) reason = 'rule_not_in_receipt';
+      else if (source.input_fingerprint_kind !== INPUT_FINGERPRINT_KIND) reason = 'input_fingerprint_unknown';
       else {
         try {
           const paths = this.#paths(source.seed_paths);
@@ -481,8 +401,8 @@ export class ValidationEngine {
     try {
       const globs = [...new Set(selected.flatMap((rule) => rule.watch_paths))];
       sources = await this.#sources(selected, event.paths, signal);
-      const before = await snapshotInputs(this.store.workspaceRoot, globs, this.generated, event.paths);
-      validationKey = sha(JSON.stringify({ input: before.items, rules: selected }));
+      const before = await snapshotInputs(this.store.workspaceRoot, globs, this.generated, event.paths, { signal });
+      validationKey = sha(JSON.stringify({ input: before.sha256, fingerprint_kind: before.fingerprint_kind, rules: selected }));
       let stopped = false;
       const deadline = Date.now() + 300000;
       for (const rule of selected) {
@@ -493,11 +413,11 @@ export class ValidationEngine {
             continue;
           }
           const result = await runCapturedCommand(this.store, command, { id, remainingMs: deadline - Date.now(), signal, onRunnerState });
-          checks.push(result);
+          checks.push(toCheckResult(result));
           if (result.status !== 'passed') stopped = true;
         }
       }
-      const after = await snapshotInputs(this.store.workspaceRoot, globs, this.generated, event.paths);
+      const after = await snapshotInputs(this.store.workspaceRoot, globs, this.generated, event.paths, { signal: signal?.aborted ? undefined : signal });
       const afterSources = await this.#sources(selected, event.paths, signal?.aborted ? undefined : signal);
       const stale = before.sha256 !== after.sha256 || !isDeepStrictEqual(sources, afterSources);
       const firstBad = checks.find((check) => check.status !== 'passed' && check.status !== 'skipped');

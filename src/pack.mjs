@@ -1,12 +1,11 @@
 import { TextDecoder } from 'node:util';
 import { assertContract } from './schema.mjs';
-import { readRawSlice } from './store.mjs';
 
 const INLINE_BYTES = 8 * 1024;
 const PACK_BYTES = 4 * 1024;
 const PREVIEW_BYTES = 8 * 1024;
 const UTF8_WINDOW = 8 * 1024;
-const decoder = new TextDecoder('utf-8', { fatal: true });
+const decoder = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true });
 
 function jsonBytes(value) {
   return Buffer.byteLength(JSON.stringify(value), 'utf8');
@@ -197,56 +196,36 @@ function fitPack(meta, refs, mode, items, totalBytes, complete, maxBytes) {
   return best;
 }
 
-async function closeAll(opened) {
-  const results = await Promise.allSettled(opened.map((entry) => Promise.resolve().then(() => entry.close())));
-  return results.find((result) => result.status === 'rejected')?.reason;
-}
-
-async function openItems(store, refs) {
-  const opened = [];
-  try {
-    for (const ref of refs) {
-      const value = await store.openVerified(ref.handle);
-      if (!value || typeof value.close !== 'function') {
-        throw new TypeError('Observation store returned an invalid opened handle.');
-      }
-      opened.push(value);
-      if (!value.raw || !value.meta) throw new TypeError('Observation store returned an invalid opened handle.');
-      if (value.meta.bytes !== ref.bytes || value.meta.sha256 !== ref.sha256 || value.meta.media_type !== ref.media_type || value.meta.complete !== ref.complete) {
+async function openItems(store, refs, signal) {
+  const items = [];
+  for (const ref of refs) {
+    const { value } = await store.withVerifiedRead(ref.handle, (meta) => {
+      if (meta.bytes !== ref.bytes || meta.sha256 !== ref.sha256 || meta.media_type !== ref.media_type || meta.complete !== ref.complete) {
         throw new TypeError(`Observation ${ref.handle} does not match its RawRef.`);
       }
-      if (!Number.isSafeInteger(value.meta.bytes) || value.meta.bytes < 0) {
-        throw new TypeError(`Observation ${ref.handle} has an invalid byte count.`);
-      }
-    }
-
-    const items = [];
-    for (let index = 0; index < refs.length; index += 1) {
-      const ref = refs[index];
-      const value = opened[index];
-      const bytes = value.meta.bytes;
-      let head;
-      let tail;
-      let full = null;
-      if (bytes <= UTF8_WINDOW) {
-        const buffer = bytes === 0 ? Buffer.alloc(0) : await readRawSlice(value.raw, 0, bytes);
-        full = fullText(buffer);
-        head = { buffer, start: 0 };
-        tail = { buffer, start: 0 };
-      } else {
-        const headBuffer = await readRawSlice(value.raw, 0, UTF8_WINDOW);
-        const tailStart = bytes - UTF8_WINDOW;
-        const tailBuffer = await readRawSlice(value.raw, tailStart, UTF8_WINDOW);
-        head = { buffer: headBuffer, start: 0 };
-        tail = { buffer: tailBuffer, start: tailStart };
-      }
-      items.push(makeItem(ref, value, head, tail, full));
-    }
-    return { opened, items };
-  } catch (error) {
-    await closeAll(opened);
-    throw error;
+      const bytes = meta.bytes;
+      const headBuffer = Buffer.alloc(Math.min(bytes, UTF8_WINDOW));
+      const tailStart = Math.max(0, bytes - UTF8_WINDOW);
+      const tailBuffer = tailStart === 0 ? headBuffer : Buffer.alloc(UTF8_WINDOW);
+      const retain = (target, start, chunk, position) => {
+        const from = Math.max(start, position);
+        const to = Math.min(start + target.length, position + chunk.length);
+        if (to > from) chunk.copy(target, from - start, from - position, to - position);
+      };
+      return {
+        onChunk(chunk, position) {
+          retain(headBuffer, 0, chunk, position);
+          if (tailStart) retain(tailBuffer, tailStart, chunk, position);
+        },
+        finish() {
+          return makeItem(ref, { meta }, { buffer: headBuffer, start: 0 },
+            { buffer: tailBuffer, start: tailStart }, bytes <= UTF8_WINDOW ? fullText(headBuffer) : null);
+        },
+      };
+    }, { signal });
+    items.push(value);
   }
+  return items;
 }
 
 /** No handle is published until commit; the byte count here is received input. */
@@ -265,18 +244,17 @@ export function storageErrorPack(meta, { refs = [], receivedBytes = 0, mayHaveEx
  * Build a deterministic, model-visible observation envelope from verified refs.
  * This function only reads the store; it never summarizes through a model or writes data.
  */
-export async function pack(store, meta, refs, { maxBytes = PACK_BYTES } = {}) {
+export async function pack(store, meta, refs, { maxBytes = PACK_BYTES, signal } = {}) {
   assertContract('PackMeta', meta);
   if (!Array.isArray(refs)) throw new TypeError('Observation refs must be an array.');
   refs.forEach((ref) => assertContract('RawRef', ref));
-  if (!store || typeof store.openVerified !== 'function') throw new TypeError('Observation store must provide openVerified().');
+  if (!store || typeof store.withVerifiedRead !== 'function') throw new TypeError('Observation store must provide withVerifiedRead().');
   if (!Number.isInteger(maxBytes) || maxBytes < 1 || maxBytes > PACK_BYTES) throw new RangeError('Observation response budget must be between 1 and 4096 bytes.');
 
   const declaredTotal = declaredBytes(refs);
-  let opened;
   let items;
   try {
-    ({ opened, items } = await openItems(store, refs));
+    items = await openItems(store, refs, signal);
   } catch (error) {
     const mode = 'storage_error';
     const summary = summaryFor(meta, mode, declaredTotal, null, declaredTotal);
@@ -284,15 +262,6 @@ export async function pack(store, meta, refs, { maxBytes = PACK_BYTES } = {}) {
     if (jsonBytes(result) > maxBytes) {
       throw new RangeError(`ObservationPack metadata exceeds the 4096-byte UTF-8 budget after storage failure: ${safeErrorReason(error)}`);
     }
-    return assertContract('ObservationPack', result);
-  }
-
-  const closeError = await closeAll(opened);
-  if (closeError) {
-    const mode = 'storage_error';
-    const summary = summaryFor(meta, mode, declaredTotal, null, declaredTotal);
-    const result = packShape(meta, refs, mode, summary, [], declaredTotal, 'storage_error');
-    if (jsonBytes(result) > maxBytes) throw new RangeError('ObservationPack metadata exceeds the UTF-8 response budget after storage failure.');
     return assertContract('ObservationPack', result);
   }
 

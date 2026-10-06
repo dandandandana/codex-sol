@@ -5,7 +5,26 @@ import { StringDecoder } from 'node:string_decoder';
 import { SolFault } from './store.mjs';
 
 const uuid = /^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/i;
-const fault = () => new SolFault('HOST_STATE_ERROR', 'Could not verify the configured Codex turn cancellation log; managed work was stopped.');
+function fault(stage = 'rollout', cause = 'unverified') {
+  const error = new SolFault('HOST_STATE_ERROR', `Could not verify configured Codex cancellation evidence (${stage}:${cause}); managed work was stopped.`);
+  error.stage = stage; error.causeCode = cause;
+  return error;
+}
+
+/** Decode only the identity fields the adapter actually consumes. */
+export function decodeHostTurnMetadata(metadata) {
+  const target = metadata?.['x-codex-turn-metadata'];
+  if (typeof target?.thread_id !== 'string' || typeof target?.turn_id !== 'string'
+    || !uuid.test(target.thread_id) || !uuid.test(target.turn_id)) throw fault('metadata', 'invalid_identity');
+  return { thread_id: target.thread_id, turn_id: target.turn_id };
+}
+
+export function decodeHostThread(thread, threadId) {
+  if (!thread || thread.id !== threadId || typeof thread.cwd !== 'string'
+    || typeof thread.path !== 'string' || !isAbsolute(thread.cwd) || !isAbsolute(thread.path))
+    throw fault('thread', 'invalid_shape');
+  return { id: thread.id, cwd: thread.cwd, path: thread.path };
+}
 export function interruptionReason(signal) {
   return signal?.reason?.code === 'HOST_STATE_ERROR' ? 'host_state_error' : 'interrupted';
 }
@@ -21,30 +40,30 @@ async function readHostThread(executable, threadId, signal, timeoutMs, spawnProc
   let readerError = null;
   let exited = false;
   const rejectPending = (error) => { for (const slot of pending.values()) slot.reject(error); pending.clear(); };
-  const fail = () => { readerError = fault(); rejectPending(readerError); };
-  const onExit = () => { exited = true; fail(); };
+  const fail = (cause = 'transport_failed') => { readerError = fault('thread', typeof cause === 'string' ? cause : 'transport_failed'); rejectPending(readerError); };
+  const onExit = () => { exited = true; fail('process_exit'); };
   const onAbort = () => rejectPending(signal.reason ?? fault());
   const onStderr = () => {}; // Do not retain private host diagnostics.
   const onData = (bytes) => {
     buffer += decoder.write(bytes);
-    if (Buffer.byteLength(buffer, 'utf8') > 1024 * 1024) { fail(); return; }
+    if (Buffer.byteLength(buffer, 'utf8') > 1024 * 1024) { fail('response_limit'); return; }
     for (;;) {
       const end = buffer.indexOf('\n');
       if (end < 0) break;
       const line = buffer.slice(0, end); buffer = buffer.slice(end + 1);
       let message;
-      try { message = JSON.parse(line); } catch { fail(); return; }
+      try { message = JSON.parse(line); } catch { fail('invalid_json'); return; }
       const slot = pending.get(message.id);
       if (!slot) continue;
       pending.delete(message.id);
-      if (message.error || !Object.hasOwn(message, 'result')) slot.reject(fault());
+      if (message.error || !Object.hasOwn(message, 'result')) slot.reject(fault('thread', 'rpc_failed'));
       else slot.resolve(message.result);
     }
   };
   child.once('error', fail); child.once('close', onExit);
   child.stdin.on('error', fail); child.stdout.on('data', onData); child.stderr.on('data', onStderr);
   signal.addEventListener('abort', onAbort, { once: true });
-  const timer = setTimeout(fail, timeoutMs);
+  const timer = setTimeout(() => fail('rpc_timeout'), timeoutMs);
   const rpc = (method, params) => new Promise((resolve, reject) => {
     if (readerError || signal.aborted) { reject(readerError ?? signal.reason ?? fault()); return; }
     const id = ++sequence; pending.set(id, { resolve, reject });
@@ -78,8 +97,7 @@ async function readHostThread(executable, threadId, signal, timeoutMs, spawnProc
 export async function openHostCancellation({ executable, workspaceRoot, metadata, signal, pollMs = 500, rpcTimeoutMs = 5000, spawnProcess = spawn }) {
   if (!executable) return { signal, close: async () => {} };
   if (!isAbsolute(executable)) throw new SolFault('CONFIG_ERROR', 'CODEX_SOL_HOST_EXECUTABLE must be an absolute executable path.');
-  const target = metadata?.['x-codex-turn-metadata'];
-  if (!uuid.test(target?.thread_id ?? '') || !uuid.test(target?.turn_id ?? '')) throw fault();
+  const target = decodeHostTurnMetadata(metadata);
   const controller = new AbortController();
   const combined = signal ? AbortSignal.any([signal, controller.signal]) : controller.signal;
   if (combined.aborted) return { signal: combined, close: async () => {} };
@@ -102,10 +120,10 @@ export async function openHostCancellation({ executable, workspaceRoot, metadata
   const onAbort = () => { void close().catch(() => {}); };
   const scan = async (path, identity) => {
     const current = await stat(path);
-    if (!current.isFile() || current.dev !== identity.dev || current.ino !== identity.ino || current.size < offset || current.size > 256 * 1024 * 1024) throw fault();
+    if (!current.isFile() || current.dev !== identity.dev || current.ino !== identity.ino || current.size < offset || current.size > 256 * 1024 * 1024) throw fault('rollout', 'file_changed');
     while (offset < current.size && !closed && !combined.aborted) {
       const { bytesRead } = await file.read(buffer, 0, Math.min(buffer.length, current.size - offset), offset);
-      if (!bytesRead) throw fault();
+      if (!bytesRead) throw fault('rollout', 'unexpected_end');
       offset += bytesRead;
       pendingLine += decoder.write(buffer.subarray(0, bytesRead));
       for (;;) {
@@ -113,37 +131,36 @@ export async function openHostCancellation({ executable, workspaceRoot, metadata
         if (end < 0) break;
         const line = pendingLine.slice(0, end); pendingLine = pendingLine.slice(end + 1);
         let record;
-        try { record = JSON.parse(line); } catch { throw fault(); }
+        try { record = JSON.parse(line); } catch { throw fault('rollout', 'invalid_json'); }
         if (record.type === 'session_meta') {
-          if (record.payload?.id !== target.thread_id) throw fault();
+          if (record.payload?.id !== target.thread_id) throw fault('rollout', 'wrong_session');
           sessionVerified = true;
         } else if (record.type === 'event_msg' && record.payload?.turn_id === target.turn_id) {
           if (record.payload.type === 'task_started') targetStarted = true;
           else if (record.payload.type === 'turn_aborted') controller.abort(new SolFault('INTERRUPTED', 'Codex turn was interrupted.'));
-          else if (record.payload.type === 'task_complete') throw fault();
+          else if (record.payload.type === 'task_complete') throw fault('rollout', 'turn_finished');
         }
         if (combined.aborted) break;
       }
-      if (Buffer.byteLength(pendingLine, 'utf8') > 2 * 1024 * 1024) throw fault();
+      if (Buffer.byteLength(pendingLine, 'utf8') > 2 * 1024 * 1024) throw fault('rollout', 'line_limit');
     }
   };
   try {
-    const thread = await readHostThread(executable, target.thread_id, combined, rpcTimeoutMs, spawnProcess);
-    if (thread?.id !== target.thread_id || typeof thread.cwd !== 'string' || typeof thread.path !== 'string' || !isAbsolute(thread.path)) throw fault();
+    const thread = decodeHostThread(await readHostThread(executable, target.thread_id, combined, rpcTimeoutMs, spawnProcess), target.thread_id);
     const [hostRoot, configuredRoot, path] = await Promise.all([realpath(thread.cwd), realpath(workspaceRoot), realpath(thread.path)]);
     const normalize = (value) => process.platform === 'win32' ? value.toLowerCase() : value;
-    if (normalize(hostRoot) !== normalize(configuredRoot)) throw fault();
+    if (normalize(hostRoot) !== normalize(configuredRoot)) throw fault('thread', 'wrong_workspace');
     file = await open(path, 'r');
     const identity = await file.stat();
     scanning = scan(path, identity); await scanning;
-    if (!sessionVerified || !targetStarted) throw fault();
+    if (!sessionVerified || !targetStarted) throw fault('rollout', 'identity_not_started');
     combined.addEventListener('abort', onAbort, { once: true });
     if (combined.aborted) await close();
     else {
       const tick = async () => {
         if (closed || combined.aborted) return;
         try { scanning = scan(path, identity); await scanning; if (!closed && !combined.aborted) poll = setTimeout(tick, pollMs); }
-        catch { if (!closed) controller.abort(fault()); }
+        catch (error) { if (!closed) controller.abort(error instanceof SolFault ? error : fault('rollout', 'read_failed')); }
       };
       poll = setTimeout(tick, pollMs);
     }

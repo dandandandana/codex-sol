@@ -139,19 +139,18 @@ test('an upstream error after more than 8 KiB keeps the full partial raw and bou
   assert.equal(archived.meta.complete, false);
 });
 
-test('pack reports a mismatched opened ref as storage_error and closes its real raw and index handles', async (t) => {
+test('pack reports a mismatched ref as storage_error before publishing a candidate', async (t) => {
   const { store } = await makeStore(t);
   const writer = await store.beginCapture(captureMeta(store));
   await writer.write(Buffer.from('real stored bytes', 'utf8'));
   const ref = await writer.commit({ complete: true });
-  const opened = [];
+  let reads = 0;
   const instrumentedStore = new Proxy(store, {
     get(target, property, receiver) {
-      if (property === 'openVerified') {
-        return async (handle) => {
-          const value = await target.openVerified(handle);
-          opened.push(value);
-          return value;
+      if (property === 'withVerifiedRead') {
+        return async (...args) => {
+          reads += 1;
+          return target.withVerifiedRead(...args);
         };
       }
       return Reflect.get(target, property, receiver);
@@ -162,9 +161,8 @@ test('pack reports a mismatched opened ref as storage_error and closes its real 
   const result = await pack(instrumentedStore, meta, [{ ...ref, bytes: ref.bytes + 1 }]);
 
   assert.equal(result.mode, 'storage_error');
-  assert.equal(opened.length, 1);
-  await assertClosed(opened[0].raw);
-  await assertClosed(opened[0].index);
+  assert.equal(reads, 1);
+  assert.deepEqual(result.excerpts, []);
 });
 
 test('a real closed-file-handle write failure closes capture handles and retains only the temp archive', async (t) => {
