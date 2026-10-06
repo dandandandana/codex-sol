@@ -183,7 +183,7 @@ test('packaging selects host format safely, copies the allowlist, and launches f
   assert.equal(packed.fileCount, inventory.files.length);
 
   const emptyProject = join(tempRoot, 'empty-project');
-  await mkdir(emptyProject);
+  await mkdir(join(emptyProject, '.git'), { recursive: true });
   const startup = await run(process.execPath, [join(pluginRoot, 'src/plugin-launcher.mjs'), 'mcp'], { cwd: emptyProject });
   assert.equal(startup.code, 2, startup.stderr);
   assert.match(startup.stderr, /PLUGIN_CONFIG/);
@@ -192,6 +192,7 @@ test('packaging selects host format safely, copies the allowlist, and launches f
 
   const project = join(tempRoot, 'opted-in-project');
   await mkdir(join(project, '.codex'), { recursive: true });
+  await mkdir(join(project, '.git'));
   await writeFile(join(project, 'rules.json'), await readFile(join(pluginRoot, 'rules.example.json')));
   await writeFile(join(project, 'context.json'), await readFile(join(pluginRoot, 'context.example.json')));
   await writeFile(join(project, 'README.md'), 'Portable plugin smoke-test workspace.\n');

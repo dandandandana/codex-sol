@@ -16,6 +16,8 @@ async function fixture(t) {
     assert.ok(resolve(root).startsWith(resolve(tmpdir()) + sep));
     await rm(root, { recursive: true, force: true });
   });
+  // Keep configuration checks focused on this fixture, even under a Git temp root.
+  await mkdir(join(root, '.git'));
   await mkdir(join(root, '.codex'));
   await writeFile(join(root, 'rules.json'), JSON.stringify({ schema_version: 1, rules: [{ schema_version: 1, id: 'checks', globs: ['**/*.js'], watch_paths: ['**/*'],
     commands: [{ id: 'must-not-run', argv: [process.execPath, '-e', "require('fs').writeFileSync('command-ran','bad')"], cwd: '.', timeout_ms: 5000 }] }] }));
