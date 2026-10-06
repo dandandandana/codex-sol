@@ -24,6 +24,20 @@
 
 检查规则使用本项目实际命令、输入范围、超时和生成目录。可复用完成证据要求 `argv[0]` 为能核验的绝对执行路径；撤销检查程序的执行权限会让相应缓存失效，不改写旧回执，不自动重跑。
 
+## Linux 工作区锁
+
+受限 Linux 运行环境可能禁止 Unix socket，却允许普通文件和本地进程。Linux 锁现使用 util-linux 的 `flock` 描述符形式，明确调用 `/usr/bin/flock` 或 `/bin/flock`，不依赖项目的 `execution_path`，不启动 shell、不监听 socket，也不改变沙箱权限。缺少工具、工具失败、不支持锁的文件系统或异常锁路径都会在修改前返回 `LOCK_ERROR`；不会切换到另一种可能不互斥的后端。
+
+Node 持有 `.codex/sol/managed-modification.flock` 的文件描述符，短暂的 `flock` 子进程与它共享 open-file description。子进程退出后锁继续有效，Node 关闭描述符或崩溃后由内核释放；文件本身永久保留。任何实例都不得删除、轮换或替换该文件，否则已有等待者可能锁住旧 inode 而新实例锁住另一个 inode。符号链接、硬链接、目录和特殊文件会被拒绝，获取期间的路径替换也会被检测。
+
+所有实例必须使用相同的新锁协议及同一个本地工作区；升级前先停掉全部旧版 SoL MCP、Hook runner 和检查子进程。旧 socket 版不认识新文件锁，不支持新旧混跑。旧 `managed-modification.lock` 目录仍会触发 `RECOVERY_REQUIRED`，不自动删除。不要把停止一个进程等同于停止它的所有检查子进程。
+
+独立 owner JSON 继续记录进程和检查状态：存活 owner 或 validator 会阻止新写入；死亡 owner 的 idle 状态可在拿到内核锁后恢复；未知的 `starting` 状态和损坏元数据必须人工检查。取消等待不会杀死持有者或重放旧检查，失败回执和观察记录仍保留。
+
+实现依据：[flock(1) 描述符形式](https://man7.org/linux/man-pages/man1/flock.1.html)和 [flock(2) 生命周期](https://man7.org/linux/man-pages/man2/flock.2.html)。本方案面向单机本地文件系统，未验收 NFS/CIFS、不同 PID 命名空间共享目录或分布式工作区。Windows named pipe 路径未改变；其他 Unix 保留既有保守目录锁，崩溃后仍需人工恢复，不能据此声称已新增平台支持。
+
+专项回归：`node --test tests/workspace-lock.test.mjs tests/linux-workspace-lock.test.mjs`，涵盖真实多进程竞争、SIGKILL、存活检查保护、未知启动、取消、异常文件与工具故障。真实宿主 Hook 信任、TUI Stop/Esc 和 Windows 新版本运行仍需各自验收；下方原始 WSL/Windows 验收表是历史结果，不是对本次修订的跨平台运行声明。
+
 ## 可选 Bash 包装
 
 插件默认四个 Hook 覆盖 Context、写入门禁和 Stop；包装普通 Bash 是额外可选能力。将 [native.linux.example.json](../../native.linux.example.json) 复制为目标项目 `.codex/native.json`，把路径替换为本机真实项目、规则、Linux Node 和 Bash 路径。原 schema_version=1 保持兼容。

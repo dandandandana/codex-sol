@@ -4,6 +4,8 @@
 
 运行时支持 Windows 与 Linux；本轮 Linux 环境为 WSL2 Ubuntu 24.04 x64、Linux Node 24.11.0 和 Codex 0.160.0。必须在 Linux 内使用 Linux Node/npm/Codex。WSL 下建议把检查工作区放在 Linux 文件系统，避免 Windows 文件名和执行权限语义干扰验收。
 
+Linux 还需要系统 `/usr/bin/flock` 或 `/bin/flock`（util-linux）以及支持 `flock(2)` 的本地文件系统。缺少或禁止该工具时操作明确失败，不会退化为无锁写入，也不会修改沙箱或网络权限。升级前先停止同一工作区的旧版 SoL 和检查进程，不要同时运行旧 socket 版与新文件锁版。保留 `.codex/sol/managed-modification.flock`，即使进程已退出也不要删除或替换它。Windows 仍使用既有 named pipe 锁。
+
 ## 从源码安装
 
 在已取得仓库访问权限的环境克隆项目，进入目录后使用锁文件安装依赖，再生成一个全新的本地插件目录：
