@@ -21,7 +21,7 @@ function isWithin(parent, candidate) {
   return path === '' || (!path.startsWith(`..${sep}`) && path !== '..' && !isAbsolute(path));
 }
 
-async function physicalTarget(path) {
+export async function physicalTarget(path) {
   let cursor = resolve(path);
   const suffix = [];
   while (true) {
@@ -40,14 +40,14 @@ async function physicalTarget(path) {
   }
 }
 
-function assertOutputSafe(out, repoRoot) {
+export function assertOutputSafe(out, repoRoot) {
   if (isWithin(out, repoRoot)) throw new Error('Output cannot be the repository or one of its ancestors.');
   for (const input of ['src', 'vendor', 'node_modules']) {
     if (isWithin(join(repoRoot, input), out)) throw new Error(`Output cannot be inside the repository ${input} input tree.`);
   }
 }
 
-async function copyChecked(source, destination, relativePath, { omitNodeBin = false } = {}) {
+export async function copyChecked(source, destination, relativePath, { omitNodeBin = false } = {}) {
   const info = await lstat(source);
   if (info.isSymbolicLink()) throw new Error(`Refusing symbolic link in package input: ${relativePath}`);
   if (info.isDirectory()) {
@@ -64,20 +64,25 @@ async function copyChecked(source, destination, relativePath, { omitNodeBin = fa
   await copyFile(source, destination, constants.COPYFILE_EXCL);
 }
 
-async function collectInventoryFiles(root, current = '', result = []) {
+async function collectInventoryFilesIn(root, current, result, excluded) {
   const directory = current ? join(root, current) : root;
   for (const child of (await readdir(directory)).sort((a, b) => a.localeCompare(b))) {
     const relativePath = current ? `${current}/${child}` : child;
-    if (relativePath === PACKAGE_INVENTORY) continue;
+    if (excluded.has(relativePath)) continue;
     const full = join(root, ...relativePath.split('/'));
     const info = await lstat(full);
     if (info.isSymbolicLink()) throw new Error(`Package output unexpectedly contains a symbolic link: ${relativePath}`);
-    if (info.isDirectory()) await collectInventoryFiles(root, relativePath, result);
+    if (info.isDirectory()) await collectInventoryFilesIn(root, relativePath, result, excluded);
     else if (info.isFile()) {
       const bytes = await readFile(full);
       result.push({ path: relativePath, bytes: bytes.length, sha256: createHash('sha256').update(bytes).digest('hex') });
     } else throw new Error(`Package output contains a non-regular file: ${relativePath}`);
   }
+}
+
+export async function collectInventoryFiles(root, { exclude = [PACKAGE_INVENTORY] } = {}) {
+  const result = [];
+  await collectInventoryFilesIn(root, '', result, new Set(exclude));
   return result;
 }
 

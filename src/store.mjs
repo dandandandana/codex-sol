@@ -1,7 +1,7 @@
 import { createHash, randomBytes } from 'node:crypto';
 import { constants } from 'node:fs';
 import { lstat, mkdir, open, realpath, rename, statfs } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
+import { isAbsolute, join, parse, relative, resolve, sep } from 'node:path';
 import { assertContract } from './schema.mjs';
 
 const HANDLE_RE = /^[A-Za-z0-9_-]{16,128}$/u;
@@ -43,6 +43,63 @@ async function safeDirectory(path) {
   if (!stats.isDirectory() || stats.isSymbolicLink()) {
     throw new SolFault('STORAGE_ERROR', 'Runtime storage path is not a regular directory.');
   }
+}
+
+async function safeDirectoryTree(path) {
+  const absolute = resolve(path);
+  const root = parse(absolute).root;
+  let current = root;
+  for (const part of absolute.slice(root.length).split(sep).filter(Boolean)) {
+    current = join(current, part);
+    try { await mkdir(current, { mode: 0o700 }); }
+    catch (error) { if (!isFsError(error, 'EEXIST')) throw error; }
+    const stats = await lstat(current);
+    if (!stats.isDirectory() || stats.isSymbolicLink()) {
+      throw new SolFault('STORAGE_ERROR', 'Explicit cache root may not contain a symbolic link or non-directory path.');
+    }
+  }
+  return absolute;
+}
+
+function isWithin(parent, candidate) {
+  const path = relative(parent, candidate);
+  return path === '' || (path !== '..' && !path.startsWith(`..${sep}`) && !isAbsolute(path));
+}
+
+function isOperationObservationCache(workspaceRoot, cacheRoot, pathKey) {
+  const relativePath = relative(workspaceRoot, cacheRoot).split(sep).join('/');
+  const normalizedPath = process.platform === 'win32' ? relativePath.toLowerCase() : relativePath;
+  return /^\.codex\/engineering-cycle\/provider-cache\/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\/observations$/u.test(normalizedPath)
+    && isWithin(pathKey(workspaceRoot), pathKey(cacheRoot));
+}
+
+function assertCacheLocation(workspaceRoot, cacheRoot, pathKey) {
+  const workspaceKey = pathKey(workspaceRoot);
+  const cacheKey = pathKey(cacheRoot);
+  const insideWorkspace = isWithin(workspaceKey, cacheKey);
+  const containsWorkspace = isWithin(cacheKey, workspaceKey);
+  if ((insideWorkspace || containsWorkspace)
+    && !(insideWorkspace && isOperationObservationCache(workspaceKey, cacheKey, pathKey))) {
+    throw new SolFault('STORAGE_ERROR', 'Explicit observation cache root must be separate from the workspace or use the dedicated operation cache path.');
+  }
+}
+
+async function validateCacheRoot(workspaceRoot, cacheRoot) {
+  if (typeof cacheRoot !== 'string' || !isAbsolute(cacheRoot)) {
+    throw new SolFault('STORAGE_ERROR', 'Explicit observation cache root must be an absolute path.');
+  }
+  const canonicalWorkspace = await realpath(resolve(workspaceRoot));
+  const workspaceStats = await lstat(canonicalWorkspace);
+  if (!workspaceStats.isDirectory() || workspaceStats.isSymbolicLink()) {
+    throw new SolFault('STORAGE_ERROR', 'Workspace root is not a regular directory.');
+  }
+  const resolvedCache = resolve(cacheRoot);
+  const pathKey = (path) => process.platform === 'win32' ? path.toLowerCase() : path;
+  assertCacheLocation(canonicalWorkspace, resolvedCache, pathKey);
+  const safeCache = await safeDirectoryTree(resolvedCache);
+  const canonicalCache = await realpath(safeCache);
+  assertCacheLocation(canonicalWorkspace, canonicalCache, pathKey);
+  return { workspaceRoot: canonicalWorkspace, cacheRoot: canonicalCache };
 }
 
 async function requireRegular(path) {
@@ -211,16 +268,26 @@ class CaptureWriter {
 }
 
 export class ObservationStore {
-  constructor(workspaceRoot) {
+  constructor(workspaceRoot, { cacheRoot } = {}) {
     this.workspaceRoot = workspaceRoot;
     this.workspaceId = createHash('sha256').update(process.platform === 'win32' ? workspaceRoot.toLowerCase() : workspaceRoot).digest('hex');
     this.solRoot = join(workspaceRoot, '.codex', 'sol');
-    this.observationsRoot = join(this.solRoot, 'observations');
+    this.cacheRoot = cacheRoot;
+    this.observationsRoot = join(cacheRoot ?? this.solRoot, 'observations');
   }
 
   async initialize() {
+    if (this.cacheRoot !== undefined) {
+      const validated = await validateCacheRoot(this.workspaceRoot, this.cacheRoot);
+      this.workspaceRoot = validated.workspaceRoot;
+      this.workspaceId = createHash('sha256').update(process.platform === 'win32' ? this.workspaceRoot.toLowerCase() : this.workspaceRoot).digest('hex');
+      this.solRoot = join(this.workspaceRoot, '.codex', 'sol');
+      this.cacheRoot = validated.cacheRoot;
+      this.observationsRoot = join(this.cacheRoot, 'observations');
+    }
     await safeDirectory(join(this.workspaceRoot, '.codex'));
     await safeDirectory(this.solRoot);
+    if (this.cacheRoot) await safeDirectory(this.cacheRoot);
     await safeDirectory(this.observationsRoot);
     return this;
   }
@@ -394,11 +461,11 @@ export class ObservationStore {
   }
 }
 
-export async function createObservationStore(workspaceRoot) {
+export async function createObservationStore(workspaceRoot, { cacheRoot } = {}) {
   const canonical = await realpath(resolve(workspaceRoot));
   const stats = await lstat(canonical);
   if (!stats.isDirectory()) throw new SolFault('STORAGE_ERROR', 'Workspace root is not a directory.');
-  return new ObservationStore(canonical).initialize();
+  return new ObservationStore(canonical, { cacheRoot }).initialize();
 }
 
 export async function readIndexOffset(index, position) {

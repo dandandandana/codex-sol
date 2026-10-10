@@ -8,7 +8,7 @@ import { l1Validate } from '../../vendor/normify/engine/frontmatter.js';
 import { writeModuleFile } from '../../vendor/normify/engine/store.js';
 import { evaluatePolicy, l1ValidatePolicy, writePolicyFile } from '../../vendor/normify/engine/policy.js';
 import { buildProject } from '../../vendor/normify/engine/compile.js';
-import { readWorkspaceBytes, workspaceFile } from '../workspace.mjs';
+import { readWorkspaceBytes, workspaceFile } from '../workspace-read.mjs';
 import { interruptionFault, SolFault } from '../store.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
@@ -17,6 +17,30 @@ const schema = z.object({ schema_version: z.literal(1), modules: z.array(z.recor
 export const architectureQuerySchema = z.object({ paths: z.array(z.string().min(1).max(256)).max(16).default([]), capability: z.string().max(256).default('') }).strict();
 const fault = (code, message, diagnostics) => { const error = new SolFault(code, message); error.diagnostics = diagnostics; throw error; };
 const check = (signal) => { if (signal?.aborted) throw interruptionFault(signal, 'Architecture operation was interrupted.'); };
+
+/** Validate a declaration without reading its sources or invoking the compiler. */
+export function validateArchitectureDeclaration(input) {
+  let config;
+  try { config = schema.parse(input); }
+  catch { fault('ARCHITECTURE_CONFIG', 'Architecture declaration must be bounded valid JSON.'); }
+  // Bound nested policy input before passing it to the upstream YAML serializer.
+  const stack = [[config, 0]]; let count = 0;
+  while (stack.length) {
+    const [value, depth] = stack.pop();
+    if (++count > 20000 || depth > 20) fault('ARCHITECTURE_LIMIT', 'Architecture input is too deeply nested or complex.');
+    if (value && typeof value === 'object') for (const child of Object.values(value)) stack.push([child, depth + 1]);
+  }
+  const modules = [];
+  for (const module of config.modules) {
+    const validation = l1Validate(module, 'architecture.json');
+    if (!validation.module || validation.errors.length) fault('ARCHITECTURE_CONFIG', 'Normify rejected a module declaration.', validation.errors);
+    if (module.source.length > 32 || (module.apis?.length ?? 0) > 32 || (module.deps?.length ?? 0) > 64) fault('ARCHITECTURE_LIMIT', 'Module declarations exceed the supported limits.');
+    modules.push(validation.module);
+  }
+  const validation = l1ValidatePolicy(config.policy, 'architecture.json/policy');
+  if (validation.errors.length || (config.policy.rules?.length ?? 0) > 64) fault('ARCHITECTURE_CONFIG', 'Normify rejected the architecture policy.', validation.errors);
+  return { schema_version: config.schema_version, modules, policy: validation.policy };
+}
 
 function facts(text, path) {
   const result = { imports: [], exports: [], uncovered: [] };
@@ -64,27 +88,24 @@ function facts(text, path) {
 export class ArchitectureIndex {
   constructor(root, path) { this.root = root; this.path = path; }
 
-  async load(signal) {
+  async load(signal, { validateReadPath } = {}) {
     check(signal);
     const declaration = await readWorkspaceBytes(this.root, this.path, 256 * 1024, { signal });
-    let config;
-    try { config = schema.parse(JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(declaration))); }
+    let parsedDeclaration;
+    try { parsedDeclaration = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(declaration)); }
     catch { fault('ARCHITECTURE_CONFIG', 'Architecture declaration must be bounded valid JSON.'); }
-    // Bound nested policy input before passing it to the upstream YAML serializer.
-    const stack = [[config, 0]]; let count = 0;
-    while (stack.length) {
-      const [value, depth] = stack.pop();
-      if (++count > 20000 || depth > 20) fault('ARCHITECTURE_LIMIT', 'Architecture input is too deeply nested or complex.');
-      if (value && typeof value === 'object') for (const child of Object.values(value)) stack.push([child, depth + 1]);
+    const config = validateArchitectureDeclaration(parsedDeclaration);
+    const policy = config.policy;
+    const declaredSourcePaths = [...new Set(config.modules.flatMap((module) => module.source.map((source) => source.path)))];
+    for (const path of declaredSourcePaths) {
+      check(signal);
+      await workspaceFile(this.root, path, { allowMissing: true });
+      await validateReadPath?.(path);
     }
     const sourceBytes = new Map(); const ownership = new Map(); let total = 0;
     const diagnostics = []; const uncovered = []; const parsed = new Map();
     for (const module of config.modules) {
-      const validation = l1Validate(module, 'architecture.json');
-      if (!validation.module || validation.errors.length) fault('ARCHITECTURE_CONFIG', 'Normify rejected a module declaration.', validation.errors);
-      if (module.source.length > 32 || (module.apis?.length ?? 0) > 32 || (module.deps?.length ?? 0) > 64) fault('ARCHITECTURE_LIMIT', 'Module declarations exceed the supported limits.');
       for (const source of module.source) {
-        await workspaceFile(this.root, source.path, { allowMissing: true });
         const owners = ownership.get(key(source.path)) ?? [];
         if (owners.some((o) => Math.max(o.line ?? 1, source.line ?? 1) <= Math.min(o.end_line ?? Infinity, source.end_line ?? Infinity))) diagnostics.push({ code: 'OWNERSHIP_CONFLICT', blocking: true, path: source.path, modules: [...owners.map((o) => o.id), module.id] });
         owners.push({ ...source, id: module.id, uid: module.uid }); ownership.set(key(source.path), owners);
@@ -98,13 +119,11 @@ export class ArchitectureIndex {
       }
     }
     if (sourceBytes.size > 256) fault('ARCHITECTURE_LIMIT', 'Architecture sources exceed 256 files.');
-    const policy = l1ValidatePolicy(config.policy, 'architecture.json/policy');
-    if (policy.errors.length || (config.policy.rules?.length ?? 0) > 64) fault('ARCHITECTURE_CONFIG', 'Normify rejected the architecture policy.', policy.errors);
     const temporary = await mkdtemp(join(tmpdir(), 'sol-normify-'));
     let compiled;
     try {
       for (const module of config.modules) { check(signal); await writeModuleFile(temporary, module, ''); }
-      await writePolicyFile(temporary, config.policy);
+      await writePolicyFile(temporary, policy);
       const build = await buildProject(temporary, { repoRoot: this.root, requireBilingual: true });
       diagnostics.push(...build.errors.map((d) => ({ code: d.code, blocking: true, message: d.message, subject: d.subject, evidence: d.evidence })), ...build.warnings.map((d) => ({ code: d.code, blocking: false, message: d.message, subject: d.subject })));
       if (build.ok) compiled = JSON.parse(await readFile(join(temporary, 'tree.json'), 'utf8'));
@@ -141,7 +160,7 @@ export class ArchitectureIndex {
       capabilities.push({ module: module.id, uid: module.uid, symbol: api.path, protocol: api.protocol, description: api.description, state: module.state ?? 'active', verification: verified ? 'static_export' : 'declaration_only', locations });
     }
     const files = config.modules.map((module) => ({ module: { ...module, deps: edges.filter((e) => e.from_uid === module.uid).map((e) => ({ kind: 'reference', to: e.to })) } }));
-    for (const diagnostic of evaluatePolicy(policy.policy, { files, byId: new Map(files.map((f) => [f.module.id, f])) })) {
+    for (const diagnostic of evaluatePolicy(policy, { files, byId: new Map(files.map((f) => [f.module.id, f])) })) {
       diagnostics.push({ code: diagnostic.code, blocking: diagnostic.severity === 'error', message: diagnostic.message, subject: diagnostic.subject,
         origin: 'static_import', evidence: diagnostic.evidence, sources: edges.filter((e) => e.from === diagnostic.subject?.module && (!diagnostic.subject?.to || e.to === diagnostic.subject.to)).map((e) => e.source) });
     }

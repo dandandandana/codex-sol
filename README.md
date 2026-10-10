@@ -6,6 +6,8 @@ SoL-Pi 的 Codex 本地适配项目：帮助模型发现并复用项目内已登
 
 最新更新：[2026年10月6日架构与可靠性更新](CHANGELOG.md#2026年10月6日-架构与可靠性更新)；完整本地验收范围和限制见[架构演进验收](fixtures/architecture-evolution/README.md)。安装入口见[本地插件说明](PLUGIN.md)。远端 workflow 结果尚未核实；真实 GUI / Linux TUI 信任与取消，以及模型 A/B 尚未验收。项目仍处于早期开发阶段。
 
+工程循环等外部控制器可单独分发[只读组件发现 Provider](PROVIDER.md)：保留已登记的 v1 查询，新增免登记的 repository v2 文件库存、来源捕获与调用关系覆盖。该发行只有 query/read/recall 三个工具，写入与任务完成继续由调用方控制器负责。
+
 为受管文件操作提供同步验证回执（Validation Receipt），并将大输出归档成可精确召回的 ObservationPack。项目参考 SoL-Pi commit `1559b5cb12c72da4a485bc50fe326586b216fb19`；[Notion 开工单](https://app.notion.com/p/3e831ddb72338111ada4dffbdd87713b) 保留 V0.1 清单与后续设计。V0.1 接口和范围以本仓库合同为准；下一阶段方向见本文末节。
 
 当前实现与职责树见 [architecture-current.md](architecture-current.md)，设计沿用 [architecture.md](architecture.md)。架构模式已接通查询、Context、变更登记、绑定写入、维护复核与完成、变更状态注入，以及有限宿主范围的 PreToolUse/Stop 门禁和本地插件装配；当前宿主边界见 [Host 验收](fixtures/host/README.md)。IF-004、Context 与 Host 是分阶段证据，不合并成一个模型自主完成声明；旧阶段结果分别保留于 [闭环验收](fixtures/closure/README.md)、[Context 状态验收](fixtures/context-state/README.md) 和 [历史能力验收](fixtures/current-stage/README.md)。
